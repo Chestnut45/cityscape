@@ -28,7 +28,8 @@ class Camera
         void UpdateViewport(int width, int height);
 
         // Updates the Uniform Buffer Object associated with this camera
-        void UpdateUBO();
+        void UpdateUBO() const;
+        
         
         // Accessors
         inline const glm::vec3& GetDirection() { return direction; };
@@ -61,10 +62,10 @@ class Camera
         float yaw = -90;
         float pitch = 0;
 
-        // OpenGL objects / state
+        // OpenGL objects
         GLuint ubo;
 
-        // Helper methods for updating matrices and buffer objects
+        // Helper methods for updating matrices
         void UpdateView();
         void UpdateProjection();
 };

@@ -1,10 +1,15 @@
 #pragma once
 
 #include <iostream>
+#include <unordered_map>
 
-#include "../wolf/wolf.h"
+// Required for hashing ivec3s into an unordered map
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+
+#include "block.hpp"
 #include "camera.hpp"
-#include "plane.hpp"
+#include "shader.hpp"
 
 class Cityscape: public wolf::App
 {
@@ -22,6 +27,9 @@ class Cityscape: public wolf::App
         // Main camera
         Camera* camera = nullptr;
 
+        // Simulation list
+        std::unordered_map<glm::ivec3, Block> loadedBlocks;
+
         // Input handling
         glm::vec2 prevMousePos;
         float mouseSensitivity = 8.0f;
@@ -29,13 +37,4 @@ class Cityscape: public wolf::App
 
         // Timing
         float elapsedTime = 0;
-        GLuint timeLoc;
-
-
-
-        // OpenGL Objects
-        GLuint planeShader = 0;
-
-        // Simulation
-        Plane* plane = nullptr;
 };

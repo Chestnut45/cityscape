@@ -97,7 +97,7 @@ void Camera::UpdateProjection()
 }
 
 // Updates the buffer to contain the view data
-void Camera::UpdateUBO()
+void Camera::UpdateUBO() const
 {
     // Combine view and projection into one matrix
     glm::mat4 viewProj = proj * view;

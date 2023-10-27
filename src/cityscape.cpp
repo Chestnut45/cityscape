@@ -25,7 +25,7 @@ Cityscape::Cityscape() : App("Cityscape")
 // Cleanup
 Cityscape::~Cityscape()
 {
-	printf("Destroying Cityscape\n");
+	std::cout << "Destroying Cityscape..." << std::endl;
     
     delete camera;
 }

@@ -16,19 +16,23 @@ class Cityscape: public wolf::App
         void render() override;
 
     private:
+        // Main camera
         Camera* camera = nullptr;
 
         // Input handling
         glm::vec2 prevMousePos;
+        float mouseSensitivity = 8.0f;
+        float cameraSpeed = 4.0f;
+
+        // Timing
+        float elapsedTime = 0;
+        GLuint timeLoc;
+
+
 
         // OpenGL Objects
         GLuint planeShader = 0;
-        
-        // View properties
-        glm::mat4 view;
-        GLuint projLoc, viewLoc, timeLoc;
 
         // Simulation
         Plane* plane = nullptr;
-        float elapsedTime = 0;
 };

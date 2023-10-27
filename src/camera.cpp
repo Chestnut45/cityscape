@@ -88,16 +88,12 @@ void Camera::UpdateView()
 
     // Update view matrix
     view = glm::lookAt(position, position + direction, up);
-
-    UpdateUBO();
 }
 
 // Update the camera's projection matrix
 void Camera::UpdateProjection()
 {
     proj = glm::perspective(glm::radians(fov), aspect, near, far);
-
-    UpdateUBO();
 }
 
 // Updates the buffer to contain the view data

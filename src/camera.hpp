@@ -1,11 +1,11 @@
 #pragma once
 
-// GLM math includes
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
 
+#include "../wolf/wolf.h"
 #include "../thirdparty/glew/include/GL/glew.h"
 
 // Provides an interface to manipulate and update a camera used for rendering
@@ -26,12 +26,15 @@ class Camera
 
         // Needs to be public so caller can tell the camera when the window size changes
         void UpdateViewport(int width, int height);
+
+        // Updates the Uniform Buffer Object associated with this camera
+        void UpdateUBO();
         
         // Accessors
-        const glm::mat4& GetView() { return view; };
-        const glm::mat4& GetProj() { return proj; };
-        int GetWidth() { return width; };
-        int GetHeight() { return height; };
+        inline const glm::vec3& GetDirection() { return direction; };
+        inline const glm::vec3& GetRight() { return right; };
+        inline int GetWidth() { return width; };
+        inline int GetHeight() { return height; };
 
     private:
         // Camera properties
@@ -64,5 +67,4 @@ class Camera
         // Helper methods for updating matrices and buffer objects
         void UpdateView();
         void UpdateProjection();
-        void UpdateUBO();
 };

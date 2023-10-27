@@ -15,6 +15,9 @@ class Cityscape: public wolf::App
         void update(float dt) override;
         void render() override;
 
+        // Input handling
+        void ProcessInput(float dt);
+
     private:
         // Main camera
         Camera* camera = nullptr;

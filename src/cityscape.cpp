@@ -58,21 +58,8 @@ void Cityscape::update(float dt)
         camera->UpdateViewport(m_width, m_height);
     }
 
-    // Mouse input
-    glm::vec2 mousePos = getMousePos();
-    glm::vec2 mouseOffset = (mousePos - prevMousePos) * dt * mouseSensitivity;
-
-    // Rotate the camera via mouse movement
-    camera->Rotate(mouseOffset.x, -mouseOffset.y);
-
-    // Keep track of previous mouse position
-    prevMousePos = mousePos;
-
-    // Keyboard input
-    if (isKeyDown(GLFW_KEY_W)) camera->Translate(camera->GetDirection() * dt * cameraSpeed);
-    if (isKeyDown(GLFW_KEY_S)) camera->Translate(-camera->GetDirection() * dt * cameraSpeed);
-    if (isKeyDown(GLFW_KEY_A)) camera->Translate(-camera->GetRight() * dt * cameraSpeed);
-    if (isKeyDown(GLFW_KEY_D)) camera->Translate(camera->GetRight() * dt * cameraSpeed);
+    // Process all input for this frame
+    ProcessInput(dt);
 
     // Update the buffer containing camera data
     camera->UpdateUBO();
@@ -92,4 +79,24 @@ void Cityscape::render()
 
     // Draw plane
     plane->Draw(planeShader);
+}
+
+// Handles all input for this demo
+void Cityscape::ProcessInput(float dt)
+{
+    // Mouse input
+    glm::vec2 mousePos = getMousePos();
+    glm::vec2 mouseOffset = (mousePos - prevMousePos) * dt * mouseSensitivity;
+
+    // Rotate the camera according to mouse movement
+    camera->Rotate(mouseOffset.x, -mouseOffset.y);
+
+    // Move the camera according to WASD
+    if (isKeyDown(GLFW_KEY_W)) camera->Translate(camera->GetDirection() * dt * cameraSpeed);
+    if (isKeyDown(GLFW_KEY_S)) camera->Translate(-camera->GetDirection() * dt * cameraSpeed);
+    if (isKeyDown(GLFW_KEY_A)) camera->Translate(-camera->GetRight() * dt * cameraSpeed);
+    if (isKeyDown(GLFW_KEY_D)) camera->Translate(camera->GetRight() * dt * cameraSpeed);
+
+    // Keep track of previous mouse position
+    prevMousePos = mousePos;
 }

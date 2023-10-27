@@ -24,6 +24,13 @@ Cityscape::Cityscape() : App("Cityscape")
         plane = new Plane(31, planeShader);
         plane->SetScale(4, 1, 4);
         plane->SetColor(0.2f, 0.75f, 0.8f, 1.0f);
+
+        // Input initialization
+        glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        if (glfwRawMouseMotionSupported())
+        {
+            glfwSetInputMode(getWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        }
 	}
 	
     std::cout << "Successfully initialized Cityscape" << std::endl;

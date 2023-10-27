@@ -1,0 +1,9 @@
+#!/bin/bash
+echo 'Get latest thirdparty code'
+cd thirdparty && git pull origin
+echo 'Get latest wolf code'
+cd ../wolf && git pull origin
+echo 'Get latest sample framework code'
+cd ../samplefw && git pull origin
+echo 'Get latest sample code'
+git pull origin

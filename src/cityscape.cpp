@@ -19,6 +19,7 @@ Cityscape::Cityscape() : App("Cityscape")
     }
     prevMousePos = getMousePos();
 	
+    // Success msg
     std::cout << "Successfully initialized Cityscape" << std::endl;
 }
 

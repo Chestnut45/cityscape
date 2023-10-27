@@ -10,6 +10,8 @@ Cityscape::Cityscape() : App("Cityscape")
     camera = new Camera();
     camera->SetPosition(glm::vec3(0, 2, 4));
 
+    // TODO: Create a single Block for testing
+
     // Initialize mouse input
     glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (glfwRawMouseMotionSupported())

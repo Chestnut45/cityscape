@@ -30,7 +30,7 @@ class Cityscape: public wolf::App
         // Simulation list
         std::unordered_map<glm::ivec3, Block> loadedBlocks;
 
-        // Input handling
+        // Input
         glm::vec2 prevMousePos;
         float mouseSensitivity = 8.0f;
         float cameraSpeed = 4.0f;

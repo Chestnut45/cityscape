@@ -86,3 +86,15 @@ void Shader::BindUniformBlock(const std::string& blockName, GLuint bindingPoint)
     GLuint index = glGetUniformBlockIndex(programID, blockName.c_str());
     glUniformBlockBinding(programID, index, bindingPoint);
 }
+
+// Sets a uniform int value in the shader
+void Shader::SetUniform(const std::string& name, int value)
+{
+    glUniform1i(glGetUniformLocation(programID, name.c_str()), value);
+}
+
+// Sets a uniform float value in the shader
+void Shader::SetUniform(const std::string& name, float value)
+{
+    glUniform1f(glGetUniformLocation(programID, name.c_str()), value);
+}

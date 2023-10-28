@@ -11,7 +11,7 @@ Cityscape::Cityscape() : App("Cityscape")
     camera->SetPosition(glm::vec3(0, 2, 4));
 
     // Generate a 10x10 grid of city blocks
-
+    
 
     // Initialize mouse input
     glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);

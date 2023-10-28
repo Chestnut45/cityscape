@@ -2,8 +2,9 @@
 
 #include <iostream>
 
-#include "camera.hpp"
-#include "shader.hpp"
+// Components and resources
+#include "components/camera.hpp"
+#include "resources/shader.hpp"
 
 // EnTT: https://github.com/skypjack/entt
 #include "entt.hpp"

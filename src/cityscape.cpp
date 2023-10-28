@@ -11,21 +11,7 @@ Cityscape::Cityscape() : App("Cityscape")
     camera->SetPosition(glm::vec3(0, 2, 4));
 
     // Initialize the sky object
-    sky = new Sky({"data/textures/right.jpg",
-                   "data/textures/left.jpg",
-                   "data/textures/top.jpg",
-                   "data/textures/bottom.jpg",
-                   "data/textures/front.jpg",
-                   "data/textures/back.jpg"},
-
-                  {"data/textures/nightRight.jpg",
-                   "data/textures/nightLeft.jpg",
-                   "data/textures/nightTop.jpg",
-                   "data/textures/nightBottom.jpg",
-                   "data/textures/nightFront.jpg",
-                   "data/textures/nightBack.jpg"},
-
-                  "data/sky.vs", "data/sky.fs");
+    sky = new Sky("data/skyboxDay", "data/skyboxNight", "data/sky.vs", "data/sky.fs");
 
     // Generate a 10x10 grid of city blocks
     

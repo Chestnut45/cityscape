@@ -47,13 +47,27 @@ static const GLfloat SKYBOX_DATA[] =
 };
 
 // Contruct a sky component
-// dayFaces: a vector of string filepaths to the 6 faces of the day cubemap
-// nightFaces: a vector of string filepaths to the 6 faces of the night cubemap
+// daySkyboxPath, nightSkyboxPath: path to a folder containing skybox face images
 // skyVS, skyFS: paths to sky vertex / fragment shader sources
 // NOTE: Shader source should contain 2 samplerCubes named "dayCube" and "nightCube"
-Sky::Sky(const std::vector<std::string>& dayFaces,
-         const std::vector<std::string>& nightFaces,
-         const std::string& skyVS, const std::string& skyFS) : dayBox(dayFaces), nightBox(nightFaces)
+Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, const std::string& skyVS, const std::string& skyFS)
+    : dayBox({
+        daySkyboxPath + "/right.png",
+        daySkyboxPath + "/left.png",
+        daySkyboxPath + "/top.png",
+        daySkyboxPath + "/bottom.png",
+        daySkyboxPath + "/front.png",
+        daySkyboxPath + "/back.png"
+    }),
+    
+    nightBox({
+        nightSkyboxPath + "/right.png",
+        nightSkyboxPath + "/left.png",
+        nightSkyboxPath + "/top.png",
+        nightSkyboxPath + "/bottom.png",
+        nightSkyboxPath + "/front.png",
+        nightSkyboxPath + "/back.png"
+    })
 {
     // Load source for skybox shader and link
     skyShader.LoadShaderSource(GL_VERTEX_SHADER, skyVS);

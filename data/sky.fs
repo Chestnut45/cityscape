@@ -11,5 +11,5 @@ out vec4 finalColor;
 void main()
 {
     // Sample the skybox directly for final color
-    finalColor = texture(nightCube, texCoords);
+    finalColor = texture(dayCube, texCoords);
 }

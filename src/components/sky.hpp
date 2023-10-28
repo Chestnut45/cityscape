@@ -21,10 +21,7 @@ class Sky
     // Interface
     public:
 
-        Sky(const std::vector<std::string>& dayFaces,
-            const std::vector<std::string>& nightFaces,
-            const std::string& skyVS, const std::string& skyFS);
-
+        Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, const std::string& skyVS, const std::string& skyFS);
         ~Sky();
 
         // Delete copy constructor/assignment

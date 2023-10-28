@@ -64,12 +64,26 @@ Sky::Sky(const std::vector<std::string>& dayFaces,
     skyShader.Use();
     skyShader.SetUniform("dayCube", (int)SkyTextureUnit::Day);
     skyShader.SetUniform("nightCube", (int)SkyTextureUnit::Night);
+
+    // If first instance, initialize static resources
+    if (refCount == 0)
+    {
+
+    }
+
+    refCount++;
 }
 
 // Cleanup
-// NOTE: Resources manage themselves, so no explicit cleanup required here :)
 Sky::~Sky()
 {
+    refCount--;
+
+    // If last instance, cleanup static resources
+    if (refCount == 0)
+    {
+
+    }
 }
 
 // Renders the sky

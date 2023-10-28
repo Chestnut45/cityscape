@@ -5,6 +5,8 @@
 
 #include "../resources/cubemap.hpp"
 #include "../resources/shader.hpp"
+#include "../resources/gpubuffer.hpp"
+#include "../resources/vertexattributes.hpp"
 
 // Centralize texture unit bindings
 enum class SkyTextureUnit : int
@@ -42,4 +44,7 @@ class Sky
         Cubemap dayBox;
         Cubemap nightBox;
         Shader skyShader;
+
+        // Reference counting for static resources
+        static inline int refCount = 0;
 };

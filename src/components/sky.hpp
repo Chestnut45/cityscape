@@ -13,11 +13,12 @@ enum class SkyTextureUnit : int
     Night = 1
 };
 
+// Sky component, handles 2 cubemaps representing day and night skyboxes
 class Sky
 {
     // Interface
     public:
-        // Initialization
+
         Sky(const std::vector<std::string>& dayFaces,
             const std::vector<std::string>& nightFaces,
             const std::string& skyVS, const std::string& skyFS);

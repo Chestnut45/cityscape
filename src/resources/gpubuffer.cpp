@@ -7,8 +7,8 @@ GPUBuffer::GPUBuffer(GLuint size, BufferType type) : size(size)
     data = new unsigned char[size];
 
     // Initialize buffer object
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glGenBuffers(1, &bufferID);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferID);
     
     // Create data store
     switch (type)
@@ -34,7 +34,7 @@ GPUBuffer::~GPUBuffer()
     delete[] data;
 
     // Delete OpenGL buffer object
-    glDeleteBuffers(1, &buffer);
+    glDeleteBuffers(1, &bufferID);
 }
 
 // Writes data into the internal buffer, if it would fit
@@ -48,8 +48,9 @@ void GPUBuffer::Write(const void* const data, GLuint size)
     }
 
     // Copy the data into the buffer
-    memcpy((void*)(buffer + byteOffset), data, size);
+    memcpy((void*)(this->data + byteOffset), data, size);
 
+    // Increase byte offset accordingly
     byteOffset += size;
 }
 
@@ -60,7 +61,7 @@ void GPUBuffer::Flush()
     if (byteOffset == 0) return;
 
     // Upload the data
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferID);
     glBufferSubData(GL_ARRAY_BUFFER, 0, byteOffset, data);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -71,11 +72,11 @@ void GPUBuffer::Flush()
 // Binds the buffer to the specified target
 void GPUBuffer::Bind(GLenum target)
 {
-    glBindBuffer(target, buffer);
+    glBindBuffer(target, bufferID);
 }
 
 // Binds the buffer to the specified target and index
 void GPUBuffer::BindBase(GLenum target, GLuint index)
 {
-    glBindBufferBase(target, index, buffer);
+    glBindBufferBase(target, index, bufferID);
 }

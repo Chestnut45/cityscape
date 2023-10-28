@@ -12,7 +12,6 @@
 class Cityscape: public wolf::App
 {
     public:
-        // Initialization / cleanup
         Cityscape();
         ~Cityscape();
 

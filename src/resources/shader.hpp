@@ -5,13 +5,12 @@
 #include <fstream>
 #include <iostream>
 
-#include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types
+#include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types / functions
 
 // Shader management class
 class Shader
 {
     public:
-        // Initialization
         Shader();
         ~Shader();
 

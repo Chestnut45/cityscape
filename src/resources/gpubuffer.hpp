@@ -3,7 +3,7 @@
 #include <iostream>
 #include "string.h" // For memcpy
 
-#include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types
+#include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types / functions
 
 enum class BufferType
 {
@@ -35,6 +35,9 @@ class GPUBuffer
         void Bind(GLenum target);
         void BindBase(GLenum target, GLuint index);
 
+        // Accessors
+        inline GLuint GetName() const { return bufferID; };
+
     // Data / implementation
     private:
         // Internal buffer
@@ -43,5 +46,5 @@ class GPUBuffer
         const GLuint size;
 
         // OpenGL buffer object handle
-        GLuint buffer;
+        GLuint bufferID;
 };

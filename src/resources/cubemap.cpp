@@ -14,11 +14,11 @@ Cubemap::Cubemap(const std::vector<std::string>& faces)
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
     // Load the face files from the list of filenames
-    int width, height, nrChannels;
+    int width, height, channelCount;
     for (unsigned int i = 0; i < faces.size(); i++)
     {
         // Load the face image data
-        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &channelCount, 0);
 
         if (data)
         {
@@ -28,7 +28,7 @@ Cubemap::Cubemap(const std::vector<std::string>& faces)
         }
         else
         {
-            printf("ERROR: Couldn't load file %s\n", faces[i].c_str());
+            std::cout << "ERROR: Couldn't load file: " << faces[i].c_str() << std::endl;
             stbi_image_free(data);
         }
     }

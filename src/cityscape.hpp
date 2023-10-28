@@ -6,7 +6,7 @@
 #include "shader.hpp"
 
 // EnTT: https://github.com/skypjack/entt
-#include "../thirdparty/entt.hpp"
+#include "entt.hpp"
 
 class Cityscape: public wolf::App
 {

@@ -1,11 +1,7 @@
 #pragma once
 
-class Building
+struct Building
 {
-    public:
-        Building();
-        ~Building();
-
-    private:
-        // Vertex data...
+    Building();
+    ~Building();
 };

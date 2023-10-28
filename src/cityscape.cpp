@@ -10,7 +10,8 @@ Cityscape::Cityscape() : App("Cityscape")
     camera = new Camera();
     camera->SetPosition(glm::vec3(0, 2, 4));
 
-    // TODO: Create a single Block for testing
+    // Generate a 10x10 grid of city blocks
+
 
     // Initialize mouse input
     glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -45,8 +46,8 @@ void Cityscape::update(float dt)
     // Process all input for this frame
     ProcessInput(dt);
 
-    // Update the buffer containing camera data
-    camera->UpdateUBO();
+    // Potential TODO: Infinitely generate / unload city blocks as the camera moves around
+    // Requisite Guarantee: 400 MINIMUM buildings must be loaded at any given time
 }
 
 void Cityscape::render()
@@ -54,12 +55,18 @@ void Cityscape::render()
     // Clear the framebuffer
 	glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Update the camera's UBO so all shaders have access to the new values
+    camera->UpdateUBO();
+
+    // TODO: Iterate registry and render all components
+    // NOTE: Should be simple; component.Draw() followed by Component::FlushDrawCommands() after iteration (batching)
 }
 
 // Handles all input for this demo
 void Cityscape::ProcessInput(float dt)
 {
-    // Mouse input
+    // Calculate mouse movement
     glm::vec2 mousePos = getMousePos();
     glm::vec2 mouseOffset = (mousePos - prevMousePos) * dt * mouseSensitivity;
 

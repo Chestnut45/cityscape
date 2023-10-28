@@ -67,6 +67,7 @@ void Cityscape::render()
     // Update the camera's UBO so all shaders have access to the new values
     camera->UpdateUBO();
 
+    // Draw the sky
     sky->Draw();
 
     // TODO: Iterate registry and render all components

@@ -51,6 +51,9 @@ void Cityscape::update(float dt)
     // Process all input for this frame
     ProcessInput(dt);
 
+    // Update sky
+    sky->SetTOD((sin(elapsedTime) + 1) / 2);
+
     // Potential TODO: Infinitely generate / unload city blocks as the camera moves around
     // Requisite Guarantee: 400 MINIMUM buildings must be loaded at any given time
 }

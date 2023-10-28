@@ -112,6 +112,15 @@ Sky::~Sky()
     }
 }
 
+// Set normalized time of day (0 = day, 1 = night)
+// This value is used by the shader to interpolate between
+// the day skybox and the night skybox
+void Sky::SetTOD(float time)
+{
+    skyShader.Use();
+    skyShader.SetUniform("time", time);
+}
+
 // Renders the sky
 void Sky::Draw()
 {

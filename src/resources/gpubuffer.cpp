@@ -1,0 +1,81 @@
+#include "gpubuffer.hpp"
+
+// Constructor
+GPUBuffer::GPUBuffer(GLuint size, BufferType type) : size(size)
+{
+    // Initialize internal buffer
+    data = new unsigned char[size];
+
+    // Initialize buffer object
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    
+    // Create data store
+    switch (type)
+    {
+        case BufferType::Dynamic:
+            // Create the data store with glBufferData so it can be resized / orphaned
+            glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
+            break;
+        
+        case BufferType::Immutable:
+            // Create an immutable data store
+            glBufferStorage(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_DRAW);
+            break;
+    }
+
+    // Unbind before returning
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+GPUBuffer::~GPUBuffer()
+{
+    // Free internal buffer
+    delete[] data;
+
+    // Delete OpenGL buffer object
+    glDeleteBuffers(1, &buffer);
+}
+
+// Writes data into the internal buffer, if it would fit
+void GPUBuffer::Write(const void* const data, GLuint size)
+{
+    // Ensure buffer has space for write
+    if (byteOffset + size > this->size)
+    {
+        std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
+        return;
+    }
+
+    // Copy the data into the buffer
+    memcpy((void*)(buffer + byteOffset), data, size);
+
+    byteOffset += size;
+}
+
+// Flushes the internal buffer to the OpenGL buffer object
+void GPUBuffer::Flush()
+{
+    // Don't bother if buffer hasn't been written to since last flush
+    if (byteOffset == 0) return;
+
+    // Upload the data
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, byteOffset, data);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // Reset byte offset
+    byteOffset = 0;
+}
+
+// Binds the buffer to the specified target
+void GPUBuffer::Bind(GLenum target)
+{
+    glBindBuffer(target, buffer);
+}
+
+// Binds the buffer to the specified target and index
+void GPUBuffer::BindBase(GLenum target, GLuint index)
+{
+    glBindBufferBase(target, index, buffer);
+}

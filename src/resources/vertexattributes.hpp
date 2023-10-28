@@ -20,7 +20,7 @@ class VertexAttributes
 
         // Adds an attribute and associates the currently bound buffer with that attribute
         // NOTE: This object must be bound before any calls to Add(), else they are invalid (undefined behaviour)
-        void Add(GLuint numComponents, GLenum type, GLuint stride = 0, GLuint offset = 0);
+        void Add(GLuint numComponents, GLenum type, GLuint stride = 0, size_t offset = 0);
 
         // Binding methods
         void Bind();

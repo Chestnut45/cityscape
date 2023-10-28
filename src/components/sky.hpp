@@ -8,7 +8,7 @@
 #include "../resources/gpubuffer.hpp"
 #include "../resources/vertexattributes.hpp"
 
-// Centralize texture unit bindings
+// Centralize texture unit bindings so we don't have a bunch of magic numbers everywhere
 enum class SkyTextureUnit : int
 {
     Day = 0,
@@ -40,11 +40,17 @@ class Sky
 
     // Data / implementation
     private:
-        // Resources
+        // Instance resources
         Cubemap dayBox;
         Cubemap nightBox;
         Shader skyShader;
 
+        // Static resources
+        static inline GPUBuffer* skyboxVBO = nullptr;
+        static inline VertexAttributes* skyboxVAO = nullptr;
+
         // Reference counting for static resources
         static inline int refCount = 0;
 };
+
+GLenum glCheckError();

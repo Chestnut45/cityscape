@@ -1,26 +1,24 @@
 #include "gpubuffer.hpp"
 
 // Constructor
-GPUBuffer::GPUBuffer(GLuint size, BufferType type) : size(size)
+GPUBuffer::GPUBuffer(GLuint size, BufferType type, const void* const data) : size(size)
 {
     // Initialize internal buffer
-    data = new unsigned char[size];
+    this->data = new unsigned char[size];
 
     // Initialize buffer object
     glGenBuffers(1, &bufferID);
     glBindBuffer(GL_ARRAY_BUFFER, bufferID);
     
-    // Create data store
+    // Create the data store with glBufferData so it can be resized / orphaned
     switch (type)
     {
         case BufferType::Dynamic:
-            // Create the data store with glBufferData so it can be resized / orphaned
-            glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, size, data ? data : NULL, GL_DYNAMIC_DRAW);
             break;
         
-        case BufferType::Immutable:
-            // Create an immutable data store
-            glBufferStorage(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_DRAW);
+        case BufferType::Static:
+            glBufferData(GL_ARRAY_BUFFER, size, data ? data : NULL, GL_STATIC_DRAW);
             break;
     }
 

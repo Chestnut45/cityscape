@@ -5,6 +5,8 @@
 #include "../../wolf/stb_image.h"
 
 // Constructor
+// faces should contain 6 file paths (relative to project directory)
+// to ___ format image files in the order: right, left, top, bottom, front, back
 Cubemap::Cubemap(const std::vector<std::string>& faces)
 {
     // Generate resources
@@ -28,8 +30,8 @@ Cubemap::Cubemap(const std::vector<std::string>& faces)
         }
         else
         {
-            std::cout << "ERROR: Couldn't load file: " << faces[i].c_str() << std::endl;
             stbi_image_free(data);
+            std::cout << std::string("ERROR: Couldn't load cubemap texture: ").append(faces[i].c_str()) << std::endl;
         }
     }
 

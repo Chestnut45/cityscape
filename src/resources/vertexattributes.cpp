@@ -14,7 +14,7 @@ VertexAttributes::~VertexAttributes()
 
 // Adds an attribute and associates the currently bound buffer with that attribute
 // NOTE: This object must be bound before any calls to Add(), else they are invalid (undefined behaviour)
-void VertexAttributes::Add(GLuint numComponents, GLenum type, GLuint stride = 0, GLuint offset = 0)
+void VertexAttributes::Add(GLuint numComponents, GLenum type, GLuint stride, size_t offset)
 {
     glVertexAttribPointer(attribCount, numComponents, type, GL_FALSE, stride, (void*)offset);
     glEnableVertexAttribArray(attribCount);

@@ -4,6 +4,7 @@
 
 // Components and resources
 #include "components/camera.hpp"
+#include "components/sky.hpp"
 #include "resources/shader.hpp"
 
 // EnTT: https://github.com/skypjack/entt
@@ -31,6 +32,7 @@ class Cityscape: public wolf::App
     private:
         // Main camera
         Camera* camera = nullptr;
+        Sky* sky = nullptr;
 
         // Simulation list
         // Each entity in this registry represents one city block

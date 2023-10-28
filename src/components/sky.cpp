@@ -64,11 +64,20 @@ Sky::Sky(const std::vector<std::string>& dayFaces,
     skyShader.Use();
     skyShader.SetUniform("dayCube", (int)SkyTextureUnit::Day);
     skyShader.SetUniform("nightCube", (int)SkyTextureUnit::Night);
+    skyShader.BindUniformBlock("CameraBlock", 0);
 
     // If first instance, initialize static resources
     if (refCount == 0)
     {
+        // Create VBO for skybox data
+        skyboxVBO = new GPUBuffer(sizeof(SKYBOX_DATA), BufferType::Static, SKYBOX_DATA);
+        skyboxVBO->Bind(GL_ARRAY_BUFFER);
 
+        // Describe vertex attributes
+        skyboxVAO = new VertexAttributes();
+        skyboxVAO->Bind();
+        skyboxVAO->Add(3, GL_FLOAT);
+        skyboxVAO->Unbind();
     }
 
     refCount++;
@@ -79,10 +88,13 @@ Sky::~Sky()
 {
     refCount--;
 
+    // Non-static () resources manage themselves
+
     // If last instance, cleanup static resources
     if (refCount == 0)
     {
-
+        delete skyboxVBO;
+        delete skyboxVAO;
     }
 }
 
@@ -95,7 +107,7 @@ void Sky::Draw()
     glDepthFunc(GL_LEQUAL);
 
     // TODO: Bind VertexAttributes
-    glBindVertexArray(vao);
+    skyboxVAO->Bind();
 
     // Bind day / night cubemaps to texture units
     dayBox.Bind((int)SkyTextureUnit::Day);

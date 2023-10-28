@@ -8,7 +8,7 @@
 enum class BufferType
 {
     Dynamic,
-    Immutable
+    Static
 };
 
 class GPUBuffer
@@ -16,7 +16,7 @@ class GPUBuffer
     // Interface
     public:
         // Initialization
-        GPUBuffer(GLuint size, BufferType type);
+        GPUBuffer(GLuint size, BufferType type, const void* const data = nullptr);
         ~GPUBuffer();
 
         // Delete copy constructor/assignment

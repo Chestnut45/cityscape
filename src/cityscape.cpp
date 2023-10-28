@@ -10,6 +10,23 @@ Cityscape::Cityscape() : App("Cityscape")
     camera = new Camera();
     camera->SetPosition(glm::vec3(0, 2, 4));
 
+    // Initialize the sky object
+    sky = new Sky({"data/textures/right.jpg",
+                   "data/textures/left.jpg",
+                   "data/textures/top.jpg",
+                   "data/textures/bottom.jpg",
+                   "data/textures/front.jpg",
+                   "data/textures/back.jpg"},
+
+                  {"data/textures/nightRight.jpg",
+                   "data/textures/nightLeft.jpg",
+                   "data/textures/nightTop.jpg",
+                   "data/textures/nightBottom.jpg",
+                   "data/textures/nightFront.jpg",
+                   "data/textures/nightBack.jpg"},
+
+                  "data/sky.vs", "data/sky.fs");
+
     // Generate a 10x10 grid of city blocks
     
 
@@ -31,7 +48,9 @@ Cityscape::~Cityscape()
 {
 	std::cout << "Destroying Cityscape..." << std::endl;
     
+    // Free resources
     delete camera;
+    delete sky;
 }
 
 void Cityscape::update(float dt)
@@ -58,6 +77,8 @@ void Cityscape::render()
 
     // Update the camera's UBO so all shaders have access to the new values
     camera->UpdateUBO();
+
+    sky->Draw();
 
     // TODO: Iterate registry and render all components
     // NOTE: Should be simple; component.Draw() followed by Component::FlushDrawCommands() after iteration (batching)

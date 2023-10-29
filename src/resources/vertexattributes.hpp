@@ -1,6 +1,11 @@
 #pragma once
 
+#include <iostream>
+
 #include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types / functions
+
+#include "gpubuffer.hpp"
+#include "vertex.hpp"
 
 // RAII VAO wrapper
 class VertexAttributes
@@ -8,6 +13,7 @@ class VertexAttributes
     // Interface
     public:
         VertexAttributes();
+        VertexAttributes(VertexFormat format, const GPUBuffer* const buffer);
         ~VertexAttributes();
 
         // Delete copy constructor/assignment

@@ -43,15 +43,21 @@ class GPUBuffer
 
         // Accessors
         inline GLuint GetName() const { return bufferID; };
+        inline BufferType GetType() const { return type; };
 
     // Data / implementation
     private:
+        // Should know their own buffer type, small cost
+        BufferType type;
+
         // Internal buffer
         const unsigned char * data = nullptr;
-        unsigned int byteOffset = 0;
         const GLuint size;
 
-        // OpenGL buffer object handle
+        // Current write offset
+        unsigned int byteOffset = 0;
+
+        // OpenGL object handles
         GLuint bufferID;
         GLenum uploadTarget;
 
@@ -63,7 +69,6 @@ class GPUBuffer
                 std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
                 return false;
             }
-            
             return true;
         };
 };

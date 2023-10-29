@@ -33,8 +33,8 @@ class Sky
         void operator=(Sky&& other) = delete;
 
         // Set normalized time of day (0 = day, 1 = night)
-        // This value is used by the shader to interpolate between
-        // the day skybox and the night skybox
+        // This is kept simple so users can perform their own timing,
+        // and update the sky separately
         void SetTOD(float time);
 
         // Renders the sky

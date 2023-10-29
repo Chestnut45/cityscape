@@ -5,6 +5,7 @@ GPUBuffer::GPUBuffer(GLuint size, BufferType type, const void* const data) : siz
 {
     // Initialize internal buffer
     this->data = new unsigned char[size];
+    this->type = type;
 
     // Initialize buffer object
     glGenBuffers(1, &bufferID);

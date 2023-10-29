@@ -12,6 +12,8 @@ enum class BufferType
 {
     DynamicVertex,
     StaticVertex,
+    DynamicIndex,
+    StaticIndex,
     Uniform,
 };
 
@@ -38,6 +40,7 @@ class GPUBuffer
         void Flush();
 
         // State management
+        void Bind();
         void Bind(GLenum target);
         void BindBase(GLenum target, GLuint index);
 
@@ -59,7 +62,7 @@ class GPUBuffer
 
         // OpenGL object handles
         GLuint bufferID;
-        GLenum uploadTarget;
+        GLenum defaultTarget;
 
         // Helper method to ensure buffer writes are safe
         inline bool CanWrite(size_t bytes) const

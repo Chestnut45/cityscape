@@ -14,24 +14,48 @@ GPUBuffer::GPUBuffer(GLuint size, BufferType type, const void* const data) : siz
     switch (type)
     {
         case BufferType::DynamicVertex:
-            uploadTarget = GL_ARRAY_BUFFER;
-            glBindBuffer(GL_ARRAY_BUFFER, bufferID);
-            glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+            defaultTarget = GL_ARRAY_BUFFER;
+
+            glBindBuffer(defaultTarget, bufferID);
+            glBufferData(defaultTarget, size, data, GL_DYNAMIC_DRAW);
+            glBindBuffer(defaultTarget, 0);
             break;
         
         case BufferType::StaticVertex:
-            uploadTarget = GL_ARRAY_BUFFER;
-            glBindBuffer(GL_ARRAY_BUFFER, bufferID);
-            glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+            defaultTarget = GL_ARRAY_BUFFER;
+
+            glBindBuffer(defaultTarget, bufferID);
+            glBufferData(defaultTarget, size, data, GL_STATIC_DRAW);
+            glBindBuffer(defaultTarget, 0);
+            break;
+        
+        case BufferType::DynamicIndex:
+
+            defaultTarget = GL_ELEMENT_ARRAY_BUFFER;
+
+            glBindBuffer(defaultTarget, bufferID);
+            glBufferData(defaultTarget, size, data, GL_DYNAMIC_DRAW);
+            glBindBuffer(defaultTarget, 0);
+            break;
+        
+        case BufferType::StaticIndex:
+
+            defaultTarget = GL_ELEMENT_ARRAY_BUFFER;
+
+            glBindBuffer(defaultTarget, bufferID);
+            glBufferData(defaultTarget, size, data, GL_STATIC_DRAW);
+            glBindBuffer(defaultTarget, 0);
             break;
 
         case BufferType::Uniform:
-            uploadTarget = GL_UNIFORM_BUFFER;
-            glBindBuffer(GL_UNIFORM_BUFFER, bufferID);
-            glBufferData(GL_UNIFORM_BUFFER, size, data, GL_DYNAMIC_DRAW);
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+            defaultTarget = GL_UNIFORM_BUFFER;
+
+            glBindBuffer(defaultTarget, bufferID);
+            glBufferData(defaultTarget, size, data, GL_DYNAMIC_DRAW);
+            glBindBuffer(defaultTarget, 0);
             break;
     }
 }
@@ -104,14 +128,19 @@ void GPUBuffer::Flush()
     if (byteOffset == 0) return;
 
     // Upload the data
-    glBindBuffer(uploadTarget, bufferID);
-    glBufferSubData(uploadTarget, 0, byteOffset, data);
-    glBindBuffer(uploadTarget, 0);
+    glBindBuffer(defaultTarget, bufferID);
+    glBufferSubData(defaultTarget, 0, byteOffset, data);
+    glBindBuffer(defaultTarget, 0);
 
     // Reset byte offset
     byteOffset = 0;
 }
 
+// Binds the buffer to the default target
+void GPUBuffer::Bind()
+{
+    glBindBuffer(defaultTarget, bufferID);
+}
 // Binds the buffer to the specified target
 void GPUBuffer::Bind(GLenum target)
 {

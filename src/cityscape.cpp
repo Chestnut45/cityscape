@@ -12,6 +12,7 @@ Cityscape::Cityscape() : App("Cityscape")
 
     // Initialize the sky object
     sky = new Sky("data/skyboxDay", "data/skyboxNight", "data/sky.vs", "data/sky.fs");
+    sky->GetShader().BindUniformBlock("CameraBlock", 0);
 
     // TODO: Generate a 10x10 grid of city blocks
     // For now: Generate one
@@ -43,7 +44,7 @@ Cityscape::~Cityscape()
 // Generates a city block by id
 void Cityscape::GenerateBlock(const glm::ivec2& id)
 {
-    
+
 }
 
 // Unloads and deletes a city block by id

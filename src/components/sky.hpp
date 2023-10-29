@@ -40,6 +40,11 @@ class Sky
         // Renders the sky
         void Draw();
 
+        // Accessors
+        // This isn't const so we can allow callers to update
+        // uniforms / bindings on the internal shader directly
+        Shader& GetShader() { return skyShader; };
+
     // Data / implementation
     private:
         // Instance resources

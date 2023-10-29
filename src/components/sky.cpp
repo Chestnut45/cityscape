@@ -49,8 +49,8 @@ static const VertexPos SKYBOX_DATA[] =
 // Contruct a sky component
 // daySkyboxPath, nightSkyboxPath: path to a folder containing skybox face images
 // skyVS, skyFS: paths to sky vertex / fragment shader sources
-// NOTE: Shader source should contain 2 samplerCubes named "dayCube" and "nightCube",
-// as well as a uniform float "time"
+// NOTE: If you want access to the sky's day/night cubemaps, then your shader source
+// should contain 2 samplerCubes "dayCube", "nightCube" and 1 uniform float "time"
 Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, const std::string& skyVS, const std::string& skyFS)
     : dayBox({
         daySkyboxPath + "/right.png",
@@ -79,16 +79,14 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, c
     skyShader.Use();
     skyShader.SetUniform("dayCube", (int)SkyTextureUnit::Day);
     skyShader.SetUniform("nightCube", (int)SkyTextureUnit::Night);
-    skyShader.BindUniformBlock("CameraBlock", 0);
 
     // If first instance, initialize static resources
     if (refCount == 0)
     {
         // Create VBO for skybox data
         skyboxVBO = new GPUBuffer(sizeof(SKYBOX_DATA), BufferType::StaticVertex, SKYBOX_DATA);
-        skyboxVBO->Bind(GL_ARRAY_BUFFER);
 
-        // Describe vertex attributes
+        // Create vertex attributes
         skyboxVAO = new VertexAttributes(VertexFormat::POS, skyboxVBO);
     }
 

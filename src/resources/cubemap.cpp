@@ -6,7 +6,7 @@
 
 // Constructor
 // faces should contain 6 file paths (relative to project directory)
-// to ___ format image files in the order: right, left, top, bottom, front, back
+// to image files in the order: right, left, top, bottom, front, back
 Cubemap::Cubemap(const std::vector<std::string>& faces)
 {
     // Generate resources
@@ -31,11 +31,11 @@ Cubemap::Cubemap(const std::vector<std::string>& faces)
         else
         {
             stbi_image_free(data);
-            std::cout << std::string("ERROR: Couldn't load cubemap texture: ").append(faces[i].c_str()) << std::endl;
+            std::cout << "ERROR: Couldn't load cubemap texture: " << faces[i].c_str() << std::endl;
         }
     }
 
-    // Set the texture parameters
+    // Set default texture parameters
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

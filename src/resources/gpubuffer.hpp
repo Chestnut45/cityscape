@@ -16,7 +16,7 @@ class GPUBuffer
     // Interface
     public:
         // Initialization
-        GPUBuffer(GLuint size, BufferType type, const void* const data = nullptr);
+        GPUBuffer(GLuint size, BufferType type, const void* const data = NULL);
         ~GPUBuffer();
 
         // Delete copy constructor/assignment

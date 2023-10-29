@@ -26,8 +26,8 @@ class Cityscape: public wolf::App
         void ProcessInput(float dt);
 
         // Generation
-        void GenerateBlock(glm::ivec2 id);
-        void DeleteBlock(glm::ivec2 id);
+        void GenerateBlock(const glm::ivec2& id);
+        void DeleteBlock(const glm::ivec2& id);
 
     private:
         // Main camera

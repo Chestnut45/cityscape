@@ -29,7 +29,4 @@ class Cubemap
     private:
         // OpenGL objects
         GLuint textureID;
-
-        // Remember bount unit
-        GLuint texUnit;
 };

@@ -13,7 +13,8 @@ Cityscape::Cityscape() : App("Cityscape")
     // Initialize the sky object
     sky = new Sky("data/skyboxDay", "data/skyboxNight", "data/sky.vs", "data/sky.fs");
 
-    // Generate a 10x10 grid of city blocks
+    // TODO: Generate a 10x10 grid of city blocks
+    // For now: Generate one
     
 
     // Initialize mouse input

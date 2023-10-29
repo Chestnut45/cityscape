@@ -14,11 +14,11 @@ GPUBuffer::GPUBuffer(GLuint size, BufferType type, const void* const data) : siz
     switch (type)
     {
         case BufferType::Dynamic:
-            glBufferData(GL_ARRAY_BUFFER, size, data ? data : NULL, GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
             break;
         
         case BufferType::Static:
-            glBufferData(GL_ARRAY_BUFFER, size, data ? data : NULL, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
             break;
     }
 

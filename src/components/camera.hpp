@@ -8,6 +8,8 @@
 #include "../../wolf/wolf.h"
 #include "../../thirdparty/glew/include/GL/glew.h"
 
+#include "../resources/gpubuffer.hpp"
+
 // Provides an interface to manipulate and update a camera used for rendering
 class Camera
 {
@@ -28,8 +30,7 @@ class Camera
         void UpdateViewport(int width, int height);
 
         // Updates the Uniform Buffer Object associated with this camera
-        void UpdateUBO() const;
-        
+        void UpdateUBO();
         
         // Accessors
         inline const glm::vec3& GetDirection() { return direction; };
@@ -62,8 +63,8 @@ class Camera
         float yaw = -90;
         float pitch = 0;
 
-        // OpenGL objects
-        GLuint ubo;
+        // OpenGL resources
+        GPUBuffer ubo;
 
         // Helper methods for updating matrices
         void UpdateView();

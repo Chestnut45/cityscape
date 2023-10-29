@@ -84,7 +84,7 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, c
     if (refCount == 0)
     {
         // Create VBO for skybox data
-        skyboxVBO = new GPUBuffer(sizeof(SKYBOX_DATA), BufferType::Static, SKYBOX_DATA);
+        skyboxVBO = new GPUBuffer(sizeof(SKYBOX_DATA), BufferType::StaticVertex, SKYBOX_DATA);
         skyboxVBO->Bind(GL_ARRAY_BUFFER);
 
         // Describe vertex attributes

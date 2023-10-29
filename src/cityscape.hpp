@@ -1,6 +1,12 @@
 #pragma once
 
 #include <iostream>
+#include <unordered_map>
+
+#ifndef GLM_ENABLE_EXPERIMENTAL
+    #define GLM_ENABLE_EXPERIMENTAL
+#endif
+#include "../../thirdparty/glm/glm/gtx/hash.hpp"
 
 // Components and resources
 #include "components/camera.hpp"
@@ -16,6 +22,10 @@ class Cityscape: public wolf::App
         Cityscape();
         ~Cityscape();
 
+        // Generation
+        void GenerateBlock(const glm::ivec2& id);
+        void DeleteBlock(const glm::ivec2& id);
+
         // Simulates all city blocks and handles generation
         void update(float dt) override;
 
@@ -25,22 +35,16 @@ class Cityscape: public wolf::App
         // Input handling
         void ProcessInput(float dt);
 
-        // Generation
-        void GenerateBlock(const glm::ivec2& id);
-        void DeleteBlock(const glm::ivec2& id);
-
     private:
         // Main camera
         Camera* camera = nullptr;
         Sky* sky = nullptr;
 
-        // Simulation list
-        // Each entity in this registry represents one city block
-        // Valid component types are:
-        // - Ground
-        // - Building
-        // - ...
-        entt::registry cityBlocks;
+        // Entity registry
+        entt::registry registry;
+
+        // Map of city block IDs to entity ids
+        std::unordered_map<glm::ivec2, std::vector<entt::entity>> cityBlocks;
 
         // Input
         glm::vec2 prevMousePos;

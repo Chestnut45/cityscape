@@ -3,12 +3,16 @@
 #include <iostream>
 #include "string.h" // For memcpy
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types / functions
 
 enum class BufferType
 {
-    Dynamic,
-    Static
+    DynamicVertex,
+    StaticVertex,
+    Uniform,
 };
 
 class GPUBuffer
@@ -28,6 +32,8 @@ class GPUBuffer
         void operator=(GPUBuffer&& other) = delete;
 
         // Write operations
+        void Write(const glm::mat4& value);
+        void Write(const glm::vec4& value);
         void Write(const void* const data, GLuint size);
         void Flush();
 
@@ -47,4 +53,17 @@ class GPUBuffer
 
         // OpenGL buffer object handle
         GLuint bufferID;
+        GLenum uploadTarget;
+
+        // Helper method to ensure buffer writes are safe
+        inline bool CanWrite(size_t bytes) const
+        {
+            if (byteOffset + bytes > size)
+            {
+                std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
+                return false;
+            }
+            
+            return true;
+        };
 };

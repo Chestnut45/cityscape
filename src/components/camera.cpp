@@ -1,16 +1,10 @@
 #include "camera.hpp"
 
 // Constructor
-Camera::Camera() : position(0), direction(0, 0, -1), up(0, 1, 0), right(1, 0, 0)
+Camera::Camera() : position(0), direction(0, 0, -1), up(0, 1, 0), right(1, 0, 0), ubo(sizeof(glm::mat4) + sizeof(glm::vec4), BufferType::Uniform)
 {
-    // Generate and init UBO
-    glGenBuffers(1, &ubo);
-    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) + sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
     // Bind UBO to binding point 0
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
+    ubo.BindBase(GL_UNIFORM_BUFFER, 0);
 
     // Ensure our matrices are in a valid state
     UpdateView();
@@ -20,7 +14,6 @@ Camera::Camera() : position(0), direction(0, 0, -1), up(0, 1, 0), right(1, 0, 0)
 // Cleanup
 Camera::~Camera()
 {
-    glDeleteBuffers(1, &ubo);
 }
 
 // Sets the camera's position and updates the view matrix
@@ -97,11 +90,12 @@ void Camera::UpdateProjection()
 }
 
 // Updates the buffer to contain the view data
-void Camera::UpdateUBO() const
+void Camera::UpdateUBO()
 {
     // Combine view and projection into one matrix
     glm::mat4 viewProj = proj * view;
     
+    /*
     // Build up local buffer with camera data
     unsigned char data[20 * sizeof(GLfloat)];
 
@@ -109,7 +103,11 @@ void Camera::UpdateUBO() const
     memcpy(data + sizeof(glm::mat4), glm::value_ptr(glm::vec4(position, 1)), sizeof(glm::vec4));
 
     // Copy over to the GPU and unbind
-    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(data), data);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    ubo.Write(data, sizeof(data));
+    */
+
+    // New write method
+    ubo.Write(viewProj);
+    ubo.Write(glm::vec4(position, 1));
+    ubo.Flush();
 }

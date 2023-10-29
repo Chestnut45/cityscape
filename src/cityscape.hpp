@@ -22,7 +22,7 @@ class Cityscape: public wolf::App
         Cityscape();
         ~Cityscape();
 
-        // Generation
+        // Generation / simulation
         void GenerateBlock(const glm::ivec2& id);
         void DeleteBlock(const glm::ivec2& id);
 
@@ -43,7 +43,7 @@ class Cityscape: public wolf::App
         // Entity registry
         entt::registry registry;
 
-        // Map of city block IDs to entity ids
+        // Map of city block IDs to entity id lists
         std::unordered_map<glm::ivec2, std::vector<entt::entity>> cityBlocks;
 
         // Input

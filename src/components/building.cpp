@@ -1,7 +1,7 @@
 #include "building.hpp"
 
 // Main constructor
-Building::Building()
+Building::Building(const glm::ivec3& pos, int stories, int width, int height, int variant, FeatureFlags features)
 {
     
 }

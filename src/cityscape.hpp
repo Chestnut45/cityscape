@@ -9,6 +9,7 @@
 #include <glm/gtx/hash.hpp>
 
 // Components and resources
+#include "components/building.hpp"
 #include "components/camera.hpp"
 #include "components/groundtile.hpp"
 #include "components/sky.hpp"

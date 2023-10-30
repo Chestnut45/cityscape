@@ -58,12 +58,18 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
 
     // Register it with the block
     cityBlocks[id].push_back(ground);
+
+    // Generate buildings for each quadrant
+    for (int i = 0; i < 4; i++)
+    {
+
+    }
 }
 
 // Unloads and deletes a city block by id
 void Cityscape::DeleteBlock(const glm::ivec2& id)
 {
-    // Destroy all entites
+    // Destroy all entites associated with the block
     for (entt::entity entity : cityBlocks[id])
     {
         registry.destroy(entity);
@@ -107,6 +113,12 @@ void Cityscape::render()
         ground.Draw();
     }
     GroundTile::FlushDrawCalls();
+
+    // Then draw all buildings next
+    for(auto &&[entity]: registry.view<Building>().each())
+    {
+        // building.Draw();
+    }
 
     // Draw the sky
     sky.Draw();

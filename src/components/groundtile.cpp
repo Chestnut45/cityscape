@@ -2,12 +2,12 @@
 
 static const int TILE_SIZE = 16;
 
-// Static ground tile vertex data
+// Static ground tile vertex data (pos, normal, uv)
 static const VertexPosNormUv GROUND_VERTICES[] =
 {
-    {0.0f, 0.0f, 0.0f,                              0.0f, 1.0f, 0.0f,   0.0f, 1.0f},
+    {0.0f,              0.0f, 0.0f,                 0.0f, 1.0f, 0.0f,   0.0f, 1.0f},
     {(float)TILE_SIZE,  0.0f, 0.0f,                 0.0f, 1.0f, 0.0f,   1.0f, 1.0f},
-    {0.0f, 0.0f, (float)TILE_SIZE,                  0.0f, 1.0f, 0.0f,   0.0f, 0.0f},
+    {0.0f,              0.0f, (float)TILE_SIZE,     0.0f, 1.0f, 0.0f,   0.0f, 0.0f},
     {(float)TILE_SIZE,  0.0f, (float)TILE_SIZE,     0.0f, 1.0f, 0.0f,   1.0f, 0.0f},
 };
 
@@ -31,7 +31,7 @@ GroundTile::GroundTile(const glm::vec2& id) : instancePosition(id.x * TILE_SIZE,
         instanceUBO = new GPUBuffer(BufferType::Uniform, sizeof(glm::vec4) * MAX_INSTANCES);
 
         // Load the default shader
-        // TODO: Shader should be passed in...
+        // TODO: Shader should be passed in... but how for static resource?
         shader = new Shader();
         shader->LoadShaderSource(GL_VERTEX_SHADER, "data/groundTile.vs");
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/groundTile.fs");

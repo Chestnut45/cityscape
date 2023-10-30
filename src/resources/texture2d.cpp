@@ -15,6 +15,7 @@ Texture2D::Texture2D(const std::string& texPath)
 
     // Load the image data
     int width, height, channelCount;
+    stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(texPath.c_str(), &width, &height, &channelCount, STBI_rgb_alpha);
     if (data)
     {

@@ -13,17 +13,13 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     sky.GetShader().BindUniformBlock("CameraBlock", 0);
 
     // TODO: Generate a 10x10 grid of city blocks
-    GenerateBlock({0, 0});
-    GenerateBlock({-1, 0});
-    GenerateBlock({0, -1});
-    GenerateBlock({-1, -1});
-
-    /*
-    DeleteBlock({0, 0});
-    DeleteBlock({-1, 0});
-    DeleteBlock({0, -1});
-    DeleteBlock({-1, -1});
-    */
+    for (int x = -5; x < 5; x++)
+    {
+        for (int z = -5; z < 5; z++)
+        {
+            GenerateBlock({x, z});
+        }
+    }
 
     // Initialize mouse input
     glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -48,7 +44,8 @@ Cityscape::~Cityscape()
 // Deletes and regenerates if one already exists with the given ID
 void Cityscape::GenerateBlock(const glm::ivec2& id)
 {
-    // TODO: Delete if already generated
+    // Delete if already generated
+    if (cityBlocks.count(id) > 0) DeleteBlock(id);
 
     // Create a ground entity
     entt::entity ground = registry.create();
@@ -59,7 +56,7 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
     // Register it with the block
     cityBlocks[id].push_back(ground);
 
-    // Generate buildings for each quadrant
+    // TODO: Generate buildings for each quadrant
     for (int i = 0; i < 4; i++)
     {
 

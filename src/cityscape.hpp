@@ -2,7 +2,9 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <queue>
 
+// Required for hashing glm vectors for use as keys in a std::unordered_map
 #ifndef GLM_ENABLE_EXPERIMENTAL
     #define GLM_ENABLE_EXPERIMENTAL
 #endif
@@ -49,6 +51,12 @@ class Cityscape: public wolf::App
 
         // Map of city block IDs to entity id lists
         std::unordered_map<glm::ivec2, std::vector<entt::entity>> cityBlocks;
+
+        // Queues of blocks to generate / delete
+        // These are used to throttle generation / deletion to 1 block per frame
+        // This minimizes stutter / lag spikes when generating
+        std::queue<glm::ivec2> generationQueue;
+        std::queue<glm::ivec2> deletionQueue;
 
         // Input
         glm::vec2 prevMousePos;

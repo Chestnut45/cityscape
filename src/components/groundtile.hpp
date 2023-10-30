@@ -2,8 +2,10 @@
 
 #include <glm/glm.hpp>
 
-#include "../resources/texture2d.hpp"
+
 #include "../resources/gpubuffer.hpp"
+#include "../resources/shader.hpp"
+#include "../resources/texture2d.hpp"
 #include "../resources/vertexattributes.hpp"
 #include "../resources/vertex.hpp"
 
@@ -46,6 +48,7 @@ class GroundTile
         static inline GPUBuffer* ebo = nullptr;
         static inline VertexAttributes* vao = nullptr;
         static inline GPUBuffer* instanceUBO = nullptr;
+        static inline Shader* shader = nullptr;
 
         // Reference counting for static resources
         static inline int refCount = 0;

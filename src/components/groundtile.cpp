@@ -5,8 +5,8 @@ static const VertexPosNormUv GROUND_VERTICES[] =
 {
     {-1.0f, 0.0f, -1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f},
     {1.0f,  0.0f, -1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f},
-    {1.0f,  0.0f, 1.0f,     0.0f, 1.0f, 0.0f,   0.0f, 0.0f},
-    {-1.0f, 0.0f, 1.0f,     0.0f, 1.0f, 0.0f,   1.0f, 0.0f},
+    {-1.0f,  0.0f, 1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f},
+    {1.0f, 0.0f, 1.0f,      0.0f, 1.0f, 0.0f,   1.0f, 0.0f},
 };
 
 static const GLuint GROUND_INDICES[] =
@@ -25,7 +25,17 @@ GroundTile::GroundTile(const glm::vec3& pos) : position(pos)
         vbo = new GPUBuffer(BufferType::StaticVertex, sizeof(GROUND_VERTICES), GROUND_VERTICES);
         ebo = new GPUBuffer(BufferType::StaticIndex, sizeof(GROUND_INDICES), GROUND_INDICES);
         vao = new VertexAttributes(VertexFormat::POS_NORM_UV, vbo, ebo);
+
         instanceUBO = new GPUBuffer(BufferType::Uniform, sizeof(glm::vec3) * MAX_INSTANCES);
+
+        // Load the default shader
+        shader = new Shader();
+        shader->LoadShaderSource(GL_VERTEX_SHADER, "data/groundTile.vs");
+        shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/groundTile.fs");
+        shader->Link();
+        shader->BindUniformBlock("InstanceBlock", 1);
+        shader->SetUniform("tex", 0);
+        shader->BindUniformBlock("CameraBlock", 0); // TODO: This should move...
     }
 
     refCount++;
@@ -44,6 +54,7 @@ GroundTile::~GroundTile()
         delete ebo;
         delete vao;
         delete instanceUBO;
+        delete shader;
     }
 }
 
@@ -69,7 +80,10 @@ void GroundTile::FlushDrawCalls()
 
     // Flush all buffer writes and bind vao
     instanceUBO->Flush();
+    instanceUBO->BindBase(GL_UNIFORM_BUFFER, 1);
     vao->Bind();
+    texture->Bind();
+    shader->Use();
 
     // Issue draw call
     glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, drawCount);

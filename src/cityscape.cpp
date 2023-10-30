@@ -1,18 +1,16 @@
 #include "cityscape.hpp"
 
 // Constructor
-Cityscape::Cityscape() : App("Cityscape")
+Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data/skyboxNight", "data/sky.vs", "data/sky.fs")
 {
     // Enable programs
     glEnable(GL_DEPTH_TEST);
 
     // Create the camera and initialize position
-    camera = new Camera();
-    camera->SetPosition(glm::vec3(0, 2, 4));
+    camera.SetPosition(glm::vec3(0, 2, 4));
 
-    // Initialize the sky object
-    sky = new Sky("data/skyboxDay", "data/skyboxNight", "data/sky.vs", "data/sky.fs");
-    sky->GetShader().BindUniformBlock("CameraBlock", 0);
+    // Set the sky's shader to use our camera uniforms
+    sky.GetShader().BindUniformBlock("CameraBlock", 0);
 
     // TODO: Generate a 10x10 grid of city blocks
     // For now: Generate one
@@ -35,17 +33,22 @@ Cityscape::Cityscape() : App("Cityscape")
 Cityscape::~Cityscape()
 {
 	std::cout << "Destroying Cityscape..." << std::endl;
-    
-    // Free resources
-    delete camera;
-    delete sky;
 }
 
 // Generates a city block by id
 // Deletes and regenerates if one already exists with the given ID
 void Cityscape::GenerateBlock(const glm::ivec2& id)
 {
-    
+    // TODO: Delete if already generated
+
+    // Create a ground entity
+    entt::entity ground = registry.create();
+
+    // Register it with the block
+    cityBlocks[id].push_back(ground);
+
+    // Give it a ground tile component
+    registry.emplace<GroundTile>(ground, glm::vec3(0));
 }
 
 // Unloads and deletes a city block by id
@@ -60,14 +63,14 @@ void Cityscape::update(float dt)
     elapsedTime += dt;
 
     // Update the camera's viewport if the window size has changed
-    if (m_width != camera->GetWidth() || m_height != camera->GetHeight())
-        camera->UpdateViewport(m_width, m_height);
+    if (m_width != camera.GetWidth() || m_height != camera.GetHeight())
+        camera.UpdateViewport(m_width, m_height);
 
     // Process all input for this frame
     ProcessInput(dt);
 
     // Update sky
-    sky->SetTOD((sin(elapsedTime) + 1) / 2);
+    sky.SetTOD((sin(elapsedTime) + 1) / 2);
 
     // Potential TODO: Infinitely generate / unload city blocks as the camera moves around
     // Requisite Guarantee: 400 MINIMUM buildings must be loaded at any given time
@@ -80,10 +83,17 @@ void Cityscape::render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Update the camera's UBO so all shaders have access to the new values
-    camera->UpdateUBO();
+    camera.UpdateUBO();
+
+    // Draw all ground tiles first
+    for(auto &&[entity, ground]: registry.view<GroundTile>().each())
+    {
+        ground.Draw();
+    }
+    GroundTile::FlushDrawCalls();
 
     // Draw the sky
-    sky->Draw();
+    sky.Draw();
 
     // TODO: Iterate registry and render all components
     // NOTE: Should be simple; component.Draw() followed by Component::FlushDrawCommands() after iteration (batching)
@@ -97,13 +107,13 @@ void Cityscape::ProcessInput(float dt)
     glm::vec2 mouseOffset = (mousePos - prevMousePos) * dt * mouseSensitivity;
 
     // Rotate the camera according to mouse movement
-    camera->Rotate(mouseOffset.x, -mouseOffset.y);
+    camera.Rotate(mouseOffset.x, -mouseOffset.y);
 
     // Move the camera according to WASD
-    if (isKeyDown(GLFW_KEY_W)) camera->Translate(camera->GetDirection() * dt * cameraSpeed);
-    if (isKeyDown(GLFW_KEY_S)) camera->Translate(-camera->GetDirection() * dt * cameraSpeed);
-    if (isKeyDown(GLFW_KEY_A)) camera->Translate(-camera->GetRight() * dt * cameraSpeed);
-    if (isKeyDown(GLFW_KEY_D)) camera->Translate(camera->GetRight() * dt * cameraSpeed);
+    if (isKeyDown(GLFW_KEY_W)) camera.Translate(camera.GetDirection() * dt * cameraSpeed);
+    if (isKeyDown(GLFW_KEY_S)) camera.Translate(-camera.GetDirection() * dt * cameraSpeed);
+    if (isKeyDown(GLFW_KEY_A)) camera.Translate(-camera.GetRight() * dt * cameraSpeed);
+    if (isKeyDown(GLFW_KEY_D)) camera.Translate(camera.GetRight() * dt * cameraSpeed);
 
     // Keep track of previous mouse position
     prevMousePos = mousePos;

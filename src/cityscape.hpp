@@ -19,6 +19,7 @@
 
 class Cityscape: public wolf::App
 {
+    // Interface
     public:
         Cityscape();
         ~Cityscape();
@@ -36,12 +37,13 @@ class Cityscape: public wolf::App
         // Input handling
         void ProcessInput(float dt);
 
+    // Data / implementation
     private:
-        // Main camera
-        Camera* camera = nullptr;
-        Sky* sky = nullptr;
+        // Single instance objects
+        Camera camera;
+        Sky sky;
 
-        // Entity registry
+        // Registry of all active entities
         entt::registry registry;
 
         // Map of city block IDs to entity id lists

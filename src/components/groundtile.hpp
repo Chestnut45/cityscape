@@ -2,7 +2,6 @@
 
 #include <glm/glm.hpp>
 
-
 #include "../resources/gpubuffer.hpp"
 #include "../resources/shader.hpp"
 #include "../resources/texture2d.hpp"
@@ -13,7 +12,7 @@ class GroundTile
 {
     // Interface
     public:
-        GroundTile(const glm::vec3& pos);
+        GroundTile(const glm::vec2& id);
         ~GroundTile();
 
         // Delete copy constructor/assignment
@@ -24,9 +23,6 @@ class GroundTile
         GroundTile(GroundTile&& other) = delete;
         void operator=(GroundTile&& other) = delete;
 
-        // Temporal manipulation
-        inline void SetPosition(float x, float y, float z) { position = {x, y, z}; };
-
         // Draws into instance buffer, flushing if it is full
         void Draw();
 
@@ -36,7 +32,7 @@ class GroundTile
     // Data / Implementation
     private:
         // State
-        glm::vec3 position;
+        glm::vec2 id;
 
         // Instance information
         static const int MAX_INSTANCES = 128;

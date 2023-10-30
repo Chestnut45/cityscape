@@ -1,12 +1,14 @@
 #include "groundtile.hpp"
 
+static const int TILE_SIZE = 16;
+
 // Static ground tile vertex data
 static const VertexPosNormUv GROUND_VERTICES[] =
 {
-    {-1.0f, 0.0f, -1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f},
-    {1.0f,  0.0f, -1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f},
-    {-1.0f,  0.0f, 1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 0.0f},
-    {1.0f, 0.0f, 1.0f,      0.0f, 1.0f, 0.0f,   1.0f, 0.0f},
+    {-0.5f * TILE_SIZE, 0.0f, -0.5f * TILE_SIZE,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f},
+    {0.5f * TILE_SIZE,  0.0f, -0.5f * TILE_SIZE,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f},
+    {-0.5f * TILE_SIZE, 0.0f, 0.5f * TILE_SIZE,     0.0f, 1.0f, 0.0f,   0.0f, 0.0f},
+    {0.5f * TILE_SIZE,  0.0f, 0.5f * TILE_SIZE,     0.0f, 1.0f, 0.0f,   1.0f, 0.0f},
 };
 
 static const GLuint GROUND_INDICES[] =
@@ -16,7 +18,7 @@ static const GLuint GROUND_INDICES[] =
 };
 
 // Constructor with initial position
-GroundTile::GroundTile(const glm::vec3& pos) : position(pos)
+GroundTile::GroundTile(const glm::vec2& id) : id(id)
 {
     if (refCount == 0)
     {
@@ -71,7 +73,7 @@ void GroundTile::Draw()
 
     // Increase counter and write instance position to buffer
     drawCount++;
-    instanceUBO->Write(glm::vec4(position, 1));
+    instanceUBO->Write(glm::vec4(id.x * TILE_SIZE, 0, id.y * TILE_SIZE, 1));
 }
 
 // Flushes all grounds drawn since the last flush

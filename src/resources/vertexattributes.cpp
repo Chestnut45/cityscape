@@ -12,13 +12,12 @@ VertexAttributes::VertexAttributes()
 VertexAttributes::VertexAttributes(VertexFormat format, const GPUBuffer* const vbo, const GPUBuffer* const ebo)
 {
     // Ensure we have been handed a vertex buffer
-    // NOTE: Throwing an exception here might be a good idea, but I'm wary of any non-RAII resources
-    // that might fail to release because of it.
     if (vbo->GetType() != BufferType::DynamicVertex && vbo->GetType() != BufferType::StaticVertex)
     {
         std::cout << "Error: Incorrect buffer type to construct VertexAttributes object" << std::endl;
     }
     
+    // Bind VAO and VBO
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo->GetName());
@@ -107,7 +106,21 @@ void VertexAttributes::Add(GLuint numComponents, GLenum type)
 
     // Increase counters
     attribCount++;
-    currentOffset += numComponents * sizeof(GLfloat);
+
+    switch (type)
+    {
+        case GL_FLOAT:
+            currentOffset += numComponents * sizeof(GLfloat);
+            break;
+        
+        case GL_INT:
+            currentOffset += numComponents * sizeof(GLint);
+            break;
+        
+        case GL_UNSIGNED_BYTE:
+            currentOffset += numComponents * sizeof(GLubyte);
+            break;
+    }
 }
 
 // Binds the VAO

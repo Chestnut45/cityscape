@@ -48,7 +48,7 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
     entt::entity ground = registry.create();
 
     // Give it a ground tile component
-    registry.emplace<GroundTile>(ground, glm::vec3(id.x, 0, id.y));
+    registry.emplace<GroundTile>(ground, id);
 
     // Register it with the block
     cityBlocks[id].push_back(ground);

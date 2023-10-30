@@ -13,7 +13,7 @@ class VertexAttributes
     // Interface
     public:
         VertexAttributes();
-        VertexAttributes(VertexFormat format, const GPUBuffer* const buffer);
+        VertexAttributes(VertexFormat format, const GPUBuffer* const vbo, const GPUBuffer* const ebo = nullptr);
         ~VertexAttributes();
 
         // Delete copy constructor/assignment
@@ -39,4 +39,7 @@ class VertexAttributes
 
         // Counters
         GLuint attribCount = 0;
+
+        // Info
+        bool useIndices = false;
 };

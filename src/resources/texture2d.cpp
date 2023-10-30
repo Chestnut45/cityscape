@@ -3,7 +3,7 @@
 // Constructor
 Texture2D::Texture2D(const std::string& texPath)
 {
-    // Generate the texture
+    // Generate the texture object
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
 

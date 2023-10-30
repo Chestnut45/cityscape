@@ -26,9 +26,8 @@ class Shader
         Shader(Shader&& other) = delete;
         void operator=(Shader&& other) = delete;
 
-        // Common methods
+        // Set as the active program
         void Use() const;
-        void Unbind() const;
 
         // Uniform / binding manipulation
         // NOTE: All calls to SetUniform() are only valid following a call to Use()!

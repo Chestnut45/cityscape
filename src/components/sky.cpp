@@ -1,7 +1,7 @@
 #include "sky.hpp"
 
 // Vertex layout: (x, y, z) position only
-static const VertexPos SKYBOX_DATA[] =
+static const VertexPos SKYBOX_VERTICES[] =
 {
     {-1.0f,  1.0f, -1.0f},
     {-1.0f, -1.0f, -1.0f},
@@ -83,10 +83,7 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, c
     // If first instance, initialize static resources
     if (refCount == 0)
     {
-        // Create VBO for skybox data
-        skyboxVBO = new GPUBuffer(sizeof(SKYBOX_DATA), BufferType::StaticVertex, SKYBOX_DATA);
-
-        // Create vertex attributes
+        skyboxVBO = new GPUBuffer(BufferType::StaticVertex, sizeof(SKYBOX_VERTICES), SKYBOX_VERTICES);
         skyboxVAO = new VertexAttributes(VertexFormat::POS, skyboxVBO);
     }
 
@@ -98,7 +95,7 @@ Sky::~Sky()
 {
     refCount--;
 
-    // Non-static () resources manage themselves
+    // Non-static resources manage themselves
 
     // If last instance, cleanup static resources
     if (refCount == 0)

@@ -11,7 +11,6 @@ class Cubemap
 {
     // Interface
     public:
-        // Initialization
         Cubemap(const std::vector<std::string>& faces);
         ~Cubemap();
 

@@ -6,10 +6,11 @@
 #ifndef GLM_ENABLE_EXPERIMENTAL
     #define GLM_ENABLE_EXPERIMENTAL
 #endif
-#include "../../thirdparty/glm/glm/gtx/hash.hpp"
+#include <glm/gtx/hash.hpp>
 
 // Components and resources
 #include "components/camera.hpp"
+#include "components/groundtile.hpp"
 #include "components/sky.hpp"
 #include "resources/shader.hpp"
 

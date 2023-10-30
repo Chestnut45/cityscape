@@ -20,7 +20,6 @@ class Sky
 {
     // Interface
     public:
-
         Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, const std::string& skyVS, const std::string& skyFS);
         ~Sky();
 

@@ -1,7 +1,7 @@
 #include "gpubuffer.hpp"
 
 // Constructor
-GPUBuffer::GPUBuffer(GLuint size, BufferType type, const void* const data) : size(size)
+GPUBuffer::GPUBuffer(BufferType type, GLuint size, const void* const data) : size(size)
 {
     // Initialize internal buffer
     this->data = new unsigned char[size];
@@ -69,11 +69,50 @@ GPUBuffer::~GPUBuffer()
     glDeleteBuffers(1, &bufferID);
 }
 
-// Writes a single mat4 into the internal buffer
-void GPUBuffer::Write(const glm::mat4& value)
+// Writes a single vec3 into the internal buffer
+bool GPUBuffer::Write(const glm::vec3& value)
 {
     // Ensure buffer has space for write
-    if (!CanWrite(sizeof(glm::mat4))) return;
+    if (!CanWrite(sizeof(glm::vec3))) return false;
+
+    // Grab a float pointer at the current offset
+    GLfloat* pData = (GLfloat*)(data + byteOffset);
+
+    // Write all components
+    *(pData) = value.x;
+    *(pData + 1) = value.y;
+    *(pData + 2) = value.z;
+
+    byteOffset += sizeof(glm::vec3);
+
+    return true;
+}
+
+// Writes a single vec4 into the internal buffer
+bool GPUBuffer::Write(const glm::vec4& value)
+{
+    // Ensure buffer has space for write
+    if (!CanWrite(sizeof(glm::vec4))) return false;
+
+    // Grab a float pointer at the current offset
+    GLfloat* pData = (GLfloat*)(data + byteOffset);
+
+    // Write all components
+    *(pData) = value.x;
+    *(pData + 1) = value.y;
+    *(pData + 2) = value.z;
+    *(pData + 3) = value.w;
+
+    byteOffset += sizeof(glm::vec4);
+
+    return true;
+}
+
+// Writes a single mat4 into the internal buffer
+bool GPUBuffer::Write(const glm::mat4& value)
+{
+    // Ensure buffer has space for write
+    if (!CanWrite(sizeof(glm::mat4))) return false;
 
     // Grab a float pointer at the current offset
     GLfloat* pData = (GLfloat*)(data + byteOffset);
@@ -88,37 +127,23 @@ void GPUBuffer::Write(const glm::mat4& value)
     }
 
     byteOffset += sizeof(glm::mat4);
-}
 
-// Writes a single vec4 into the internal buffer
-void GPUBuffer::Write(const glm::vec4& value)
-{
-    // Ensure buffer has space for write
-    if (!CanWrite(sizeof(glm::vec4))) return;
-
-    // Grab a float pointer at the current offset
-    GLfloat* pData = (GLfloat*)(data + byteOffset);
-
-    // Write all components
-    *(pData) = value.x;
-    *(pData + 1) = value.y;
-    *(pData + 2) = value.z;
-    *(pData + 3) = value.w;
-
-    byteOffset += sizeof(glm::vec4);
+    return true;
 }
 
 // Writes data into the internal buffer
-void GPUBuffer::Write(const void* const data, GLuint size)
+bool GPUBuffer::Write(const void* const data, GLuint size)
 {
     // Ensure buffer has space for write
-    if (!CanWrite(size)) return;
+    if (!CanWrite(size)) return false;
 
     // Copy the data into the buffer
     memcpy((void*)(this->data + byteOffset), data, size);
 
     // Increase byte offset accordingly
     byteOffset += size;
+
+    return true;
 }
 
 // Flushes the internal buffer to the OpenGL buffer object

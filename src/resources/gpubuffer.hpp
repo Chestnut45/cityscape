@@ -21,8 +21,7 @@ class GPUBuffer
 {
     // Interface
     public:
-        // Initialization
-        GPUBuffer(GLuint size, BufferType type, const void* const data = NULL);
+        GPUBuffer(BufferType type, GLuint size, const void* const data = NULL);
         ~GPUBuffer();
 
         // Delete copy constructor/assignment
@@ -34,9 +33,10 @@ class GPUBuffer
         void operator=(GPUBuffer&& other) = delete;
 
         // Write operations
-        void Write(const glm::mat4& value);
-        void Write(const glm::vec4& value);
-        void Write(const void* const data, GLuint size);
+        bool Write(const glm::vec3& value);
+        bool Write(const glm::vec4& value);
+        bool Write(const glm::mat4& value);
+        bool Write(const void* const data, GLuint size);
         void Flush();
 
         // State management

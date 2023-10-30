@@ -13,11 +13,17 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     sky.GetShader().BindUniformBlock("CameraBlock", 0);
 
     // TODO: Generate a 10x10 grid of city blocks
-    // For now: Generate one
     GenerateBlock({0, 0});
     GenerateBlock({-1, 0});
     GenerateBlock({0, -1});
     GenerateBlock({-1, -1});
+
+    /*
+    DeleteBlock({0, 0});
+    DeleteBlock({-1, 0});
+    DeleteBlock({0, -1});
+    DeleteBlock({-1, -1});
+    */
 
     // Initialize mouse input
     glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -57,7 +63,14 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
 // Unloads and deletes a city block by id
 void Cityscape::DeleteBlock(const glm::ivec2& id)
 {
+    // Destroy all entites
+    for (entt::entity entity : cityBlocks[id])
+    {
+        registry.destroy(entity);
+    }
 
+    // Clear the block ID from the map
+    cityBlocks.erase(id);
 }
 
 void Cityscape::update(float dt)

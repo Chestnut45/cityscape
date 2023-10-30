@@ -5,10 +5,10 @@ static const int TILE_SIZE = 16;
 // Static ground tile vertex data
 static const VertexPosNormUv GROUND_VERTICES[] =
 {
-    {-0.5f * TILE_SIZE, 0.0f, -0.5f * TILE_SIZE,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f},
-    {0.5f * TILE_SIZE,  0.0f, -0.5f * TILE_SIZE,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f},
-    {-0.5f * TILE_SIZE, 0.0f, 0.5f * TILE_SIZE,     0.0f, 1.0f, 0.0f,   0.0f, 0.0f},
-    {0.5f * TILE_SIZE,  0.0f, 0.5f * TILE_SIZE,     0.0f, 1.0f, 0.0f,   1.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f,                              0.0f, 1.0f, 0.0f,   0.0f, 1.0f},
+    {(float)TILE_SIZE,  0.0f, 0.0f,                 0.0f, 1.0f, 0.0f,   1.0f, 1.0f},
+    {0.0f, 0.0f, (float)TILE_SIZE,                  0.0f, 1.0f, 0.0f,   0.0f, 0.0f},
+    {(float)TILE_SIZE,  0.0f, (float)TILE_SIZE,     0.0f, 1.0f, 0.0f,   1.0f, 0.0f},
 };
 
 static const GLuint GROUND_INDICES[] =

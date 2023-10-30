@@ -137,6 +137,10 @@ void Cityscape::ProcessInput(float dt)
     if (isKeyDown(GLFW_KEY_A)) camera.Translate(-camera.GetRight() * dt * cameraSpeed);
     if (isKeyDown(GLFW_KEY_D)) camera.Translate(camera.GetRight() * dt * cameraSpeed);
 
+    // Zoom the camera according to scroll
+    glm::vec2 scroll = getMouseScroll();
+    camera.Zoom(scroll.y);
+
     // Keep track of previous mouse position
     prevMousePos = mousePos;
 }

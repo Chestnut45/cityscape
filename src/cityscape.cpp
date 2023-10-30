@@ -97,9 +97,6 @@ void Cityscape::render()
 
     // Draw the sky
     sky.Draw();
-
-    // TODO: Iterate registry and render all components
-    // NOTE: Should be simple; component.Draw() followed by Component::FlushDrawCommands() after iteration (batching)
 }
 
 // Handles all input for this demo

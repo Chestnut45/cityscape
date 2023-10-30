@@ -3,7 +3,7 @@
 const uint MAX_INSTANCES = 128u;
 
 // Camera uniform block
-uniform CameraBlock
+layout(std140) uniform CameraBlock
 {
     mat4 viewProj;
     vec4 cameraPos;

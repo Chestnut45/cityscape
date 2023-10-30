@@ -1,6 +1,6 @@
 #include "vertexattributes.hpp"
 
-// Constructor
+// Default constructor
 VertexAttributes::VertexAttributes()
 {
     glGenVertexArrays(1, &vao);
@@ -98,7 +98,8 @@ VertexAttributes::~VertexAttributes()
 }
 
 // Adds an attribute and associates the currently bound buffer with that attribute
-// NOTE: This object must be bound before any calls to Add(), else they are invalid
+// type must be one of GL_FLOAT, FL_INT, or GL_UNSIGNED_BYTE
+// This object must be bound properly before making any calls to Add()
 void VertexAttributes::Add(GLuint numComponents, GLenum type)
 {
     glVertexAttribPointer(attribCount, numComponents, type, GL_FALSE, stride, (void*)currentOffset);

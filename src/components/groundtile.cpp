@@ -18,7 +18,7 @@ static const GLuint GROUND_INDICES[] =
 };
 
 // Constructor with initial position
-GroundTile::GroundTile(const glm::vec2& id) : id(id)
+GroundTile::GroundTile(const glm::vec2& id) : instancePosition(id.x * TILE_SIZE, 0, id.y * TILE_SIZE, 1)
 {
     if (refCount == 0)
     {
@@ -38,8 +38,8 @@ GroundTile::GroundTile(const glm::vec2& id) : id(id)
         shader->Link();
         shader->Use();
         shader->BindUniformBlock("InstanceBlock", 1);
-        shader->SetUniform("tex", 0);
         shader->BindUniformBlock("CameraBlock", 0);
+        shader->SetUniform("tex", 0);
     }
 
     refCount++;
@@ -73,7 +73,7 @@ void GroundTile::Draw()
 
     // Increase counter and write instance position to buffer
     drawCount++;
-    instanceUBO->Write(glm::vec4(id.x * TILE_SIZE, 0, id.y * TILE_SIZE, 1));
+    instanceUBO->Write(instancePosition);
 }
 
 // Flushes all grounds drawn since the last flush

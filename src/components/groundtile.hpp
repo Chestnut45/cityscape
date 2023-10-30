@@ -32,7 +32,7 @@ class GroundTile
     // Data / Implementation
     private:
         // State
-        glm::vec2 id;
+        glm::vec4 instancePosition;
 
         // Instance information
         static const int MAX_INSTANCES = 128;

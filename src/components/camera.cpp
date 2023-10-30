@@ -1,7 +1,7 @@
 #include "camera.hpp"
 
 // Constructor
-Camera::Camera() : position(0), direction(0, 0, -1), up(0, 1, 0), right(1, 0, 0), ubo(sizeof(glm::mat4) + sizeof(glm::vec4), BufferType::Uniform)
+Camera::Camera() : position(0), direction(0, 0, -1), up(0, 1, 0), right(1, 0, 0), ubo(BufferType::Uniform, sizeof(glm::mat4) + sizeof(glm::vec4))
 {
     // Bind UBO to binding point 0
     ubo.BindBase(GL_UNIFORM_BUFFER, 0);

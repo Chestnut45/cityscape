@@ -42,9 +42,10 @@ Cityscape::~Cityscape()
 }
 
 // Generates a city block by id
+// Deletes and regenerates if one already exists with the given ID
 void Cityscape::GenerateBlock(const glm::ivec2& id)
 {
-
+    
 }
 
 // Unloads and deletes a city block by id

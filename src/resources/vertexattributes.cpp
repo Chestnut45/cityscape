@@ -27,21 +27,25 @@ VertexAttributes::VertexAttributes(VertexFormat format, const GPUBuffer* const v
     switch (format)
     {
         case VertexFormat::POS:
+            stride = sizeof(VertexPos);
             Add(3, GL_FLOAT);
             break;
         
         case VertexFormat::POS_COLOR:
+            stride = sizeof(VertexPosColor);
             Add(3, GL_FLOAT);
             Add(4, GL_FLOAT);
             break;
         
         case VertexFormat::POS_COLOR_NORM:
+            stride = sizeof(VertexPosColorNorm);
             Add(3, GL_FLOAT);
             Add(4, GL_FLOAT);
             Add(3, GL_FLOAT);
             break;
         
         case VertexFormat::POS_COLOR_NORM_UV:
+            stride = sizeof(VertexPosColorNormUv);
             Add(3, GL_FLOAT);
             Add(4, GL_FLOAT);
             Add(3, GL_FLOAT);
@@ -49,23 +53,27 @@ VertexAttributes::VertexAttributes(VertexFormat format, const GPUBuffer* const v
             break;
         
         case VertexFormat::POS_COLOR_UV:
+            stride = sizeof(VertexPosColorUv);
             Add(3, GL_FLOAT);
             Add(4, GL_FLOAT);
             Add(2, GL_FLOAT);
             break;
         
         case VertexFormat::POS_NORM:
+            stride = sizeof(VertexPosNorm);
             Add(3, GL_FLOAT);
             Add(3, GL_FLOAT);
             break;
         
         case VertexFormat::POS_NORM_UV:
+            stride = sizeof(VertexPosNormUv);
             Add(3, GL_FLOAT);
             Add(3, GL_FLOAT);
             Add(2, GL_FLOAT);
             break;
         
         case VertexFormat::POS_UV:
+            stride = sizeof(VertexPosUv);
             Add(3, GL_FLOAT);
             Add(2, GL_FLOAT);
             break;
@@ -91,14 +99,15 @@ VertexAttributes::~VertexAttributes()
 }
 
 // Adds an attribute and associates the currently bound buffer with that attribute
-// NOTE: This object must be bound before any calls to Add(), else they are invalid (undefined behaviour)
-void VertexAttributes::Add(GLuint numComponents, GLenum type, GLuint stride, size_t offset)
+// NOTE: This object must be bound before any calls to Add(), else they are invalid
+void VertexAttributes::Add(GLuint numComponents, GLenum type)
 {
-    glVertexAttribPointer(attribCount, numComponents, type, GL_FALSE, stride, (void*)offset);
+    glVertexAttribPointer(attribCount, numComponents, type, GL_FALSE, stride, (void*)currentOffset);
     glEnableVertexAttribArray(attribCount);
 
     // Increase counters
     attribCount++;
+    currentOffset += numComponents * sizeof(GLfloat);
 }
 
 // Binds the VAO

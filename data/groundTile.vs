@@ -10,9 +10,9 @@ uniform CameraBlock
 };
 
 // Instance uniform block
-uniform InstanceBlock
+layout(std140) uniform InstanceBlock
 {
-    vec3 instancePos[MAX_INSTANCES];
+    vec4 instancePos[MAX_INSTANCES];
 };
 
 // Vertex data

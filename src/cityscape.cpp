@@ -15,6 +15,9 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     // TODO: Generate a 10x10 grid of city blocks
     // For now: Generate one
     GenerateBlock({0, 0});
+    GenerateBlock({-1, 0});
+    GenerateBlock({0, -1});
+    GenerateBlock({-1, -1});
 
     // Initialize mouse input
     glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -44,11 +47,11 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
     // Create a ground entity
     entt::entity ground = registry.create();
 
+    // Give it a ground tile component
+    registry.emplace<GroundTile>(ground, glm::vec3(id.x, 0, id.y));
+
     // Register it with the block
     cityBlocks[id].push_back(ground);
-
-    // Give it a ground tile component
-    registry.emplace<GroundTile>(ground, glm::vec3(0));
 }
 
 // Unloads and deletes a city block by id

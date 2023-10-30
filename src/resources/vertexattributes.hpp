@@ -24,9 +24,12 @@ class VertexAttributes
         VertexAttributes(VertexAttributes&& other) = delete;
         void operator=(VertexAttributes&& other) = delete;
 
+        // Sets the stride for all subsequent calls to Add()
+        inline void SetStride(GLuint stride) { this->stride = stride; };
+
         // Adds an attribute and associates the currently bound buffer with that attribute
         // NOTE: This object must be bound before any calls to Add(), else they are invalid (undefined behaviour)
-        void Add(GLuint numComponents, GLenum type, GLuint stride = 0, size_t offset = 0);
+        void Add(GLuint numComponents, GLenum type);
 
         // Binding methods
         void Bind();
@@ -39,6 +42,8 @@ class VertexAttributes
 
         // Counters
         GLuint attribCount = 0;
+        GLsizeiptr currentOffset = 0;
+        GLuint stride = 0;
 
         // Info
         bool useIndices = false;

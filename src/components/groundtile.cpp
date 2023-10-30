@@ -1,6 +1,6 @@
 #include "groundtile.hpp"
 
-// Vertex layout: (x, y, z) position only
+// Static ground tile vertex data
 static const VertexPosNormUv GROUND_VERTICES[] =
 {
     {-1.0f, 0.0f, -1.0f,    0.0f, 1.0f, 0.0f,   0.0f, 1.0f},
@@ -26,16 +26,18 @@ GroundTile::GroundTile(const glm::vec3& pos) : position(pos)
         ebo = new GPUBuffer(BufferType::StaticIndex, sizeof(GROUND_INDICES), GROUND_INDICES);
         vao = new VertexAttributes(VertexFormat::POS_NORM_UV, vbo, ebo);
 
-        instanceUBO = new GPUBuffer(BufferType::Uniform, sizeof(glm::vec3) * MAX_INSTANCES);
+        instanceUBO = new GPUBuffer(BufferType::Uniform, sizeof(glm::vec4) * MAX_INSTANCES);
 
         // Load the default shader
+        // TODO: Shader should be passed in...
         shader = new Shader();
         shader->LoadShaderSource(GL_VERTEX_SHADER, "data/groundTile.vs");
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/groundTile.fs");
         shader->Link();
+        shader->Use();
         shader->BindUniformBlock("InstanceBlock", 1);
         shader->SetUniform("tex", 0);
-        shader->BindUniformBlock("CameraBlock", 0); // TODO: This should move...
+        shader->BindUniformBlock("CameraBlock", 0);
     }
 
     refCount++;
@@ -69,7 +71,7 @@ void GroundTile::Draw()
 
     // Increase counter and write instance position to buffer
     drawCount++;
-    instanceUBO->Write(position);
+    instanceUBO->Write(glm::vec4(position, 1));
 }
 
 // Flushes all grounds drawn since the last flush
@@ -78,7 +80,7 @@ void GroundTile::FlushDrawCalls()
     // Only flush if there is something to render
     if (drawCount == 0) return;
 
-    // Flush all buffer writes and bind vao
+    // Flush all buffer writes and bind objects
     instanceUBO->Flush();
     instanceUBO->BindBase(GL_UNIFORM_BUFFER, 1);
     vao->Bind();

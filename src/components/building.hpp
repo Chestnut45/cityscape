@@ -79,6 +79,7 @@ class Building
         size_t indBytes = 0;
         static inline GLuint vertexCount = 0;
         static inline GLuint indexCount = 0;
+        static inline GLuint drawCount = 0;
 
         // Static resources
         static inline Texture2D* texture = nullptr;

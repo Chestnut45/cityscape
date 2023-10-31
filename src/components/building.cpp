@@ -148,11 +148,15 @@ void Building::Draw()
     // Increase static counters
     vertexCount += vertices.size();
     indexCount += indices.size();
+    drawCount++;
 }
 
 // Flushes all buildings drawn since last flush
 void Building::Flush()
 {
+    // Only flush if we have drawn at least once building
+    if (drawCount == 0) return;
+
     // Ensure all buffer writes are flushed
     vbo->Flush();
     ebo->Flush();
@@ -169,6 +173,7 @@ void Building::Flush()
     // Reset static counters
     vertexCount = 0;
     indexCount = 0;
+    drawCount = 0;
 }
 
 // Adds a quad from the last 4 vertices added

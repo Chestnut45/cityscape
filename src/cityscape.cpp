@@ -21,6 +21,10 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
         }
     }
 
+    // TEST add single building
+    entt::entity bldg = registry.create();
+    registry.emplace<Building>(bldg, glm::ivec3(0), 1, 2, 0);
+
     // Initialize mouse input
     glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (glfwRawMouseMotionSupported())
@@ -112,10 +116,11 @@ void Cityscape::render()
     GroundTile::FlushDrawCalls();
 
     // Then draw all buildings next
-    for(auto &&[entity, Building]: registry.view<Building>().each())
+    for(auto &&[entity, building]: registry.view<Building>().each())
     {
-        // building.Draw();
+        building.Draw();
     }
+    Building::Flush();
 
     // Draw the sky
     sky.Draw();

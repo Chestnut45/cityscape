@@ -48,6 +48,9 @@ class GPUBuffer
         inline GLuint GetName() const { return bufferID; };
         inline BufferType GetType() const { return type; };
 
+        // Helper method to ensure buffer writes are safe
+        inline bool CanWrite(size_t bytes) const { return (byteOffset + bytes <= size); };
+
     // Data / implementation
     private:
         // Should know their own buffer type, small cost
@@ -63,15 +66,4 @@ class GPUBuffer
         // OpenGL object handles
         GLuint bufferID;
         GLenum defaultTarget;
-
-        // Helper method to ensure buffer writes are safe
-        inline bool CanWrite(size_t bytes) const
-        {
-            if (byteOffset + bytes > size)
-            {
-                std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
-                return false;
-            }
-            return true;
-        };
 };

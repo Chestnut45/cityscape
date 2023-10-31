@@ -73,7 +73,11 @@ GPUBuffer::~GPUBuffer()
 bool GPUBuffer::Write(const glm::vec3& value)
 {
     // Ensure buffer has space for write
-    if (!CanWrite(sizeof(glm::vec3))) return false;
+    if (!CanWrite(sizeof(glm::vec3))) 
+    {
+        std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
+        return false;
+    }
 
     // Grab a float pointer at the current offset
     GLfloat* pData = (GLfloat*)(data + byteOffset);
@@ -92,7 +96,11 @@ bool GPUBuffer::Write(const glm::vec3& value)
 bool GPUBuffer::Write(const glm::vec4& value)
 {
     // Ensure buffer has space for write
-    if (!CanWrite(sizeof(glm::vec4))) return false;
+    if (!CanWrite(sizeof(glm::vec4))) 
+    {
+        std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
+        return false;
+    }
 
     // Grab a float pointer at the current offset
     GLfloat* pData = (GLfloat*)(data + byteOffset);
@@ -112,7 +120,11 @@ bool GPUBuffer::Write(const glm::vec4& value)
 bool GPUBuffer::Write(const glm::mat4& value)
 {
     // Ensure buffer has space for write
-    if (!CanWrite(sizeof(glm::mat4))) return false;
+    if (!CanWrite(sizeof(glm::mat4))) 
+    {
+        std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
+        return false;
+    }
 
     // Grab a float pointer at the current offset
     GLfloat* pData = (GLfloat*)(data + byteOffset);
@@ -135,7 +147,11 @@ bool GPUBuffer::Write(const glm::mat4& value)
 bool GPUBuffer::Write(const void* const data, GLuint size)
 {
     // Ensure buffer has space for write
-    if (!CanWrite(size)) return false;
+    if (!CanWrite(size)) 
+    {
+        std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
+        return false;
+    }
 
     // Copy the data into the buffer
     memcpy((void*)(this->data + byteOffset), data, size);

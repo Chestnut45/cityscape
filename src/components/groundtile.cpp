@@ -93,6 +93,7 @@ void GroundTile::FlushDrawCalls()
 
     // Issue draw call
     glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, drawCount);
+    glBindVertexArray(0);
 
     // Reset counter
     drawCount = 0;

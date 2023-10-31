@@ -117,18 +117,17 @@ void Sky::SetTOD(float time)
 // Renders the sky
 void Sky::Draw()
 {
+    // Bind resources
     skyShader.Use();
-
-    // Change depth function so max distance still renders
-    glDepthFunc(GL_LEQUAL);
-
-    // TODO: Bind VertexAttributes
     skyboxVAO->Bind();
 
     // Bind day / night cubemaps to texture units
     dayBox.Bind((int)SkyTextureUnit::Day);
     nightBox.Bind((int)SkyTextureUnit::Night);
 
+    // Change depth function so max distance still renders
+    glDepthFunc(GL_LEQUAL);
+    
     // Draw, unbind, and reset depth function
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);

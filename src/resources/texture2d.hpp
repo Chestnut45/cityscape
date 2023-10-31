@@ -24,8 +24,14 @@ class Texture2D
 
         // Binding operations
         void Bind(int texUnit = 0);
+
+        // Accessors
+        inline int GetWidth() const { return width; };
+        inline int GetHeight() const { return height; };
     
     // Data / implementation
     private:
         GLuint textureID;
+        int width = 0;
+        int height = 0;
 };

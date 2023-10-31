@@ -112,7 +112,7 @@ void Cityscape::render()
     GroundTile::FlushDrawCalls();
 
     // Then draw all buildings next
-    for(auto &&[entity]: registry.view<Building>().each())
+    for(auto &&[entity, Building]: registry.view<Building>().each())
     {
         // building.Draw();
     }

@@ -29,6 +29,9 @@ Texture2D::Texture2D(const std::string& texPath)
         stbi_image_free(data);
     }
 
+    this->width = width;
+    this->height = height;
+
     // Unbind
     glBindTexture(GL_TEXTURE_2D, 0);
 }

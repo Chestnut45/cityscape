@@ -131,11 +131,14 @@ void Cityscape::ProcessInput(float dt)
     // Rotate the camera according to mouse movement
     camera.Rotate(mouseOffset.x, -mouseOffset.y);
 
+    // Boost if shift is held
+    float boost = isKeyDown(GLFW_KEY_LEFT_SHIFT) ? 2 : 1;
+
     // Move the camera according to WASD
-    if (isKeyDown(GLFW_KEY_W)) camera.Translate(camera.GetDirection() * dt * cameraSpeed);
-    if (isKeyDown(GLFW_KEY_S)) camera.Translate(-camera.GetDirection() * dt * cameraSpeed);
-    if (isKeyDown(GLFW_KEY_A)) camera.Translate(-camera.GetRight() * dt * cameraSpeed);
-    if (isKeyDown(GLFW_KEY_D)) camera.Translate(camera.GetRight() * dt * cameraSpeed);
+    if (isKeyDown(GLFW_KEY_W)) camera.Translate(camera.GetDirection() * dt * cameraSpeed * boost);
+    if (isKeyDown(GLFW_KEY_S)) camera.Translate(-camera.GetDirection() * dt * cameraSpeed * boost);
+    if (isKeyDown(GLFW_KEY_A)) camera.Translate(-camera.GetRight() * dt * cameraSpeed * boost);
+    if (isKeyDown(GLFW_KEY_D)) camera.Translate(camera.GetRight() * dt * cameraSpeed * boost);
 
     // Zoom the camera according to scroll
     glm::vec2 scroll = getMouseScroll();

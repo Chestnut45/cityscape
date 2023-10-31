@@ -20,20 +20,21 @@ Building::Building(const glm::ivec3& pos, int stories, float storySize, int vari
     float halfSize = 0.5f * storySize;
     float w = texture->GetWidth();
     float h = texture->GetHeight();
-    float variantSize = h / NUM_VARIANTS;
     float yOffset = 0;
+
+    // Initialize texture atlas offsets
+    glm::vec2 texOffset = {0, variant * (h / NUM_VARIANTS)};
 
     // Generate the first story
 
     // Decide texOffset based on orientation
-    float texOffset;
     if (orientation == Orientation::North)
-        texOffset = (int)TexOffset::Door * w;
+        texOffset.x = (int)TexOffset::Door * w;
     else
-        texOffset = (int)TexOffset::Side * w;
+        texOffset.x = (int)TexOffset::Side * w;
 
     // North wall
-    vertices.push_back({halfSize, storySize, halfSize,   0.0f, 0.0f, 1.0f,   texOffset, variant * variantSize});
+    vertices.push_back({halfSize, storySize, halfSize,   0.0f, 0.0f, 1.0f,   texOffset.x, texOffset.y});
     
     // Generate each additional story's vertex data
     for (int i = 0; i < stories; i++)

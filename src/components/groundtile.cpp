@@ -20,6 +20,7 @@ static const GLuint GROUND_INDICES[] =
 // Constructor with initial position
 GroundTile::GroundTile(const glm::vec2& id) : instancePosition(id.x * TILE_SIZE, 0, id.y * TILE_SIZE, 1)
 {
+    // If first tile created
     if (refCount == 0)
     {
         // Initialize static resources
@@ -50,6 +51,7 @@ GroundTile::~GroundTile()
 {
     refCount--;
 
+    // If last tile destroyed
     if (refCount == 0)
     {
         // Cleanup static resources

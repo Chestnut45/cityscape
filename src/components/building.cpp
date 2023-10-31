@@ -34,7 +34,7 @@ Building::Building(const glm::ivec3 &pos, int stories, float storySize, int vari
 
     // Generate the first story
 
-    // Decide texOffset based on orientation (only matters for door placement)
+    // Place door depending on facing direction
     if (orientation == Orientation::North)
     {
         AddFace(Orientation::North, TexOffset::Door, variant, 0, halfSize, storySize);
@@ -54,6 +54,14 @@ Building::Building(const glm::ivec3 &pos, int stories, float storySize, int vari
 
     // Generate the roof
     AddFace(Orientation::Up, TexOffset::Roof, variant, stories - 1, halfSize, storySize);
+
+    // Iterate all vertices and add position offset
+    for (auto& v : vertices)
+    {
+        v.x += pos.x;
+        v.y += pos.y;
+        v.z += pos.z;
+    }
 
     // Store final size of each local buffer
     vertBytes = vertices.size() * sizeof(VertexPosNormUv);
@@ -91,7 +99,7 @@ void Building::Draw()
     vbo->Write(vertices.data(), vertBytes);
 
     // Recalculate offset indices
-    std::transform(indices.cbegin(), indices.cend(), offsetIndices.begin(), [](GLuint original) { return original + indexCount; });
+    std::transform(indices.cbegin(), indices.cend(), offsetIndices.begin(), [](GLuint original) { return original + vertexCount; });
 
     // Write offset index data
     ebo->Write(offsetIndices.data(), indBytes);

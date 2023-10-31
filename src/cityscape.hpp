@@ -3,6 +3,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <queue>
+#include <random>
 
 // Required for hashing glm vectors for use as keys in a std::unordered_map
 #ifndef GLM_ENABLE_EXPERIMENTAL

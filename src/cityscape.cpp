@@ -1,5 +1,22 @@
 #include "cityscape.hpp"
 
+// Offset locations relative to a city block origin for buildings
+static const glm::ivec3 smallBuildingOffsets[] =
+{
+    {4, 0, 7},
+    {4, 0, 4},
+    {7, 0, 4},
+    {9, 0, 4},
+    {12, 0, 4},
+    {12, 0, 7},
+    {12, 0, 9},
+    {12, 0, 12},
+    {9, 0, 12},
+    {7, 0, 12},
+    {4, 0, 12},
+    {4, 0, 9},
+};
+
 // Constructor
 Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data/skyboxNight", "data/sky.vs", "data/sky.fs")
 {
@@ -20,10 +37,6 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
             GenerateBlock({x, z});
         }
     }
-
-    // TEST add single building
-    entt::entity bldg = registry.create();
-    registry.emplace<Building>(bldg, glm::ivec3(0), 2, 2, 0);
 
     // Initialize mouse input
     glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -48,22 +61,38 @@ Cityscape::~Cityscape()
 // Deletes and regenerates if one already exists with the given ID
 void Cityscape::GenerateBlock(const glm::ivec2& id)
 {
+    // Initialize static rng resources with default seed
+    static std::default_random_engine rng(4545L);
+    static std::uniform_int_distribution<int> storyDist(1, Building::MAX_STORIES);
+    static std::uniform_int_distribution<int> variantDist(0, Building::NUM_VARIANTS - 1);
+    static std::uniform_int_distribution<int> boolDist(0, 1);
+
     // Delete if already generated
     if (cityBlocks.count(id) > 0) DeleteBlock(id);
 
-    // Create a ground entity
-    entt::entity ground = registry.create();
+    // Create a ground tile component
+    entt::entity temp = registry.create();
+    registry.emplace<GroundTile>(temp, id);
 
-    // Give it a ground tile component
-    registry.emplace<GroundTile>(ground, id);
+    // Retrieve the block position
+    glm::ivec3 blockPos = registry.get<GroundTile>(temp).GetPosition();
 
-    // Register it with the block
-    cityBlocks[id].push_back(ground);
+    // Register the entity with the block
+    cityBlocks[id].push_back(temp);
 
-    // TODO: Generate buildings for each quadrant
+    // Generate buildings for each quadrant
     for (int i = 0; i < 4; i++)
     {
+        // Decide whether to place 1 or 3 buildings
+        // FOR NOW ALL SMALL
+        temp = registry.create();
+        registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i], storyDist(rng), 2, variantDist(rng));
 
+        temp = registry.create();
+        registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 1], storyDist(rng), 2, variantDist(rng));
+
+        temp = registry.create();
+        registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 2], storyDist(rng), 2, variantDist(rng));
     }
 }
 

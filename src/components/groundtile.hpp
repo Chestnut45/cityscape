@@ -29,10 +29,13 @@ class GroundTile
         // Flushes all grounds drawn since the last flush
         static void FlushDrawCalls();
 
+        // Accessors
+        inline const glm::ivec3& GetPosition() const { return position; };
+
     // Data / Implementation
     private:
         // State
-        glm::vec4 instancePosition;
+        glm::ivec3 position;
 
         // Instance information
         static const int MAX_INSTANCES = 128;

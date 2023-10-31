@@ -1,7 +1,10 @@
 #pragma once
 
+#include <algorithm>
 #include <vector>
 #include <glm/glm.hpp>
+
+#include "../resources/vertex.hpp"
 
 class Building
 {
@@ -13,9 +16,18 @@ class Building
         Chimney
     };
 
+    // Valid building facing directions
+    enum class Orientation : int
+    {
+        North,
+        East,
+        South,
+        West
+    };
+
     // Interface
     public:
-        Building(const glm::ivec3& pos, int stories, int width, int height, int variant, FeatureFlags features);
+        Building(const glm::ivec3& pos, int stories, int width, int depth, int variant, FeatureFlags features, Orientation orientation);
         ~Building();
 
         // Delete copy constructor/assignment
@@ -27,8 +39,8 @@ class Building
         void operator=(Building&& other) = delete;
 
         // Constants
-        static const int MAX_STORIES = 16;
-        static const int NUM_VARIANTS = 4;
+        static const inline int MAX_STORIES = 16;
+        static const inline int NUM_VARIANTS = 2;
 
         // Rendering methods
         void Draw();

@@ -63,7 +63,7 @@ class Cityscape: public wolf::App
 
         // Settings
         float mouseSensitivity = 8.0f;
-        float cameraSpeed = 4.0f;
+        float cameraSpeed = 8.0f;
 
         // Timing
         float elapsedTime = 0;

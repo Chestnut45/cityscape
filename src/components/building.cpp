@@ -37,24 +37,23 @@ Building::Building(const glm::ivec3 &pos, int stories, float storySize, int vari
     // Decide texOffset based on orientation (only matters for door placement)
     if (orientation == Orientation::North)
     {
-        AddWall(Orientation::North, TexOffset::Door, variant, 0, halfSize, storySize);
-        AddWall(Orientation::East, TexOffset::Wall, variant, 0, halfSize, storySize);
-        AddWall(Orientation::South, TexOffset::Wall, variant, 0, halfSize, storySize);
-        AddWall(Orientation::West, TexOffset::Wall, variant, 0, halfSize, storySize);
-    }
-
-    for (const auto& v : indices)
-    {
-        std::cout << v << std::endl;
+        AddFace(Orientation::North, TexOffset::Door, variant, 0, halfSize, storySize);
+        AddFace(Orientation::East, TexOffset::Wall, variant, 0, halfSize, storySize);
+        AddFace(Orientation::South, TexOffset::Wall, variant, 0, halfSize, storySize);
+        AddFace(Orientation::West, TexOffset::Wall, variant, 0, halfSize, storySize);
     }
 
     // Generate each additional story's vertex data
-    for (int i = 0; i < stories; i++)
+    for (int i = 1; i < stories; i++)
     {
-        // Calculate story offset
+        AddFace(Orientation::North, TexOffset::Window, variant, i, halfSize, storySize);
+        AddFace(Orientation::East, TexOffset::LargeWindow, variant, i, halfSize, storySize);
+        AddFace(Orientation::South, TexOffset::Window, variant, i, halfSize, storySize);
+        AddFace(Orientation::West, TexOffset::LargeWindow, variant, i, halfSize, storySize);
     }
 
-    // Generate the final story + roof
+    // Generate the roof
+    AddFace(Orientation::Up, TexOffset::Roof, variant, stories - 1, halfSize, storySize);
 
     // Store final size of each local buffer
     vertBytes = vertices.size() * sizeof(VertexPosNormUv);
@@ -129,48 +128,58 @@ void Building::Flush()
 }
 
 // Constructs a wall with the given parameters
-void Building::AddWall(Orientation dir, TexOffset type, int variant, int story, float halfSize, float storySize)
+void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, float halfSize, float storySize)
 {
     // Calculate texture offsets for upper left vertex of the wall
     float xTexOffs = (float)type * tileSizeNormalized.x;
     float yTexOffs = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
+
+    // Calculate y offset of story
+    float yPosOffs = (float)story * storySize;
 
     // Offset indices by current number of verts
     GLuint n = vertices.size();
 
     switch (dir)
     {
-        // Construct a global north facing wall (Z-)
+        // Construct a global north face (Z-)
         case Orientation::North:
-            vertices.push_back({halfSize, storySize, -halfSize, 0.0f, 0.0f, -1.0f, xTexOffs, yTexOffs});
-            vertices.push_back({-halfSize, storySize, -halfSize, 0.0f, 0.0f, -1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
-            vertices.push_back({halfSize, 0, -halfSize, 0.0f, 0.0f, -1.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
-            vertices.push_back({-halfSize, 0, -halfSize, 0.0f, 0.0f, -1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({halfSize, yPosOffs + storySize, -halfSize, 0.0f, 0.0f, -1.0f, xTexOffs, yTexOffs});
+            vertices.push_back({-halfSize, yPosOffs + storySize, -halfSize, 0.0f, 0.0f, -1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
+            vertices.push_back({halfSize, yPosOffs, -halfSize, 0.0f, 0.0f, -1.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({-halfSize, yPosOffs, -halfSize, 0.0f, 0.0f, -1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
             break;
         
-        // Construct a global east facing wall (X+)
+        // Construct a global east face (X+)
         case Orientation::East:
-            vertices.push_back({halfSize, storySize, halfSize, 1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs});
-            vertices.push_back({halfSize, storySize, -halfSize, 1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
-            vertices.push_back({halfSize, 0, halfSize, 1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
-            vertices.push_back({halfSize, 0, -halfSize, 1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({halfSize, yPosOffs + storySize, halfSize, 1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs});
+            vertices.push_back({halfSize, yPosOffs + storySize, -halfSize, 1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
+            vertices.push_back({halfSize, yPosOffs, halfSize, 1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({halfSize, yPosOffs, -halfSize, 1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
             break;
         
-        // Construct a global south facing wall (Z+)
+        // Construct a global south face (Z+)
         case Orientation::South:
-            vertices.push_back({-halfSize, storySize, halfSize, 0.0f, 0.0f, 1.0f, xTexOffs, yTexOffs});
-            vertices.push_back({halfSize, storySize, halfSize, 0.0f, 0.0f, 1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
-            vertices.push_back({-halfSize, 0, halfSize, 0.0f, 0.0f, 1.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
-            vertices.push_back({halfSize, 0, halfSize, 0.0f, 0.0f, 1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({-halfSize, yPosOffs + storySize, halfSize, 0.0f, 0.0f, 1.0f, xTexOffs, yTexOffs});
+            vertices.push_back({halfSize, yPosOffs + storySize, halfSize, 0.0f, 0.0f, 1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
+            vertices.push_back({-halfSize, yPosOffs, halfSize, 0.0f, 0.0f, 1.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({halfSize, yPosOffs, halfSize, 0.0f, 0.0f, 1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
             break;
         
-        // Construct a global west facing wall (X-)
+        // Construct a global west face (X-)
         case Orientation::West:
-            vertices.push_back({-halfSize, storySize, -halfSize, -1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs});
-            vertices.push_back({-halfSize, storySize, halfSize, -1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
-            vertices.push_back({-halfSize, 0, -halfSize, -1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
-            vertices.push_back({-halfSize, 0, halfSize, -1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({-halfSize, yPosOffs + storySize, -halfSize, -1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs});
+            vertices.push_back({-halfSize, yPosOffs + storySize, halfSize, -1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
+            vertices.push_back({-halfSize, yPosOffs, -halfSize, -1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({-halfSize, yPosOffs, halfSize, -1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
             break;
+
+        // Construct a global up face (Y+)
+        case Orientation::Up:
+            vertices.push_back({-halfSize, yPosOffs + storySize, -halfSize, 0.0f, 1.0f, 0.0f, xTexOffs, yTexOffs});
+            vertices.push_back({halfSize, yPosOffs + storySize, -halfSize, 0.0f, 1.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
+            vertices.push_back({-halfSize, yPosOffs + storySize, halfSize, 0.0f, 1.0f, 0.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({halfSize, yPosOffs + storySize, halfSize, 0.0f, 1.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
     }
 
     // Add the indices for the wall

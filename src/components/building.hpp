@@ -21,13 +21,15 @@ class Building
         Chimney
     };
 
-    // Valid building facing directions
+    // Valid building face directions
     enum class Orientation : int
     {
         North,
         East,
         South,
-        West
+        West,
+        Up,
+        Down
     };
 
     // Building texture atlas offsets
@@ -95,5 +97,5 @@ class Building
         static inline int refCount = 0;
 
         // Helper methods for procedural generation
-        void AddWall(Orientation dir, TexOffset type, int variant, int story, float halfSize, float storySize);
+        void AddFace(Orientation dir, TexOffset type, int variant, int story, float halfSize, float storySize);
 };

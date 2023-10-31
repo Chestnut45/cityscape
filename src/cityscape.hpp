@@ -68,4 +68,7 @@ class Cityscape: public wolf::App
 
         // Timing
         float elapsedTime = 0;
+
+        // Default random seed
+        long int seed = 4545L;
 };

@@ -19,6 +19,7 @@ Building::Building(const glm::ivec3 &pos, int stories, float storySize, int vari
         shader->BindUniformBlock("CameraBlock", 0);
         shader->SetUniform("buildingAtlas", 0);
 
+        // Calculate normalized tile size for atlas offsets
         float w = texture->GetWidth();
         float h = texture->GetHeight();
         tileSizeNormalized = glm::vec2((float)TILE_SIZE / w, (float)TILE_SIZE / h);
@@ -35,21 +36,44 @@ Building::Building(const glm::ivec3 &pos, int stories, float storySize, int vari
     // Generate the first story
 
     // Place door depending on facing direction
-    if (orientation == Orientation::North)
+    switch (orientation)
     {
-        AddFace(Orientation::North, TexOffset::Door, variant, 0, halfSize, storySize);
-        AddFace(Orientation::East, TexOffset::Wall, variant, 0, halfSize, storySize);
-        AddFace(Orientation::South, TexOffset::Wall, variant, 0, halfSize, storySize);
-        AddFace(Orientation::West, TexOffset::Wall, variant, 0, halfSize, storySize);
+        case Orientation::North:
+            AddFace(Orientation::North, TexOffset::Door, variant, 0, halfSize, storySize);
+            AddFace(Orientation::East, TexOffset::Wall, variant, 0, halfSize, storySize);
+            AddFace(Orientation::South, TexOffset::Wall, variant, 0, halfSize, storySize);
+            AddFace(Orientation::West, TexOffset::Wall, variant, 0, halfSize, storySize);
+            break;
+        
+        case Orientation::East:
+            AddFace(Orientation::North, TexOffset::Wall, variant, 0, halfSize, storySize);
+            AddFace(Orientation::East, TexOffset::Door, variant, 0, halfSize, storySize);
+            AddFace(Orientation::South, TexOffset::Wall, variant, 0, halfSize, storySize);
+            AddFace(Orientation::West, TexOffset::Wall, variant, 0, halfSize, storySize);
+            break;
+        
+        case Orientation::South:
+            AddFace(Orientation::North, TexOffset::Wall, variant, 0, halfSize, storySize);
+            AddFace(Orientation::East, TexOffset::Wall, variant, 0, halfSize, storySize);
+            AddFace(Orientation::South, TexOffset::Door, variant, 0, halfSize, storySize);
+            AddFace(Orientation::West, TexOffset::Wall, variant, 0, halfSize, storySize);
+            break;
+        
+        case Orientation::West:
+            AddFace(Orientation::North, TexOffset::Wall, variant, 0, halfSize, storySize);
+            AddFace(Orientation::East, TexOffset::Wall, variant, 0, halfSize, storySize);
+            AddFace(Orientation::South, TexOffset::Wall, variant, 0, halfSize, storySize);
+            AddFace(Orientation::West, TexOffset::Door, variant, 0, halfSize, storySize);
+            break;
     }
 
     // Generate each additional story's vertex data
     for (int i = 1; i < stories; i++)
     {
-        AddFace(Orientation::North, TexOffset::Window, variant, i, halfSize, storySize);
-        AddFace(Orientation::East, TexOffset::LargeWindow, variant, i, halfSize, storySize);
-        AddFace(Orientation::South, TexOffset::Window, variant, i, halfSize, storySize);
-        AddFace(Orientation::West, TexOffset::LargeWindow, variant, i, halfSize, storySize);
+        AddFace(Orientation::North, RandomWallType(), variant, i, halfSize, storySize);
+        AddFace(Orientation::East, RandomWallType(), variant, i, halfSize, storySize);
+        AddFace(Orientation::South, RandomWallType(), variant, i, halfSize, storySize);
+        AddFace(Orientation::West, RandomWallType(), variant, i, halfSize, storySize);
     }
 
     // Generate the roof
@@ -197,4 +221,10 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
     indices.push_back(n + 1);
     indices.push_back(n + 2);
     indices.push_back(n + 3);
+}
+
+// Randomly chooses a wall type (not seeded)
+Building::TexOffset Building::RandomWallType() const
+{
+    return (Building::TexOffset)wallDist(rng);
 }

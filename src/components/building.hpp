@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <random>
 #include <glm/glm.hpp>
 
 #include "../resources/gpubuffer.hpp"
@@ -12,39 +13,40 @@
 
 class Building
 {
-    // Feature flags for generating extra index data
-    enum class FeatureFlags : int
-    {
-        None,
-        Awning,
-        Deck,
-        Chimney
-    };
-
-    // Valid building face directions
-    enum class Orientation : int
-    {
-        North,
-        East,
-        South,
-        West,
-        Up,
-        Down
-    };
-
-    // Building texture atlas offsets
-    enum class TexOffset : int
-    {
-        Door = 0,
-        Wall,
-        Window,
-        LargeWindow,
-        Roof,
-        Awning
-    };
-
     // Interface
     public:
+        // Feature flags for generating extra index data
+        enum class FeatureFlags : int
+        {
+            None,
+            Awning,
+            Deck,
+            Chimney
+        };
+
+        // Valid building face directions
+        enum class Orientation : int
+        {
+            North,
+            East,
+            South,
+            West,
+            Up,
+            Down
+        };
+
+        // Building texture atlas offsets
+        enum class TexOffset : int
+        {
+            Door = 0,
+            Wall,
+            Window,
+            LargeWindow,
+            Roof,
+            Awning
+        };
+
+        // Constructor
         Building(const glm::ivec3& pos, int stories, float storySize, int variant, FeatureFlags features = FeatureFlags::None, Orientation orientation = Orientation::North);
         ~Building();
 
@@ -98,4 +100,11 @@ class Building
 
         // Helper methods for procedural generation
         void AddFace(Orientation dir, TexOffset type, int variant, int story, float halfSize, float storySize);
+
+        // RNG
+        static inline std::default_random_engine rng;
+        static inline std::uniform_int_distribution<int> wallDist{(int)TexOffset::Wall, (int)TexOffset::LargeWindow};
+
+        // RNG methods
+        TexOffset RandomWallType() const;
 };

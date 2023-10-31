@@ -43,6 +43,11 @@ Building::Building(const glm::ivec3 &pos, int stories, float storySize, int vari
         AddWall(Orientation::West, TexOffset::Wall, variant, 0, halfSize, storySize);
     }
 
+    for (const auto& v : indices)
+    {
+        std::cout << v << std::endl;
+    }
+
     // Generate each additional story's vertex data
     for (int i = 0; i < stories; i++)
     {
@@ -130,6 +135,9 @@ void Building::AddWall(Orientation dir, TexOffset type, int variant, int story, 
     float xTexOffs = (float)type * tileSizeNormalized.x;
     float yTexOffs = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
 
+    // Offset indices by current number of verts
+    GLuint n = vertices.size();
+
     switch (dir)
     {
         // Construct a global north facing wall (Z-)
@@ -150,10 +158,10 @@ void Building::AddWall(Orientation dir, TexOffset type, int variant, int story, 
         
         // Construct a global south facing wall (Z+)
         case Orientation::South:
-            vertices.push_back({-halfSize, storySize, -halfSize, 0.0f, 0.0f, 1.0f, xTexOffs, yTexOffs});
-            vertices.push_back({halfSize, storySize, -halfSize, 0.0f, 0.0f, 1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
-            vertices.push_back({-halfSize, 0, -halfSize, 0.0f, 0.0f, 1.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
-            vertices.push_back({halfSize, 0, -halfSize, 0.0f, 0.0f, 1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({-halfSize, storySize, halfSize, 0.0f, 0.0f, 1.0f, xTexOffs, yTexOffs});
+            vertices.push_back({halfSize, storySize, halfSize, 0.0f, 0.0f, 1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
+            vertices.push_back({-halfSize, 0, halfSize, 0.0f, 0.0f, 1.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({halfSize, 0, halfSize, 0.0f, 0.0f, 1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
             break;
         
         // Construct a global west facing wall (X-)
@@ -164,9 +172,6 @@ void Building::AddWall(Orientation dir, TexOffset type, int variant, int story, 
             vertices.push_back({-halfSize, 0, halfSize, -1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
             break;
     }
-
-    // Offset by current number of verts
-    GLuint n = vertices.size();
 
     // Add the indices for the wall
     indices.push_back(n);

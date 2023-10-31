@@ -34,7 +34,7 @@ class Building
     enum class TexOffset : int
     {
         Door = 0,
-        Side,
+        Wall,
         Window,
         LargeWindow,
         Roof,
@@ -59,7 +59,6 @@ class Building
         static const inline int NUM_VARIANTS = 2;
         static const inline int MAX_VERTICES = 16'384;
         static const inline int MAX_INDICES = 65'536;
-        static const inline int TILE_SIZE = 64;
 
         // Rendering methods
         void Draw();
@@ -81,6 +80,10 @@ class Building
         static inline GLuint indexCount = 0;
         static inline GLuint drawCount = 0;
 
+        // Tile sizes
+        static const inline int TILE_SIZE = 64;
+        static inline glm::vec2 tileSizeNormalized;
+
         // Static resources
         static inline Texture2D* texture = nullptr;
         static inline GPUBuffer* vbo = nullptr;
@@ -92,5 +95,5 @@ class Building
         static inline int refCount = 0;
 
         // Helper methods for procedural generation
-        void AddQuad();
+        void AddWall(Orientation dir, TexOffset type, int variant, int story, float halfSize, float storySize);
 };

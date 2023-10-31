@@ -86,9 +86,9 @@ VertexAttributes::VertexAttributes(VertexFormat format, const GPUBuffer* const v
         useIndices = true;
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // This is fine since the VAO is already unbound
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 // Destructor

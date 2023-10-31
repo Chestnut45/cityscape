@@ -15,10 +15,13 @@ Building::Building(const glm::ivec3 &pos, int stories, float storySize, int vari
         shader->LoadShaderSource(GL_VERTEX_SHADER, "data/building.vs");
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/building.fs");
         shader->Link();
-
         shader->Use();
         shader->BindUniformBlock("CameraBlock", 0);
         shader->SetUniform("buildingAtlas", 0);
+
+        float w = texture->GetWidth();
+        float h = texture->GetHeight();
+        tileSizeNormalized = glm::vec2((float)TILE_SIZE / w, (float)TILE_SIZE / h);
     }
     refCount++;
 
@@ -26,74 +29,24 @@ Building::Building(const glm::ivec3 &pos, int stories, float storySize, int vari
     stories = std::clamp(stories, 1, MAX_STORIES);
     variant = std::clamp(variant, 0, NUM_VARIANTS);
 
-    // Retrieve texture dimensions
-    float w = texture->GetWidth();
-    float h = texture->GetHeight();
-
     // Only need to calculate these once
     float halfSize = 0.5f * storySize;
-    float tileSizeNormalized = (float)TILE_SIZE / w;
-    float yOffset = 0;
-
-    // Initialize texture atlas offsets
-    glm::vec2 texOffset = {0, variant * (h / NUM_VARIANTS)};
 
     // Generate the first story
 
     // Decide texOffset based on orientation (only matters for door placement)
     if (orientation == Orientation::North)
-        texOffset.x = (int)TexOffset::Door * w;
-    else
-        texOffset.x = (int)TexOffset::Side * w;
-
-    // North wall (Z-)
-    vertices.push_back({halfSize, storySize, -halfSize, 0.0f, 0.0f, -1.0f, texOffset.x, texOffset.y});
-    vertices.push_back({-halfSize, storySize, -halfSize, 0.0f, 0.0f, -1.0f, texOffset.x + tileSizeNormalized, texOffset.y});
-    vertices.push_back({halfSize, 0, -halfSize, 0.0f, 0.0f, -1.0f, texOffset.x, texOffset.y + tileSizeNormalized});
-    vertices.push_back({-halfSize, 0, -halfSize, 0.0f, 0.0f, -1.0f, texOffset.x + tileSizeNormalized, texOffset.y + tileSizeNormalized});
-    AddQuad();
-
-    if (orientation == Orientation::East)
-        texOffset.x = (int)TexOffset::Door * w;
-    else
-        texOffset.x = (int)TexOffset::Side * w;
-
-    // East wall (X+)
-    vertices.push_back({halfSize, storySize, halfSize, 1.0f, 0.0f, 0.0f, texOffset.x, texOffset.y});
-    vertices.push_back({halfSize, storySize, -halfSize, 1.0f, 0.0f, 0.0f, texOffset.x + tileSizeNormalized, texOffset.y});
-    vertices.push_back({halfSize, 0, halfSize, 1.0f, 0.0f, 0.0f, texOffset.x, texOffset.y + tileSizeNormalized});
-    vertices.push_back({halfSize, 0, -halfSize, 1.0f, 0.0f, 0.0f, texOffset.x + tileSizeNormalized, texOffset.y + tileSizeNormalized});
-    AddQuad();
-
-    if (orientation == Orientation::South)
-        texOffset.x = (int)TexOffset::Door * w;
-    else
-        texOffset.x = (int)TexOffset::Side * w;
-
-    // South wall (Z+)
-    vertices.push_back({-halfSize, storySize, halfSize, 0.0f, 0.0f, 1.0f, texOffset.x, texOffset.y});
-    vertices.push_back({halfSize, storySize, halfSize, 0.0f, 0.0f, 1.0f, texOffset.x + tileSizeNormalized, texOffset.y});
-    vertices.push_back({-halfSize, 0, halfSize, 0.0f, 0.0f, 1.0f, texOffset.x, texOffset.y + tileSizeNormalized});
-    vertices.push_back({halfSize, 0, halfSize, 0.0f, 0.0f, 1.0f, texOffset.x + tileSizeNormalized, texOffset.y + tileSizeNormalized});
-    AddQuad();
-
-    if (orientation == Orientation::West)
-        texOffset.x = (int)TexOffset::Door * w;
-    else
-        texOffset.x = (int)TexOffset::Side * w;
-
-    // West wall (X-)
-    vertices.push_back({-halfSize, storySize, -halfSize, -1.0f, 0.0f, 0.0f, texOffset.x, texOffset.y});
-    vertices.push_back({-halfSize, storySize, halfSize, -1.0f, 0.0f, 0.0f, texOffset.x + tileSizeNormalized, texOffset.y});
-    vertices.push_back({-halfSize, 0, -halfSize, -1.0f, 0.0f, 0.0f, texOffset.x, texOffset.y + tileSizeNormalized});
-    vertices.push_back({-halfSize, 0, halfSize, -1.0f, 0.0f, 0.0f, texOffset.x + tileSizeNormalized, texOffset.y + tileSizeNormalized});
-    AddQuad();
+    {
+        AddWall(Orientation::North, TexOffset::Door, variant, 0, halfSize, storySize);
+        AddWall(Orientation::East, TexOffset::Wall, variant, 0, halfSize, storySize);
+        AddWall(Orientation::South, TexOffset::Wall, variant, 0, halfSize, storySize);
+        AddWall(Orientation::West, TexOffset::Wall, variant, 0, halfSize, storySize);
+    }
 
     // Generate each additional story's vertex data
     for (int i = 0; i < stories; i++)
     {
         // Calculate story offset
-        yOffset += storySize;
     }
 
     // Generate the final story + roof
@@ -134,13 +87,7 @@ void Building::Draw()
     vbo->Write(vertices.data(), vertBytes);
 
     // Recalculate offset indices
-    // std::transform(indices.cbegin(), indices.cend(), offsetIndices.begin(), [](GLuint original) { return original + indexCount; });
-
-    offsetIndices.clear();
-    for (const GLuint& s : indices)
-    {
-        offsetIndices.push_back(s + indexCount);
-    }
+    std::transform(indices.cbegin(), indices.cend(), offsetIndices.begin(), [](GLuint original) { return original + indexCount; });
 
     // Write offset index data
     ebo->Write(offsetIndices.data(), indBytes);
@@ -167,7 +114,7 @@ void Building::Flush()
     vao->Bind();
 
     // Issue draw call
-    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_BYTE, 0);
+    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
     // Reset static counters
@@ -176,13 +123,56 @@ void Building::Flush()
     drawCount = 0;
 }
 
-// Adds a quad from the last 4 vertices added
-void Building::AddQuad()
+// Constructs a wall with the given parameters
+void Building::AddWall(Orientation dir, TexOffset type, int variant, int story, float halfSize, float storySize)
 {
-    indices.push_back(vertices.size());
-    indices.push_back(vertices.size() + 2);
-    indices.push_back(vertices.size() + 1);
-    indices.push_back(vertices.size() + 1);
-    indices.push_back(vertices.size() + 2);
-    indices.push_back(vertices.size() + 3);
+    // Calculate texture offsets for upper left vertex of the wall
+    float xTexOffs = (float)type * tileSizeNormalized.x;
+    float yTexOffs = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
+
+    switch (dir)
+    {
+        // Construct a global north facing wall (Z-)
+        case Orientation::North:
+            vertices.push_back({halfSize, storySize, -halfSize, 0.0f, 0.0f, -1.0f, xTexOffs, yTexOffs});
+            vertices.push_back({-halfSize, storySize, -halfSize, 0.0f, 0.0f, -1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
+            vertices.push_back({halfSize, 0, -halfSize, 0.0f, 0.0f, -1.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({-halfSize, 0, -halfSize, 0.0f, 0.0f, -1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+            break;
+        
+        // Construct a global east facing wall (X+)
+        case Orientation::East:
+            vertices.push_back({halfSize, storySize, halfSize, 1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs});
+            vertices.push_back({halfSize, storySize, -halfSize, 1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
+            vertices.push_back({halfSize, 0, halfSize, 1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({halfSize, 0, -halfSize, 1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+            break;
+        
+        // Construct a global south facing wall (Z+)
+        case Orientation::South:
+            vertices.push_back({-halfSize, storySize, -halfSize, 0.0f, 0.0f, 1.0f, xTexOffs, yTexOffs});
+            vertices.push_back({halfSize, storySize, -halfSize, 0.0f, 0.0f, 1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
+            vertices.push_back({-halfSize, 0, -halfSize, 0.0f, 0.0f, 1.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({halfSize, 0, -halfSize, 0.0f, 0.0f, 1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+            break;
+        
+        // Construct a global west facing wall (X-)
+        case Orientation::West:
+            vertices.push_back({-halfSize, storySize, -halfSize, -1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs});
+            vertices.push_back({-halfSize, storySize, halfSize, -1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
+            vertices.push_back({-halfSize, 0, -halfSize, -1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
+            vertices.push_back({-halfSize, 0, halfSize, -1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+            break;
+    }
+
+    // Offset by current number of verts
+    GLuint n = vertices.size();
+
+    // Add the indices for the wall
+    indices.push_back(n);
+    indices.push_back(n + 2);
+    indices.push_back(n + 1);
+    indices.push_back(n + 1);
+    indices.push_back(n + 2);
+    indices.push_back(n + 3);
 }

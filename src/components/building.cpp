@@ -1,7 +1,7 @@
 #include "building.hpp"
 
 // Main constructor
-Building::Building(const glm::ivec3 &pos, int stories, float storySize, int variant, FeatureFlags features, Orientation orientation)
+Building::Building(const glm::ivec3 &pos, int stories, float storySize, int variant, Feature features, Orientation orientation)
 {
     // Initialize static resources if first instance
     if (refCount == 0)
@@ -79,7 +79,7 @@ Building::Building(const glm::ivec3 &pos, int stories, float storySize, int vari
     // Generate the roof
     AddFace(Orientation::Up, TexOffset::Roof, variant, stories - 1, halfSize, storySize);
 
-    // Iterate all vertices and add position offset
+    // Iterate all vertices and add world position offset after generation is complete
     for (auto& v : vertices)
     {
         v.x += pos.x;
@@ -212,6 +212,7 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
             vertices.push_back({halfSize, yPosOffs + storySize, -halfSize, 0.0f, 1.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
             vertices.push_back({-halfSize, yPosOffs + storySize, halfSize, 0.0f, 1.0f, 0.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
             vertices.push_back({halfSize, yPosOffs + storySize, halfSize, 0.0f, 1.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+            break;
     }
 
     // Add the indices for the wall
@@ -223,8 +224,41 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
     indices.push_back(n + 3);
 }
 
+// Adds a feature to the building
+void Building::AddFeature(Feature feature, Orientation orientation)
+{
+    switch (feature)
+    {
+        case Feature::Awning:
+
+            // Add vertices based on orientation
+            switch (orientation)
+            {
+                case Orientation::North:
+
+                    break;
+                
+                case Orientation::East:
+
+                    break;
+                
+                case Orientation::South:
+
+                    break;
+                
+                case Orientation::West:
+
+                    break;
+            }
+
+            // Add indices
+            
+            break;
+    }
+}
+
 // Randomly chooses a wall type (not seeded)
 Building::TexOffset Building::RandomWallType() const
 {
-    return (Building::TexOffset)wallDist(rng);
+    return (TexOffset)wallDist(rng);
 }

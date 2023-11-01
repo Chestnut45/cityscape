@@ -16,7 +16,7 @@ class Building
     // Interface
     public:
         // Feature flags for generating extra index data
-        enum class FeatureFlags : int
+        enum class Feature : int
         {
             None,
             Awning,
@@ -47,7 +47,7 @@ class Building
         };
 
         // Constructor
-        Building(const glm::ivec3& pos, int stories, float storySize, int variant, FeatureFlags features = FeatureFlags::None, Orientation orientation = Orientation::North);
+        Building(const glm::ivec3& pos, int stories, float storySize, int variant, Feature features = Feature::None, Orientation orientation = Orientation::North);
         ~Building();
 
         // Delete copy constructor/assignment
@@ -60,7 +60,7 @@ class Building
 
         // Constants
         static const inline int MAX_STORIES = 6;
-        static const inline int NUM_VARIANTS = 2;
+        static const inline int NUM_VARIANTS = 4;
         static const inline int MAX_VERTICES = 16'384;
         static const inline int MAX_INDICES = 65'536;
 
@@ -100,6 +100,7 @@ class Building
 
         // Helper methods for procedural generation
         void AddFace(Orientation dir, TexOffset type, int variant, int story, float halfSize, float storySize);
+        void AddFeature(Feature feature, Orientation orientation);
 
         // RNG
         static inline std::default_random_engine rng;

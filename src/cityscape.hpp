@@ -63,7 +63,10 @@ class Cityscape: public wolf::App
 
         // Geometry buffer for deferred shading
         FrameBuffer gBuffer;
-        Texture2D* gPositionTex;
+        Texture2D* gPositionTex = nullptr;
+        Texture2D* gNormalTex = nullptr;
+        Texture2D* gColorSpecTex = nullptr;
+        Texture2D* gDepthStencilTex = nullptr;
 
         // Input
         glm::vec2 prevMousePos;

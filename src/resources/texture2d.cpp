@@ -1,7 +1,7 @@
 #include "texture2d.hpp"
 
 // Generate texture constructor
-Texture2D::Texture2D(int width, int height, GLint format, GLenum filter)
+Texture2D::Texture2D(int width, int height, GLint internalFormat, GLint format, GLenum filter)
 {
     // Generate the texture object
     glGenTextures(1, &textureID);
@@ -13,10 +13,8 @@ Texture2D::Texture2D(int width, int height, GLint format, GLenum filter)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 
-    // 
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
+    // Specify the texture details
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, NULL);
 
     this->width = width;
     this->height = height;

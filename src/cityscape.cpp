@@ -60,6 +60,20 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
+    // Generate geometry buffer textures
+    gPositionTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_NEAREST);
+    gNormalTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_NEAREST);
+    gColorSpecTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_NEAREST);
+    gDepthStencilTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_NEAREST);
+
+    // Attach textures to geometry buffer
+    gBuffer.Bind();
+    gBuffer.AttachTexture(gPositionTex, GL_COLOR_ATTACHMENT0);
+    gBuffer.AttachTexture(gNormalTex, GL_COLOR_ATTACHMENT1);
+    gBuffer.AttachTexture(gColorSpecTex, GL_COLOR_ATTACHMENT2);
+    gBuffer.AttachTexture(gDepthStencilTex, GL_DEPTH_STENCIL_ATTACHMENT);
+    gBuffer.CheckCompleteness();
+
     // Initialize camera pos
     camera.SetPosition(glm::vec3(0, 2, 4));
 
@@ -92,6 +106,12 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
 Cityscape::~Cityscape()
 {
 	std::cout << "Destroying Cityscape..." << std::endl;
+
+    // Delete geometry buffer textures
+    delete gPositionTex;
+    delete gNormalTex;
+    delete gColorSpecTex;
+    delete gDepthStencilTex;
 }
 
 // Generates a city block by id

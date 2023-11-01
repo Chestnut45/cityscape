@@ -22,16 +22,18 @@ class FrameBuffer
         void operator=(FrameBuffer&& other) = delete;
 
         // Attaches a texture to the given attachment point
-        void AttachTexture(const Texture2D& texture, GLenum attachment);
+        void AttachTexture(const Texture2D* const texture, GLenum attachment);
 
         // Bind the framebuffer (defaults to both read and draw)
         void Bind(GLenum target = GL_FRAMEBUFFER);
+
+        // Checks if the framebuffer is complete
+        bool CheckCompleteness();
 
     // Data / implementation
     private:
         // OpenGL objects
         GLuint fbo;
-        std::vector<GLuint> attachments;
 
         // State
         int width = 0;

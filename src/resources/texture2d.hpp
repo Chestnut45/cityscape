@@ -11,7 +11,7 @@ class Texture2D
 {
     // Interface
     public:
-        Texture2D(int width, int height, GLint internalFormat, GLint format, GLenum filter);
+        Texture2D(int width, int height, GLint internalFormat, GLint format, GLenum type, GLenum filter);
         Texture2D(const std::string& texPath, GLenum filter);
         ~Texture2D();
 

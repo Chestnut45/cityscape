@@ -16,7 +16,9 @@
 #include "components/camera.hpp"
 #include "components/groundtile.hpp"
 #include "components/sky.hpp"
+#include "resources/framebuffer.hpp"
 #include "resources/shader.hpp"
+#include "resources/texture2d.hpp"
 
 // EnTT: https://github.com/skypjack/entt
 #include "entt.hpp"
@@ -58,6 +60,10 @@ class Cityscape: public wolf::App
         // This minimizes stutter / lag spikes when generating
         std::queue<glm::ivec2> generationQueue;
         std::queue<glm::ivec2> deletionQueue;
+
+        // Geometry buffer for deferred shading
+        FrameBuffer gBuffer;
+        Texture2D* gPositionTex;
 
         // Input
         glm::vec2 prevMousePos;

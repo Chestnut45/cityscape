@@ -24,7 +24,7 @@ GroundTile::GroundTile(const glm::vec2& id) : position(id.x * TILE_SIZE, 0, id.y
     if (refCount == 0)
     {
         // Initialize static resources
-        texture = new Texture2D("data/cityBlockGround.png");
+        texture = new Texture2D("data/cityBlockGround.png", GL_NEAREST);
         vbo = new GPUBuffer(BufferType::StaticVertex, sizeof(GROUND_VERTICES), GROUND_VERTICES);
         ebo = new GPUBuffer(BufferType::StaticIndex, sizeof(GROUND_INDICES), GROUND_INDICES);
         vao = new VertexAttributes(VertexFormat::POS_NORM_UV, vbo, ebo);

@@ -55,6 +55,11 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     // Enable programs
     glEnable(GL_DEPTH_TEST);
 
+    // Back face culling
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+
     // Initialize camera pos
     camera.SetPosition(glm::vec3(0, 2, 4));
 

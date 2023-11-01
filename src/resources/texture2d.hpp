@@ -11,7 +11,8 @@ class Texture2D
 {
     // Interface
     public:
-        Texture2D(const std::string& texPath);
+        Texture2D(int width, int height, GLint format, GLenum filter);
+        Texture2D(const std::string& texPath, GLenum filter);
         ~Texture2D();
 
         // Delete copy constructor/assignment

@@ -6,7 +6,7 @@ Building::Building(const glm::ivec3 &pos, int stories, float storySize, int vari
     // Initialize static resources if first instance
     if (refCount == 0)
     {
-        texture = new Texture2D("data/buildingAtlas.png");
+        texture = new Texture2D("data/buildingAtlas.png", GL_NEAREST);
         vbo = new GPUBuffer(BufferType::DynamicVertex, sizeof(VertexPosNormUv) * MAX_VERTICES);
         ebo = new GPUBuffer(BufferType::DynamicIndex, sizeof(GLuint) * MAX_INDICES);
         vao = new VertexAttributes(VertexFormat::POS_NORM_UV, vbo, ebo);

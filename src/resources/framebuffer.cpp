@@ -14,7 +14,7 @@ FrameBuffer::~FrameBuffer()
 }
 
 // Attaches a texture to the given attachment point
-void FrameBuffer::AttachTexture(const Texture2D& texture)
+void FrameBuffer::AttachTexture(const Texture2D& texture, GLenum attachment)
 {
 
 }

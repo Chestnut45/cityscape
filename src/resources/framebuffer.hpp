@@ -22,7 +22,7 @@ class FrameBuffer
         void operator=(FrameBuffer&& other) = delete;
 
         // Attaches a texture to the given attachment point
-        void AttachTexture(const Texture2D& texture);
+        void AttachTexture(const Texture2D& texture, GLenum attachment);
 
         // Bind the framebuffer (defaults to both read and draw)
         void Bind(GLenum target = GL_FRAMEBUFFER);

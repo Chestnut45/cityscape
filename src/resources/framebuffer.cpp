@@ -13,8 +13,14 @@ FrameBuffer::~FrameBuffer()
     glDeleteFramebuffers(1, &fbo);
 }
 
-// Bind this framebuffer to the deafult target
-void FrameBuffer::Bind()
+// Attaches a texture to the given attachment point
+void FrameBuffer::AttachTexture(const Texture2D& texture)
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+}
+
+// Bind this framebuffer to the specified target (or GL_FRAMEBUFFER, if none is supplied)
+void FrameBuffer::Bind(GLenum target)
+{
+    glBindFramebuffer(target, fbo);
 }

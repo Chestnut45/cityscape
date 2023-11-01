@@ -26,6 +26,7 @@ class Texture2D
         void Bind(int texUnit = 0);
 
         // Accessors
+        inline GLuint GetID() const { return textureID; };
         inline int GetWidth() const { return width; };
         inline int GetHeight() const { return height; };
     

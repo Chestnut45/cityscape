@@ -32,7 +32,7 @@ class Building
             South,
             West,
             Up,
-            Down
+            Down // unused but here for completeness
         };
 
         // Building texture atlas offsets

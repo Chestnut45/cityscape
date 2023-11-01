@@ -61,7 +61,7 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     // Set the sky's shader to use our camera uniforms
     sky.GetShader().BindUniformBlock("CameraBlock", 0);
 
-    // TODO: Generate a 10x10 grid of city blocks
+    // Generate a 10x10 grid of city blocks
     for (int x = -5; x < 5; x++)
     {
         for (int z = -5; z < 5; z++)
@@ -99,7 +99,7 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
     static std::uniform_int_distribution<int> variantDist(0, Building::NUM_VARIANTS - 1);
     static std::uniform_int_distribution<int> boolDist(0, 1);
 
-    // Delete if already generated
+    // Delete if already generated (regenerate)
     if (cityBlocks.count(id) > 0) DeleteBlock(id);
 
     // Create a ground tile component
@@ -169,7 +169,6 @@ void Cityscape::update(float dt)
     sky.SetTOD((sin(elapsedTime) + 1) / 2);
 
     // Potential TODO: Infinitely generate / unload city blocks as the camera moves around
-    // Requisite Guarantee: 400 MINIMUM buildings must be loaded at any given time
 }
 
 void Cityscape::render()

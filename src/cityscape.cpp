@@ -55,7 +55,7 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     // Enable programs
     glEnable(GL_DEPTH_TEST);
 
-    // Create the camera and initialize position
+    // Initialize camera pos
     camera.SetPosition(glm::vec3(0, 2, 4));
 
     // Set the sky's shader to use our camera uniforms

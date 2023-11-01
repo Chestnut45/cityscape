@@ -33,6 +33,22 @@ static const Building::Orientation smallBuildingOrientations[] =
     Building::Orientation::West
 };
 
+static const glm::ivec3 largeBuildingOffsets[] =
+{
+    {5, 0, 5},
+    {11, 0, 5},
+    {11, 0, 11},
+    {5, 0, 11}
+};
+
+static const Building::Orientation largeBuildingOrientations[] =
+{
+    Building::Orientation::West,
+    Building::Orientation::North,
+    Building::Orientation::East,
+    Building::Orientation::South
+};
+
 // Constructor
 Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data/skyboxNight", "data/sky.vs", "data/sky.fs")
 {
@@ -99,19 +115,28 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
     // Generate buildings for each quadrant
     for (int i = 0; i < 4; i++)
     {
-        // Grab orientation
-        // Decide whether to place 1 or 3 buildings
-        temp = registry.create();
-        registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i], storyDist(rng), 2,
-                                   variantDist(rng), Building::FeatureFlags::None, smallBuildingOrientations[3 * i]);
+        // Decide whether to place 3 small buildings or one large building
+        if (boolDist(rng))
+        {
+            temp = registry.create();
+            registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i], storyDist(rng), 2,
+                                    variantDist(rng), Building::FeatureFlags::None, smallBuildingOrientations[3 * i]);
 
-        temp = registry.create();
-        registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 1], storyDist(rng), 2,
-                                   variantDist(rng), Building::FeatureFlags::None, smallBuildingOrientations[3 * i + 1]);
+            temp = registry.create();
+            registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 1], storyDist(rng), 2,
+                                    variantDist(rng), Building::FeatureFlags::None, smallBuildingOrientations[3 * i + 1]);
 
-        temp = registry.create();
-        registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 2], storyDist(rng), 2,
-                                   variantDist(rng), Building::FeatureFlags::None, smallBuildingOrientations[3 * i + 2]);
+            temp = registry.create();
+            registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 2], storyDist(rng), 2,
+                                    variantDist(rng), Building::FeatureFlags::None, smallBuildingOrientations[3 * i + 2]);
+        }
+        else
+        {
+            temp = registry.create();
+            registry.emplace<Building>(temp, blockPos + largeBuildingOffsets[i], storyDist(rng), 4,
+                                    variantDist(rng), Building::FeatureFlags::None, largeBuildingOrientations[i]);
+        }
+        
     }
 }
 

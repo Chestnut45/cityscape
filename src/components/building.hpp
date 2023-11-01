@@ -59,7 +59,7 @@ class Building
         void operator=(Building&& other) = delete;
 
         // Constants
-        static const inline int MAX_STORIES = 8;
+        static const inline int MAX_STORIES = 6;
         static const inline int NUM_VARIANTS = 2;
         static const inline int MAX_VERTICES = 16'384;
         static const inline int MAX_INDICES = 65'536;

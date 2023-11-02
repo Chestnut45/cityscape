@@ -19,7 +19,6 @@ void FrameBuffer::AttachTexture(const Texture2D* const texture, GLenum attachmen
 {
     // Retrieve ID and bind texture
     GLuint texID = texture->GetID();
-    glBindTexture(GL_TEXTURE_2D, texID);
 
     // Attach it to the given attachment point
     glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texID, 0);
@@ -32,16 +31,16 @@ void FrameBuffer::Bind(GLenum target)
 }
 
 // Checks this fbo for completeness
-// NOTE: This leaves the FBO bound
+// NOTE: This object must be bound
 bool FrameBuffer::CheckCompleteness()
 {
-    Bind();
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+    if (status != GL_FRAMEBUFFER_COMPLETE)
     {
-        return true;
+        std::cout << "ERROR: Framebuffer incomplete: 0x" << status << std::endl;
+        return false;
     }
 
-    // Else report error
-    std::cout << "ERROR: Framebuffer incomplete!" << std::endl;
-    return false;
+    return true;
 }

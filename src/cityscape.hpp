@@ -62,7 +62,7 @@ class Cityscape: public wolf::App
         std::queue<glm::ivec2> deletionQueue;
 
         // Geometry buffer for deferred shading
-        FrameBuffer gBuffer;
+        FrameBuffer* gBuffer = nullptr;
         Texture2D* gPositionTex = nullptr;
         Texture2D* gNormalTex = nullptr;
         Texture2D* gColorSpecTex = nullptr;

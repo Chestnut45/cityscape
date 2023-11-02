@@ -61,20 +61,27 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     glFrontFace(GL_CCW);
 
     // Generate geometry buffer textures
-    gPositionTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_FLOAT, GL_NEAREST);
-    gNormalTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_FLOAT, GL_NEAREST);
-    gColorSpecTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_FLOAT, GL_NEAREST);
-    gDepthStencilTex = new Texture2D(m_width, m_height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, GL_NEAREST);
+    gPositionTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+    gNormalTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+    gColorSpecTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+    gDepthStencilTex = new Texture2D(m_width, m_height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST);
 
     // Attach textures to geometry buffer
-    gBuffer.Bind();
-    gBuffer.AttachTexture(gPositionTex, GL_COLOR_ATTACHMENT0);
-    gBuffer.AttachTexture(gNormalTex, GL_COLOR_ATTACHMENT1);
-    gBuffer.AttachTexture(gColorSpecTex, GL_COLOR_ATTACHMENT2);
-    gBuffer.AttachTexture(gDepthStencilTex, GL_DEPTH_STENCIL_ATTACHMENT);
+    gBuffer = new FrameBuffer();
+    gBuffer->Bind();
+    gBuffer->AttachTexture(gPositionTex, GL_COLOR_ATTACHMENT0);
+    gBuffer->AttachTexture(gNormalTex, GL_COLOR_ATTACHMENT1);
+    gBuffer->AttachTexture(gColorSpecTex, GL_COLOR_ATTACHMENT2);
+    gBuffer->AttachTexture(gDepthStencilTex, GL_DEPTH_STENCIL_ATTACHMENT);
+
+    // Set the draw buffers for the currently bound FBO
     GLenum drawBuffers[3] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
     glDrawBuffers(3, drawBuffers);
-    gBuffer.CheckCompleteness();
+
+    // Check for completeness :)
+    gBuffer->CheckCompleteness();
+
+    // Bind default framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // Initialize camera pos
@@ -111,6 +118,7 @@ Cityscape::~Cityscape()
 	std::cout << "Destroying Cityscape..." << std::endl;
 
     // Delete geometry buffer textures
+    delete gBuffer;
     delete gPositionTex;
     delete gNormalTex;
     delete gColorSpecTex;
@@ -223,7 +231,7 @@ void Cityscape::render()
     Building::Flush();
 
     // Debug: Just spit out errors every frame
-    // GLenum errorCode;
+    GLenum errorCode;
     // while ((errorCode = glGetError()) != GL_NO_ERROR)
     // {
     //     std::string error;

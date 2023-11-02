@@ -7,7 +7,7 @@ Texture2D::Texture2D(int width, int height, GLint internalFormat, GLint format, 
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // Apply texture parameters
+    // Apply default texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
@@ -15,6 +15,7 @@ Texture2D::Texture2D(int width, int height, GLint internalFormat, GLint format, 
 
     // Specify the texture details
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, NULL);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     this->width = width;
     this->height = height;
@@ -27,7 +28,7 @@ Texture2D::Texture2D(const std::string& texPath, GLenum filter)
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // Default texture parameters
+    // Default default texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);

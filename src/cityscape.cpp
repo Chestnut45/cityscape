@@ -320,7 +320,11 @@ void Cityscape::ProcessInput(float dt)
     if (isKeyJustDown(GLFW_KEY_R)) Regenerate();
 
     // Toggle infinite generation mode with I
-    if (isKeyJustDown(GLFW_KEY_I)) infinite = !infinite;
+    if (isKeyJustDown(GLFW_KEY_I))
+    {
+        infinite = !infinite;
+        Regenerate();
+    };
 
     // Zoom the camera according to scroll
     glm::vec2 scroll = getMouseScroll();
@@ -361,4 +365,8 @@ void Cityscape::Regenerate()
             }
         }
     }
+
+    // Clear queues
+    generationQueue.clear();
+    deletionQueue.clear();
 }

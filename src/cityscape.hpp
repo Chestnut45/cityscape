@@ -46,6 +46,7 @@ class Cityscape: public wolf::App
     // Data / implementation
     private:
         // Single instance objects
+        bool infinite = false;
         Camera camera;
         Sky sky;
 
@@ -55,11 +56,11 @@ class Cityscape: public wolf::App
         // Map of city block IDs to entity id lists
         std::unordered_map<glm::ivec2, std::vector<entt::entity>> cityBlocks;
 
-        // Queues of blocks to generate / delete
+        // Queues of blocks to generate
         // These are used to throttle generation / deletion to 1 block per frame
         // This minimizes stutter / lag spikes when generating
-        std::queue<glm::ivec2> generationQueue;
-        std::queue<glm::ivec2> deletionQueue;
+        std::deque<glm::ivec2> generationQueue;
+        std::deque<glm::ivec2> deletionQueue;
 
         // Geometry buffer for deferred shading
         FrameBuffer* gBuffer = nullptr;
@@ -80,4 +81,7 @@ class Cityscape: public wolf::App
 
         // Default random seed
         long int seed = 4545L;
+
+        // Regeneration internal method
+        void Regenerate();
 };

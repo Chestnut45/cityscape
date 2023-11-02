@@ -90,14 +90,7 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     // Set the sky's shader to use our camera uniforms
     sky.GetShader().BindUniformBlock("CameraBlock", 0);
 
-    // Generate a 10x10 grid of city blocks
-    for (int x = -5; x < 5; x++)
-    {
-        for (int z = -5; z < 5; z++)
-        {
-            GenerateBlock({x, z});
-        }
-    }
+    Regenerate();
 
     // Initialize mouse input
     glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -156,21 +149,25 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
         {
             temp = registry.create();
             registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i], storyDist(rng), 2,
-                                    variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i]);
+                                       variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i]);
+            cityBlocks[id].push_back(temp);
 
             temp = registry.create();
             registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 1], storyDist(rng), 2,
-                                    variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i + 1]);
+                                       variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i + 1]);
+            cityBlocks[id].push_back(temp);
 
             temp = registry.create();
             registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 2], storyDist(rng), 2,
-                                    variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i + 2]);
+                                       variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i + 2]);
+            cityBlocks[id].push_back(temp);
         }
         else
         {
             temp = registry.create();
             registry.emplace<Building>(temp, blockPos + largeBuildingOffsets[i], storyDist(rng), 4,
-                                    variantDist(rng), Building::Feature::None, largeBuildingOrientations[i]);
+                                       variantDist(rng), Building::Feature::None, largeBuildingOrientations[i]);
+            cityBlocks[id].push_back(temp);
         }
     }
 }
@@ -183,9 +180,6 @@ void Cityscape::DeleteBlock(const glm::ivec2& id)
     {
         registry.destroy(entity);
     }
-
-    // Clear the block ID from the map
-    cityBlocks.erase(id);
 }
 
 void Cityscape::update(float dt)
@@ -203,7 +197,59 @@ void Cityscape::update(float dt)
     // Update sky
     sky.SetTOD((sin(elapsedTime) + 1) / 2);
 
-    // Potential TODO: Infinitely generate / unload city blocks as the camera moves around
+    // Update which chunks should be loaded
+    if (infinite)
+    {
+        // Initialize static list of chunks to load
+        static std::vector<glm::ivec2> shouldBeLoaded;
+        shouldBeLoaded.clear();
+
+        // Build should be loaded list
+        glm::ivec3 pos = camera.GetPosition() / 16.0f;
+        for (int x = pos.x - 5; x < pos.x + 5; ++x)
+        {
+            for (int z = pos.z - 5; z < pos.z + 5; ++z)
+            {
+                shouldBeLoaded.push_back(glm::ivec2(x, z));
+            }
+        }
+
+        // Ensure all chunks are added to generation queue if necessary
+        for (const auto& id : shouldBeLoaded)
+        {
+            if (cityBlocks.count(id) == 0)
+            {
+                if (std::find(generationQueue.begin(), generationQueue.end(), id) == generationQueue.end())
+                {
+                    generationQueue.push_back(id);
+                }
+            }
+        }
+
+        // Ensure any unnecessary chunks are deleted ASAP
+        for (const auto&[id, entityList] : cityBlocks)
+        {
+            if (std::find(shouldBeLoaded.begin(), shouldBeLoaded.end(), id) == shouldBeLoaded.end())
+            {
+                deletionQueue.push_back(id);
+            }
+        }
+
+        // Delete all blocks from queue once per frame
+        for (const auto& id : deletionQueue)
+        {
+            DeleteBlock(id);
+            cityBlocks.erase(id);
+        }
+        deletionQueue.clear();
+    }
+
+    // Generate a max of one chunk per frame from the queue
+    if (!generationQueue.empty())
+    {
+        GenerateBlock(generationQueue.front());
+        generationQueue.pop_front();
+    }
 }
 
 void Cityscape::render()
@@ -270,10 +316,49 @@ void Cityscape::ProcessInput(float dt)
     if (isKeyDown(GLFW_KEY_A)) camera.Translate(-camera.GetRight() * dt * cameraSpeed * boost);
     if (isKeyDown(GLFW_KEY_D)) camera.Translate(camera.GetRight() * dt * cameraSpeed * boost);
 
+    // Unload blocks and regenerate if we press R
+    if (isKeyJustDown(GLFW_KEY_R)) Regenerate();
+
+    // Toggle infinite generation mode with I
+    if (isKeyJustDown(GLFW_KEY_I)) infinite = !infinite;
+
     // Zoom the camera according to scroll
     glm::vec2 scroll = getMouseScroll();
     camera.Zoom(scroll.y);
 
     // Keep track of previous mouse position
     prevMousePos = mousePos;
+}
+
+// Unloads all city blocks and destroys their entities
+// If not in infinite mode, regenerates 10x10 city blocks
+void Cityscape::Regenerate()
+{
+    if (infinite)
+    {
+        // Delete all loaded blocks
+        for (const auto&[id, entityList] : cityBlocks)
+        {
+            DeleteBlock(id);
+        }
+        cityBlocks.clear();
+    }
+    else
+    {
+        // Delete all loaded blocks
+        for (const auto&[id, entityList] : cityBlocks)
+        {
+            DeleteBlock(id);
+        }
+        cityBlocks.clear();
+
+        // Generate a 10x10 grid of city blocks
+        for (int x = -5; x < 5; x++)
+        {
+            for (int z = -5; z < 5; z++)
+            {
+                GenerateBlock({x, z});
+            }
+        }
+    }
 }

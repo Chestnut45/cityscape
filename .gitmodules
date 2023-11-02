@@ -1,9 +1,0 @@
-[submodule "thirdparty"]
-	path = thirdparty
-	url = https://gitlab.com/cs4351/thirdparty.git
-[submodule "wolf"]
-	path = wolf
-	url = https://gitlab.com/cs4351/wolf.git
-[submodule "samplefw"]
-	path = samplefw
-	url = https://gitlab.com/cs4351/samplefw.git

@@ -47,7 +47,7 @@ class Building
         };
 
         // Constructor
-        Building(const glm::ivec3& pos, int stories, float storySize, int variant, Feature features = Feature::None, Orientation orientation = Orientation::North);
+        Building(const glm::ivec3& pos, int stories, int blocks, int variant, Feature features = Feature::None, Orientation orientation = Orientation::North);
         ~Building();
 
         // Delete copy constructor/assignment
@@ -59,7 +59,7 @@ class Building
         void operator=(Building&& other) = delete;
 
         // Constants
-        static const inline int MAX_STORIES = 6;
+        static const inline int MAX_STORIES = 16;
         static const inline int NUM_VARIANTS = 4;
         static const inline int MAX_VERTICES = 16'384;
         static const inline int MAX_INDICES = 65'536;
@@ -99,12 +99,13 @@ class Building
         static inline int refCount = 0;
 
         // Helper methods for procedural generation
-        void AddFace(Orientation dir, TexOffset type, int variant, int story, float halfSize, float storySize);
+        void AddFace(Orientation dir, TexOffset type, int variant, int story, int blocks);
         void AddFeature(Feature feature, Orientation orientation);
 
         // RNG
         static inline std::default_random_engine rng;
         static inline std::uniform_int_distribution<int> wallDist{(int)TexOffset::Wall, (int)TexOffset::LargeWindow};
+        static inline std::uniform_int_distribution<int> stepDist{0, 6};
 
         // RNG methods
         TexOffset RandomWallType() const;

@@ -169,7 +169,7 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
         else
         {
             temp = registry.create();
-            registry.emplace<Building>(temp, blockPos + largeBuildingOffsets[i], storyDist(rng), 4,
+            registry.emplace<Building>(temp, blockPos + largeBuildingOffsets[i], storyDist(rng), 3,
                                     variantDist(rng), Building::Feature::None, largeBuildingOrientations[i]);
         }
         

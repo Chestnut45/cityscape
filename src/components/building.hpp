@@ -61,8 +61,8 @@ class Building
         // Constants
         static const inline int MAX_STORIES = 16;
         static const inline int NUM_VARIANTS = 4;
-        static const inline int MAX_VERTICES = 16'384;
-        static const inline int MAX_INDICES = 65'536;
+        static const inline int MAX_VERTICES = 32'768;
+        static const inline int MAX_INDICES = 131'072;
 
         // Rendering methods
         void Draw();

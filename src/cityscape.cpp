@@ -131,7 +131,7 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
 {
     // Initialize static rng resources with default seed
     static std::default_random_engine rng(seed);
-    static std::uniform_int_distribution<int> storyDist(1, Building::MAX_STORIES);
+    static std::uniform_int_distribution<int> storyDist(3, Building::MAX_STORIES);
     static std::uniform_int_distribution<int> variantDist(0, Building::NUM_VARIANTS - 1);
     static std::uniform_int_distribution<int> boolDist(0, 1);
 
@@ -169,10 +169,9 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
         else
         {
             temp = registry.create();
-            registry.emplace<Building>(temp, blockPos + largeBuildingOffsets[i], storyDist(rng), 3,
+            registry.emplace<Building>(temp, blockPos + largeBuildingOffsets[i], storyDist(rng), 4,
                                     variantDist(rng), Building::Feature::None, largeBuildingOrientations[i]);
         }
-        
     }
 }
 

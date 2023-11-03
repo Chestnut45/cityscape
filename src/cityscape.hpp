@@ -43,9 +43,12 @@ class Cityscape: public wolf::App
     // Data / implementation
     private:
         // Single instance objects
-        bool infinite = false;
         Camera camera;
         Sky sky;
+
+        // Lighting pass objects
+        Shader lightingShader;
+        GLuint dummyVAO; // When using attributeless rendering, a non-zero VAO must still be bound
 
         // Registry of all active entities
         entt::registry registry;
@@ -53,11 +56,11 @@ class Cityscape: public wolf::App
         // Map of city block IDs to entity id lists
         std::unordered_map<glm::ivec2, std::vector<entt::entity>> cityBlocks;
 
-        // Queues of blocks to generate / delete
+        // Queues of blocks to generate / delete (only used in infinite mode)
         std::deque<glm::ivec2> generationQueue;
         std::deque<glm::ivec2> deletionQueue;
 
-        // Geometry buffer for deferred shading
+        // Geometry buffer + textures for deferred shading
         FrameBuffer* gBuffer = nullptr;
         Texture2D* gPositionTex = nullptr;
         Texture2D* gNormalTex = nullptr;
@@ -70,6 +73,7 @@ class Cityscape: public wolf::App
         // Settings
         float mouseSensitivity = 8.0f;
         float cameraSpeed = 8.0f;
+        bool infinite = false;
 
         // Timing
         float elapsedTime = 0;

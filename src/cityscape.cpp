@@ -81,6 +81,18 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     // Check for completeness :)
     gBuffer->CheckCompleteness();
 
+    // Load lighting pass shader
+    lightingShader.LoadShaderSource(GL_VERTEX_SHADER, "data/lightingPass.vs");
+    lightingShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/lightingPass.fs");
+    lightingShader.Link();
+    lightingShader.Use();
+    lightingShader.SetUniform("gPos", 0);
+    lightingShader.SetUniform("gNorm", 1);
+    lightingShader.SetUniform("gColorSpec", 2);
+
+    // Generate placeholder empty VAO
+    glGenVertexArrays(1, &dummyVAO);
+
     // Initialize camera pos
     camera.SetPosition(glm::vec3(0, 2, 4));
 
@@ -136,42 +148,46 @@ void Cityscape::update(float dt)
 
 void Cityscape::render()
 {
-    // Bind the geometry buffer
+    // Bind the geometry framebuffer and clear it
     gBuffer->Bind();
-
-    // Clear the framebuffer
 	glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Update the camera's UBO so all shaders have access to the new values
     camera.UpdateUBO();
 
-    // Draw all ground tiles first
+    // Draw all ground tiles to the gBuffer
     for(auto &&[entity, ground]: registry.view<GroundTile>().each())
     {
         ground.Draw();
     }
     GroundTile::FlushDrawCalls();
 
-    // Then draw all buildings next
+    // Then draw all buildings to the gBuffer
     for(auto &&[entity, building]: registry.view<Building>().each())
     {
         building.Draw();
     }
     Building::Flush();
 
-    // Blit the gBuffer's depth buffer to the default framebuffer
+    // Blit the gBuffer's depth buffer texture to the default framebuffer so we can use the depth values
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    gBuffer->Bind(GL_READ_FRAMEBUFFER);
-    glReadBuffer(GL_COLOR_ATTACHMENT1);
-
-    glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
-    // Clear the default framebuffer's color buffer (but NOT the depth buffer we just blitted)
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	// glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
-	// glClear(GL_COLOR_BUFFER_BIT);
+    // Lighting pass
+    // First bind all gBuffer textures appropriately
+    gPositionTex->Bind(0);
+    gNormalTex->Bind(1);
+    gColorSpecTex->Bind(2);
+
+    // Draw a fullscreen triangle to calculate lighting on every pixel in the scene
+    // We want to disable writing to the depth buffer here so we don't prevent the skybox from drawing later
+    glDepthMask(GL_FALSE);
+    lightingShader.Use();
+    glBindVertexArray(dummyVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
+    glDepthMask(GL_TRUE);
 
     // Draw the sky last
     sky.Draw();

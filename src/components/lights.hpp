@@ -1,11 +1,13 @@
 #pragma once
 
-class DirectionalLight
-{
+#include <glm/glm.hpp>
 
+struct DirectionalLight
+{
+    
 };
 
-class PointLight
+struct PointLight
 {
     
 };

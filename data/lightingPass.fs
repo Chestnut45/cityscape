@@ -22,13 +22,8 @@ layout(std140) uniform CameraBlock
     vec4 cameraPos;
 };
 
-// Lights uniform block
-layout(std140) uniform LightBlock
-{
-    int numLights;
-    DirectionalLight dl;
-    PointLight pointLights[MAX_LIGHTS];
-};
+// Single directional light
+uniform DirectionalLight globalLight;
 
 // Geometry buffer textures
 uniform sampler2D gPos;
@@ -44,21 +39,18 @@ out vec4 outColor;
 void main()
 {
     // Grab data from geometry buffer
-    vec3 fragPos = texture(gColorSpec, texCoords).xyz;
+    vec3 fragPos = texture(gPos, texCoords).xyz;
     vec3 fragNorm = texture(gNorm, texCoords).xyz;
     vec3 fragAlbedo = texture(gColorSpec, texCoords).xyz;
-
-    // TESTING DIRECTIONAL LIGHT
-    DirectionalLight l = DirectionalLight(vec4(1, 0, 0, 0), vec4(1, 1, 1, 1));
 
     // Constants
     float ambient = 0.1;
     float specularStrength = 0.45;
-    float shininess = 16;
+    float shininess = 32;
 
     vec3 result = vec3(0);
-    vec3 lightDir = normalize(-l.direction.xyz);
-    vec3 lightColor = l.color.xyz;
+    vec3 lightDir = normalize(-globalLight.direction.xyz);
+    vec3 lightColor = globalLight.color.rgb;
 
     // Diffuse lighting
     vec3 diffuse = max(dot(fragNorm, lightDir), 0) * lightColor;
@@ -69,6 +61,6 @@ void main()
     vec3 specular = specularStrength * spec * lightColor;
 
     // Final color composition
-    result += (ambient + diffuse) * fragAlbedo;
+    result += (ambient + diffuse + specular) * fragAlbedo;
     outColor = vec4(result, 1);
 }

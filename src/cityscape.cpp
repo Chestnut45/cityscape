@@ -173,6 +173,8 @@ void Cityscape::render()
     // Blit the gBuffer's depth buffer texture to the default framebuffer so we can use the depth values
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    
+    glClear(GL_COLOR_BUFFER_BIT);
 
     // Lighting pass
     // First bind all gBuffer textures appropriately

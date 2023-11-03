@@ -49,7 +49,7 @@ void main()
     vec3 fragAlbedo = texture(gColorSpec, texCoords).xyz;
 
     // TESTING DIRECTIONAL LIGHT
-    DirectionalLight l = DirectionalLight(vec4(1, -1, 0, 0), vec4(1, 1, 1, 1));
+    DirectionalLight l = DirectionalLight(vec4(1, 0, 0, 0), vec4(1, 1, 1, 1));
 
     // Constants
     float ambient = 0.1;
@@ -69,6 +69,6 @@ void main()
     vec3 specular = specularStrength * spec * lightColor;
 
     // Final color composition
-    result += (ambient + diffuse + specular) * fragAlbedo;
+    result += (ambient + diffuse) * fragAlbedo;
     outColor = vec4(result, 1);
 }

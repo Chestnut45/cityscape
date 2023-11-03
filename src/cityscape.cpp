@@ -119,7 +119,7 @@ Cityscape::~Cityscape()
 {
 	std::cout << "Destroying Cityscape..." << std::endl;
 
-    // Delete geometry buffer textures
+    // Delete gBuffer + textures
     delete gBuffer;
     delete gPositionTex;
     delete gNormalTex;

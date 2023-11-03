@@ -30,10 +30,6 @@ class Cityscape: public wolf::App
         Cityscape();
         ~Cityscape();
 
-        // Generation / simulation
-        void GenerateBlock(const glm::ivec2& id);
-        void DeleteBlock(const glm::ivec2& id);
-
         // Simulates all city blocks and handles generation
         void update(float dt) override;
 
@@ -56,9 +52,7 @@ class Cityscape: public wolf::App
         // Map of city block IDs to entity id lists
         std::unordered_map<glm::ivec2, std::vector<entt::entity>> cityBlocks;
 
-        // Queues of blocks to generate
-        // These are used to throttle generation / deletion to 1 block per frame
-        // This minimizes stutter / lag spikes when generating
+        // Queues of blocks to generate / delete
         std::deque<glm::ivec2> generationQueue;
         std::deque<glm::ivec2> deletionQueue;
 
@@ -82,6 +76,9 @@ class Cityscape: public wolf::App
         // Default random seed
         long int seed = 4545L;
 
-        // Regeneration internal method
+        // Internal methods for simulation / generation
         void Regenerate();
+        void UpdateBlocks();
+        void GenerateBlock(const glm::ivec2& id);
+        void DeleteBlock(const glm::ivec2& id);
 };

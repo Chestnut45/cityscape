@@ -118,70 +118,6 @@ Cityscape::~Cityscape()
     delete gDepthStencilTex;
 }
 
-// Generates a city block by id
-// Deletes and regenerates if one already exists with the given ID
-void Cityscape::GenerateBlock(const glm::ivec2& id)
-{
-    // Initialize static rng resources with default seed
-    static std::default_random_engine rng(seed);
-    static std::uniform_int_distribution<int> storyDist(3, Building::MAX_STORIES);
-    static std::uniform_int_distribution<int> variantDist(0, Building::NUM_VARIANTS - 1);
-    static std::uniform_int_distribution<int> boolDist(0, 1);
-
-    // Delete if already generated (regenerate)
-    if (cityBlocks.count(id) > 0) DeleteBlock(id);
-
-    // Create a ground tile component
-    entt::entity temp = registry.create();
-    registry.emplace<GroundTile>(temp, id);
-
-    // Retrieve the block position
-    glm::ivec3 blockPos = registry.get<GroundTile>(temp).GetPosition();
-
-    // Register the entity with the block
-    cityBlocks[id].push_back(temp);
-
-    // Generate buildings for each quadrant
-    for (int i = 0; i < 4; i++)
-    {
-        // Decide whether to place 3 small buildings or one large building
-        if (boolDist(rng))
-        {
-            temp = registry.create();
-            registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i], storyDist(rng), 2,
-                                       variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i]);
-            cityBlocks[id].push_back(temp);
-
-            temp = registry.create();
-            registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 1], storyDist(rng), 2,
-                                       variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i + 1]);
-            cityBlocks[id].push_back(temp);
-
-            temp = registry.create();
-            registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 2], storyDist(rng), 2,
-                                       variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i + 2]);
-            cityBlocks[id].push_back(temp);
-        }
-        else
-        {
-            temp = registry.create();
-            registry.emplace<Building>(temp, blockPos + largeBuildingOffsets[i], storyDist(rng), 4,
-                                       variantDist(rng), Building::Feature::None, largeBuildingOrientations[i]);
-            cityBlocks[id].push_back(temp);
-        }
-    }
-}
-
-// Unloads and deletes a city block by id
-void Cityscape::DeleteBlock(const glm::ivec2& id)
-{
-    // Destroy all entites associated with the block
-    for (entt::entity entity : cityBlocks[id])
-    {
-        registry.destroy(entity);
-    }
-}
-
 void Cityscape::update(float dt)
 {
     // Keep track of total elapsed time
@@ -197,59 +133,8 @@ void Cityscape::update(float dt)
     // Update sky
     sky.SetTOD((sin(elapsedTime) + 1) / 2);
 
-    // Update which chunks should be loaded
-    if (infinite)
-    {
-        // Initialize static list of chunks to load
-        static std::vector<glm::ivec2> shouldBeLoaded;
-        shouldBeLoaded.clear();
-
-        // Build should be loaded list
-        glm::ivec3 pos = camera.GetPosition() / 16.0f;
-        for (int x = pos.x - 5; x < pos.x + 5; ++x)
-        {
-            for (int z = pos.z - 5; z < pos.z + 5; ++z)
-            {
-                shouldBeLoaded.push_back(glm::ivec2(x, z));
-            }
-        }
-
-        // Ensure all chunks are added to generation queue if necessary
-        for (const auto& id : shouldBeLoaded)
-        {
-            if (cityBlocks.count(id) == 0)
-            {
-                if (std::find(generationQueue.begin(), generationQueue.end(), id) == generationQueue.end())
-                {
-                    generationQueue.push_back(id);
-                }
-            }
-        }
-
-        // Ensure any unnecessary chunks are deleted ASAP
-        for (const auto&[id, entityList] : cityBlocks)
-        {
-            if (std::find(shouldBeLoaded.begin(), shouldBeLoaded.end(), id) == shouldBeLoaded.end())
-            {
-                deletionQueue.push_back(id);
-            }
-        }
-
-        // Delete all blocks from queue once per frame
-        for (const auto& id : deletionQueue)
-        {
-            DeleteBlock(id);
-            cityBlocks.erase(id);
-        }
-        deletionQueue.clear();
-    }
-
-    // Generate a max of one chunk per frame from the queue
-    if (!generationQueue.empty())
-    {
-        GenerateBlock(generationQueue.front());
-        generationQueue.pop_front();
-    }
+    // Update the simulated city blocks
+    UpdateBlocks();
 }
 
 void Cityscape::render()
@@ -274,24 +159,6 @@ void Cityscape::render()
         building.Draw();
     }
     Building::Flush();
-
-    // Debug: Just spit out errors every frame
-    GLenum errorCode;
-    // while ((errorCode = glGetError()) != GL_NO_ERROR)
-    // {
-    //     std::string error;
-    //     switch (errorCode)
-    //     {
-    //         case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
-    //         case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
-    //         case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
-    //         case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
-    //         case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
-    //         case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
-    //         case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
-    //     }
-    //     std::cout << error << std::endl;
-    // }
 
     // Draw the sky
     sky.Draw();
@@ -369,4 +236,127 @@ void Cityscape::Regenerate()
     // Clear queues
     generationQueue.clear();
     deletionQueue.clear();
+}
+
+// Updates the blocks that should be loaded / deleted
+void Cityscape::UpdateBlocks()
+{
+    // Update which chunks should be loaded
+    if (infinite)
+    {
+        // Initialize static list of chunks to load
+        static std::vector<glm::ivec2> shouldBeLoaded;
+        shouldBeLoaded.clear();
+
+        // Build should be loaded list
+        glm::ivec3 pos = camera.GetPosition() / 16.0f;
+        for (int x = pos.x - 5; x < pos.x + 5; ++x)
+        {
+            for (int z = pos.z - 5; z < pos.z + 5; ++z)
+            {
+                shouldBeLoaded.push_back(glm::ivec2(x, z));
+            }
+        }
+
+        // Ensure all chunks are added to generation queue if necessary
+        for (const auto& id : shouldBeLoaded)
+        {
+            if (cityBlocks.count(id) == 0)
+            {
+                if (std::find(generationQueue.begin(), generationQueue.end(), id) == generationQueue.end())
+                {
+                    generationQueue.push_back(id);
+                }
+            }
+        }
+
+        // Ensure any unnecessary chunks are deleted ASAP
+        for (const auto&[id, entityList] : cityBlocks)
+        {
+            if (std::find(shouldBeLoaded.begin(), shouldBeLoaded.end(), id) == shouldBeLoaded.end())
+            {
+                deletionQueue.push_back(id);
+            }
+        }
+    }
+
+    // Delete all blocks from queue once per frame
+    for (const auto& id : deletionQueue)
+    {
+        DeleteBlock(id);
+        cityBlocks.erase(id);
+    }
+    deletionQueue.clear();
+
+    // Generate a max of one chunk per frame from the queue
+    // This helps reduce the impact of any generation stutter on lower end systems
+    if (!generationQueue.empty())
+    {
+        GenerateBlock(generationQueue.front());
+        generationQueue.pop_front();
+    }
+}
+
+// Generates a city block by id
+// Deletes and regenerates if one already exists with the given ID
+void Cityscape::GenerateBlock(const glm::ivec2& id)
+{
+    // Initialize static rng resources with default seed
+    static std::default_random_engine rng(seed);
+    static std::uniform_int_distribution<int> storyDist(3, Building::MAX_STORIES);
+    static std::uniform_int_distribution<int> variantDist(0, Building::NUM_VARIANTS - 1);
+    static std::uniform_int_distribution<int> boolDist(0, 1);
+
+    // Delete if already generated (regenerate)
+    if (cityBlocks.count(id) > 0) DeleteBlock(id);
+
+    // Create a ground tile component
+    entt::entity temp = registry.create();
+    registry.emplace<GroundTile>(temp, id);
+
+    // Retrieve the block position
+    glm::ivec3 blockPos = registry.get<GroundTile>(temp).GetPosition();
+
+    // Register the entity with the block
+    cityBlocks[id].push_back(temp);
+
+    // Generate buildings for each quadrant
+    for (int i = 0; i < 4; i++)
+    {
+        // Decide whether to place 3 small buildings or one large building
+        if (boolDist(rng))
+        {
+            temp = registry.create();
+            registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i], storyDist(rng), 2,
+                                       variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i]);
+            cityBlocks[id].push_back(temp);
+
+            temp = registry.create();
+            registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 1], storyDist(rng), 2,
+                                       variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i + 1]);
+            cityBlocks[id].push_back(temp);
+
+            temp = registry.create();
+            registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 2], storyDist(rng), 2,
+                                       variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i + 2]);
+            cityBlocks[id].push_back(temp);
+        }
+        else
+        {
+            temp = registry.create();
+            registry.emplace<Building>(temp, blockPos + largeBuildingOffsets[i], storyDist(rng), 4,
+                                       variantDist(rng), Building::Feature::None, largeBuildingOrientations[i]);
+            cityBlocks[id].push_back(temp);
+        }
+    }
+}
+
+// Unloads and deletes a city block by id
+void Cityscape::DeleteBlock(const glm::ivec2& id)
+{
+    // Destroy all entites associated with the block
+    for (entt::entity entity : cityBlocks[id])
+    {
+        registry.destroy(entity);
+    }
 }

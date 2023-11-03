@@ -61,9 +61,9 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     glFrontFace(GL_CCW);
 
     // Generate geometry buffer textures
-    gPositionTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-    gNormalTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-    gColorSpecTex = new Texture2D(m_width, m_height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+    gPositionTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST);
+    gNormalTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST);
+    gColorSpecTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST);
     gDepthStencilTex = new Texture2D(m_width, m_height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST);
 
     // Attach textures to geometry buffer
@@ -89,6 +89,8 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     lightingShader.SetUniform("gPos", 0);
     lightingShader.SetUniform("gNorm", 1);
     lightingShader.SetUniform("gColorSpec", 2);
+    lightingShader.BindUniformBlock("CameraBlock", 0);
+    lightingShader.BindUniformBlock("LightBlock", 2);
 
     // Generate placeholder empty VAO
     glGenVertexArrays(1, &dummyVAO);
@@ -96,9 +98,7 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     // Initialize camera pos
     camera.SetPosition(glm::vec3(0, 2, 4));
 
-    // Set the sky's shader to use our camera uniforms
-    sky.GetShader().BindUniformBlock("CameraBlock", 0);
-
+    // Initial generation
     Regenerate();
 
     // Initialize mouse input
@@ -182,8 +182,8 @@ void Cityscape::render()
 
     // Draw a fullscreen triangle to calculate lighting on every pixel in the scene
     // We want to disable writing to the depth buffer here so we don't prevent the skybox from drawing later
-    glDepthMask(GL_FALSE);
     lightingShader.Use();
+    glDepthMask(GL_FALSE);
     glBindVertexArray(dummyVAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);

@@ -79,6 +79,7 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, c
     skyShader.Use();
     skyShader.SetUniform("dayCube", (int)SkyTextureUnit::Day);
     skyShader.SetUniform("nightCube", (int)SkyTextureUnit::Night);
+    skyShader.BindUniformBlock("CameraBlock", 0);
 
     // If first instance, initialize static resources
     if (refCount == 0)
@@ -110,6 +111,7 @@ Sky::~Sky()
 // the day skybox and the night skybox
 void Sky::SetTOD(float time)
 {
+    // Update skyshader time uniform
     skyShader.Use();
     skyShader.SetUniform("time", time);
 }

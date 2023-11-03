@@ -2,12 +2,20 @@
 
 uniform sampler2D tex;
 
-in vec3 fNorm;
+// Varying inputs
+in vec3 fragPos;
+in vec3 normal;
 in vec2 texCoords;
 
-out vec4 finalColor;
+// Geometry buffer outputs
+out vec3 gPos;
+out vec3 gNorm;
+out vec4 gColorSpec;
 
 void main()
 {
-    finalColor = texture(tex, texCoords);
+    // Store geometry data in gBuffer
+    gPos = fragPos;
+    gNorm = normalize(normal);
+    gColorSpec = texture(tex, texCoords);
 }

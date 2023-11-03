@@ -81,9 +81,6 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     // Check for completeness :)
     gBuffer->CheckCompleteness();
 
-    // Bind default framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     // Initialize camera pos
     camera.SetPosition(glm::vec3(0, 2, 4));
 
@@ -139,6 +136,9 @@ void Cityscape::update(float dt)
 
 void Cityscape::render()
 {
+    // Bind the geometry buffer
+    gBuffer->Bind();
+
     // Clear the framebuffer
 	glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -160,7 +160,17 @@ void Cityscape::render()
     }
     Building::Flush();
 
-    // Draw the sky
+    // Blit the gBuffer's depth buffer to the default framebuffer
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    gBuffer->Bind(GL_READ_FRAMEBUFFER);
+    glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+    // Clear the default framebuffer's color buffer (but NOT the depth buffer we just blitted)
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+    // Draw the sky last
     sky.Draw();
 }
 

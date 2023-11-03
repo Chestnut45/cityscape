@@ -6,6 +6,7 @@
 #include <random>
 
 // Required for hashing glm vectors for use as keys in a std::unordered_map
+// Define guard here since I'm unsure if any wolf files use GLM hashing
 #ifndef GLM_ENABLE_EXPERIMENTAL
     #define GLM_ENABLE_EXPERIMENTAL
 #endif

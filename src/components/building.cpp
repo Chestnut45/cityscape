@@ -14,6 +14,12 @@ Building::Building(const glm::ivec3 &pos, int stories, int blocks, int variant, 
         shader = new Shader();
         shader->LoadShaderSource(GL_VERTEX_SHADER, "data/building.vs");
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/building.fs");
+
+        // Set gBuffer fragment output locations
+        glBindFragDataLocation(shader->GetProgramID(), 0, "gPos");
+        glBindFragDataLocation(shader->GetProgramID(), 1, "gNorm");
+        glBindFragDataLocation(shader->GetProgramID(), 2, "gColorSpec");
+        
         shader->Link();
         shader->Use();
         shader->BindUniformBlock("CameraBlock", 0);

@@ -36,6 +36,12 @@ GroundTile::GroundTile(const glm::vec2& id) : position(id.x * TILE_SIZE, 0, id.y
         shader = new Shader();
         shader->LoadShaderSource(GL_VERTEX_SHADER, "data/groundTile.vs");
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/groundTile.fs");
+
+        // Set gBuffer fragment output locations
+        glBindFragDataLocation(shader->GetProgramID(), 0, "gPos");
+        glBindFragDataLocation(shader->GetProgramID(), 1, "gNorm");
+        glBindFragDataLocation(shader->GetProgramID(), 2, "gColorSpec");
+        
         shader->Link();
         shader->Use();
         shader->BindUniformBlock("InstanceBlock", 1);

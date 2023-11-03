@@ -20,12 +20,18 @@ in vec3 vPos;
 in vec3 vNorm;
 in vec2 vUV;
 
-out vec3 fNorm;
+// Fragment outputs
+out vec3 fragPos;
+out vec3 normal;
 out vec2 texCoords;
 
 void main()
 {
-    gl_Position = viewProj * vec4(vPos + instancePos[gl_InstanceID].xyz, 1);
-    fNorm = vNorm;
+    vec4 pos = vec4(vPos + instancePos[gl_InstanceID].xyz, 1);
+    gl_Position = viewProj * pos;
+
+    // Varying outputs
+    fragPos = pos.xyz;
+    normal = vNorm;
     texCoords = vUV;
 }

@@ -163,12 +163,15 @@ void Cityscape::render()
     // Blit the gBuffer's depth buffer to the default framebuffer
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     gBuffer->Bind(GL_READ_FRAMEBUFFER);
+    glReadBuffer(GL_COLOR_ATTACHMENT1);
+
+    glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
     // Clear the default framebuffer's color buffer (but NOT the depth buffer we just blitted)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	// glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+	// glClear(GL_COLOR_BUFFER_BIT);
 
     // Draw the sky last
     sky.Draw();

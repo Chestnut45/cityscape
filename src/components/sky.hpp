@@ -39,8 +39,8 @@ class Sky
         void Draw();
 
         // Accessors
-        const DirectionalLight& GetGlobalLight() const { return globalLight; };
-        float GetAmbient() const { return ambient; };
+        const DirectionalLight& GetSun() const { return sun; };
+        const DirectionalLight& GetMoon() const { return moon; };
 
     // Data / implementation
     private:
@@ -53,9 +53,9 @@ class Sky
         float dayCycle = 24;
         float currentTime = 0;
 
-        // Main directional light
-        DirectionalLight globalLight;
-        float ambient = 0;
+        // Main directional lights
+        DirectionalLight sun;
+        DirectionalLight moon;
         const glm::vec3 dayColor{1.0f, 0.9f, 0.5f};
         const glm::vec3 nightColor{0.2f, 0.2f, 0.3f};
 

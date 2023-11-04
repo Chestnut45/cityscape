@@ -7,12 +7,18 @@ struct DirectionalLight
 {
     vec3 direction;
     vec3 color;
+    float ambient;
+    float specular;
+    float diffuse;
 };
 
 struct PointLight
 {
-    vec4 position;
-    vec4 color;
+    vec3 position;
+    vec3 color;
+    float ambient;
+    float specular;
+    float diffuse;
 };
 
 // Camera uniform block
@@ -23,8 +29,7 @@ layout(std140) uniform CameraBlock
 };
 
 // Lighting uniforms
-uniform DirectionalLight globalLight;
-uniform float ambient;
+uniform DirectionalLight sun;
 
 // Geometry buffer textures
 uniform sampler2D gPos;
@@ -50,8 +55,8 @@ void main()
 
     // Initial values
     vec3 result = vec3(0);
-    vec3 lightDir = normalize(-globalLight.direction.xyz);
-    vec3 lightColor = globalLight.color.rgb;
+    vec3 lightDir = normalize(-sun.direction.xyz);
+    vec3 lightColor = sun.color.rgb;
 
     // Diffuse lighting
     vec3 diffuse = max(dot(fragNorm, lightDir), 0) * lightColor;
@@ -62,6 +67,6 @@ void main()
     vec3 specular = specularStrength * spec * lightColor;
 
     // Final color composition
-    result += (ambient + diffuse + specular) * fragAlbedo;
+    result += (sun.ambient + diffuse + specular) * fragAlbedo;
     outColor = vec4(result, 1);
 }

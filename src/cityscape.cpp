@@ -182,11 +182,13 @@ void Cityscape::render()
     gNormalTex->Bind(1);
     gColorSpecTex->Bind(2);
 
-    // Draw a fullscreen triangle to calculate lighting on every pixel in the scene
-    // We want to disable writing to the depth buffer here so we don't prevent the skybox from drawing later
+    // Use the lighting pass shader and update lights
     lightingShader.Use();
     lightingShader.SetUniform("globalLight.direction", sky.GetGlobalLight().direction);
     lightingShader.SetUniform("globalLight.color", sky.GetGlobalLight().color);
+
+    // Draw a fullscreen triangle to calculate lighting on every pixel in the scene
+    // We want to disable writing to the depth buffer here so we don't prevent the skybox from drawing later
     glDepthMask(GL_FALSE);
     glBindVertexArray(dummyVAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);

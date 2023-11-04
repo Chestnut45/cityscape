@@ -128,10 +128,10 @@ void Sky::AdvanceTime(float delta)
     skyShader.SetUniform("time", normalizedTOD);
 
     // Calculate global light positions
-    glm::vec3 globalLightPos = {0, std::abs(s), 1 - c - 1};
+    glm::vec3 sunPos = {0, std::abs(s), 1 - c - 1};
 
-    // Update global directional light
-    sun.direction = glm::normalize(-globalLightPos);
+    // Update global directional lights
+    sun.direction = glm::normalize(-sunPos);
     sun.color = glm::vec3(glm::mix(glm::vec3{1.0f, 0.9f, 0.5f}, glm::vec3{0.2f, 0.2f, 0.3f}, normalizedTOD));
     sun.ambient = ((s + 1) / 2) * 0.4 + 0.04;
 }

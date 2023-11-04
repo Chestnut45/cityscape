@@ -186,6 +186,7 @@ void Cityscape::render()
     lightingShader.Use();
     lightingShader.SetUniform("globalLight.direction", sky.GetGlobalLight().direction);
     lightingShader.SetUniform("globalLight.color", sky.GetGlobalLight().color);
+    lightingShader.SetUniform("ambient", sky.GetAmbient());
 
     // Draw a fullscreen triangle to calculate lighting on every pixel in the scene
     // We want to disable writing to the depth buffer here so we don't prevent the skybox from drawing later

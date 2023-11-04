@@ -24,6 +24,7 @@ layout(std140) uniform CameraBlock
 
 // Single directional light
 uniform DirectionalLight globalLight;
+uniform float ambient;
 
 // Geometry buffer textures
 uniform sampler2D gPos;
@@ -44,8 +45,7 @@ void main()
     vec3 fragAlbedo = texture(gColorSpec, texCoords).xyz;
 
     // Constants
-    float ambient = 0.1;
-    float specularStrength = 0.45;
+    float specularStrength = 0.5;
     float shininess = 32;
 
     vec3 result = vec3(0);

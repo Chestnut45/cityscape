@@ -40,6 +40,7 @@ class Sky
 
         // Accessors
         const DirectionalLight& GetGlobalLight() const { return globalLight; };
+        float GetAmbient() const { return ambient; };
 
     // Data / implementation
     private:
@@ -49,11 +50,14 @@ class Sky
         Shader skyShader;
 
         // Time of day variables
-        float dayCycle = 15;
+        float dayCycle = 24;
         float currentTime = 0;
 
         // Main directional light
         DirectionalLight globalLight;
+        float ambient = 0;
+        const glm::vec3 dayColor{1.0f, 0.9f, 0.5f};
+        const glm::vec3 nightColor{0.2f, 0.2f, 0.3f};
 
         // Static resources
         static inline GPUBuffer* skyboxVBO = nullptr;
@@ -61,6 +65,9 @@ class Sky
 
         // Reference counting for static resources
         static inline int refCount = 0;
+
+        // Geometric constants
+        static constexpr float TAU = 6.28318530718;
 };
 
 GLenum glCheckError();

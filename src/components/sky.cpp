@@ -114,17 +114,17 @@ void Sky::AdvanceTime(float delta)
     if (currentTime > dayCycle) currentTime = 0;
 
     // Calculate normalized TOD (0 = noon, 1 = midnight)
-    float sinTime = (float)sin(currentTime * 3.141592 * 2 / dayCycle);
-    float normalizedTOD = (sinTime + 1) / 2;
+    float s = std::sin(TAU * currentTime / dayCycle);
+    float c = std::cos(TAU * currentTime / dayCycle);
+    float normalizedTOD = 1 - ((s + 1) / 2);
 
-    std::cout << normalizedTOD << std::endl;
-
-    // Calculate sun / moon positions
-    glm::vec3 sunPos = {sinTime, sinTime, 0};
+    // Calculate global light position
+    glm::vec3 globalLightPos = {1 - c - 1, std::abs(s), 1 - c - 1};
 
     // Update global directional light
-    globalLight.direction = glm::normalize(-sunPos);
-    globalLight.color = {1, 1, 1};
+    globalLight.direction = glm::normalize(-globalLightPos);
+    globalLight.color = glm::vec3(glm::mix(dayColor, nightColor, normalizedTOD));
+    ambient = ((s + 1) / 2) * 0.4 + 0.04;
 
     // Update skyshader time uniform
     skyShader.Use();

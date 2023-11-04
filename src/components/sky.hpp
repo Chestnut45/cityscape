@@ -56,8 +56,6 @@ class Sky
         // Main directional lights
         DirectionalLight sun;
         DirectionalLight moon;
-        const glm::vec3 dayColor{1.0f, 0.9f, 0.5f};
-        const glm::vec3 nightColor{0.2f, 0.2f, 0.3f};
 
         // Static resources
         static inline GPUBuffer* skyboxVBO = nullptr;

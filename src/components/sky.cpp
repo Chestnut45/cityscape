@@ -81,6 +81,10 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, c
     skyShader.SetUniform("nightCube", (int)SkyTextureUnit::Night);
     skyShader.BindUniformBlock("CameraBlock", 0);
 
+    // Initialize default lighting values
+    sun = {{0.0f, 0.0f, 0.0f}, {1.0f, 0.9f, 0.5f}, 0.1f, 1.0f, 0.45f};
+    moon = {{0.0f, 0.0f, 0.0f}, {0.2f, 0.2f, 0.3f}, 0.1f, 1.0f, 0.45f};
+
     // If first instance, initialize static resources
     if (refCount == 0)
     {
@@ -109,26 +113,27 @@ Sky::~Sky()
 // Advances the time by delta, setting appropriate variables
 void Sky::AdvanceTime(float delta)
 {
-    // Advance time and clamp to 0 -> dayCycle
+    // Advance time and clamp to [0, dayCycle]
     currentTime += delta;
     if (currentTime > dayCycle) currentTime = 0;
 
     // Calculate normalized TOD (0 = noon, 1 = midnight)
+    // This is used for interpolating between the 2 skybox images
     float s = std::sin(TAU * currentTime / dayCycle);
     float c = std::cos(TAU * currentTime / dayCycle);
     float normalizedTOD = 1 - ((s + 1) / 2);
 
-    // Calculate global light position
+    // Update sky shader time uniform
+    skyShader.Use();
+    skyShader.SetUniform("time", normalizedTOD);
+
+    // Calculate global light positions
     glm::vec3 globalLightPos = {0, std::abs(s), 1 - c - 1};
 
     // Update global directional light
     sun.direction = glm::normalize(-globalLightPos);
-    sun.color = glm::vec3(glm::mix(dayColor, nightColor, normalizedTOD));
+    sun.color = glm::vec3(glm::mix(glm::vec3{1.0f, 0.9f, 0.5f}, glm::vec3{0.2f, 0.2f, 0.3f}, normalizedTOD));
     sun.ambient = ((s + 1) / 2) * 0.4 + 0.04;
-
-    // Update skyshader time uniform
-    skyShader.Use();
-    skyShader.SetUniform("time", normalizedTOD);
 }
 
 // Renders the sky

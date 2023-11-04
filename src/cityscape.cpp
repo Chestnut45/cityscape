@@ -127,20 +127,20 @@ Cityscape::~Cityscape()
     delete gDepthStencilTex;
 }
 
-void Cityscape::update(float dt)
+void Cityscape::update(float delta)
 {
     // Keep track of total elapsed time
-    elapsedTime += dt;
+    elapsedTime += delta;
 
     // Update the camera's viewport if the window size has changed
     if (m_width != camera.GetWidth() || m_height != camera.GetHeight())
         camera.UpdateViewport(m_width, m_height);
 
     // Process all input for this frame
-    ProcessInput(dt);
+    ProcessInput(delta);
 
     // Update sky
-    sky.SetTOD((sin(elapsedTime) + 1) / 2);
+    sky.AdvanceTime(delta);
 
     // Update the simulated city blocks
     UpdateBlocks();
@@ -173,7 +173,7 @@ void Cityscape::render()
     // Blit the gBuffer's depth buffer texture to the default framebuffer so we can use the depth values
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-    
+
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Lighting pass
@@ -185,6 +185,8 @@ void Cityscape::render()
     // Draw a fullscreen triangle to calculate lighting on every pixel in the scene
     // We want to disable writing to the depth buffer here so we don't prevent the skybox from drawing later
     lightingShader.Use();
+    lightingShader.SetUniform("globalLight.direction", sky.GetGlobalLight().direction);
+    lightingShader.SetUniform("globalLight.color", sky.GetGlobalLight().color);
     glDepthMask(GL_FALSE);
     glBindVertexArray(dummyVAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -196,11 +198,11 @@ void Cityscape::render()
 }
 
 // Handles all input for this demo
-void Cityscape::ProcessInput(float dt)
+void Cityscape::ProcessInput(float delta)
 {
     // Calculate mouse movement
     glm::vec2 mousePos = getMousePos();
-    glm::vec2 mouseOffset = (mousePos - prevMousePos) * dt * mouseSensitivity;
+    glm::vec2 mouseOffset = (mousePos - prevMousePos) * delta * mouseSensitivity;
 
     // Rotate the camera according to mouse movement
     camera.Rotate(mouseOffset.x, -mouseOffset.y);
@@ -209,10 +211,10 @@ void Cityscape::ProcessInput(float dt)
     float boost = isKeyDown(GLFW_KEY_LEFT_SHIFT) ? 2 : 1;
 
     // Move the camera according to WASD
-    if (isKeyDown(GLFW_KEY_W)) camera.Translate(camera.GetDirection() * dt * cameraSpeed * boost);
-    if (isKeyDown(GLFW_KEY_S)) camera.Translate(-camera.GetDirection() * dt * cameraSpeed * boost);
-    if (isKeyDown(GLFW_KEY_A)) camera.Translate(-camera.GetRight() * dt * cameraSpeed * boost);
-    if (isKeyDown(GLFW_KEY_D)) camera.Translate(camera.GetRight() * dt * cameraSpeed * boost);
+    if (isKeyDown(GLFW_KEY_W)) camera.Translate(camera.GetDirection() * delta * cameraSpeed * boost);
+    if (isKeyDown(GLFW_KEY_S)) camera.Translate(-camera.GetDirection() * delta * cameraSpeed * boost);
+    if (isKeyDown(GLFW_KEY_A)) camera.Translate(-camera.GetRight() * delta * cameraSpeed * boost);
+    if (isKeyDown(GLFW_KEY_D)) camera.Translate(camera.GetRight() * delta * cameraSpeed * boost);
 
     // Unload blocks and regenerate if we press R
     if (isKeyJustDown(GLFW_KEY_R)) Regenerate();

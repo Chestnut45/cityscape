@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 
+#include "../components/lights.hpp"
 #include "../resources/cubemap.hpp"
 #include "../resources/shader.hpp"
 #include "../resources/gpubuffer.hpp"
@@ -31,18 +32,14 @@ class Sky
         Sky(Sky&& other) = delete;
         void operator=(Sky&& other) = delete;
 
-        // Set normalized time of day (0 = day, 1 = night)
-        // This is kept simple so users can perform their own timing,
-        // and update the sky separately
-        void SetTOD(float time);
+        // Advances the time by delta, setting appropriate variables
+        void AdvanceTime(float delta);
 
         // Renders the sky
         void Draw();
 
         // Accessors
-        // This isn't const so we can allow callers to update
-        // uniforms / bindings on the internal shader directly
-        Shader& GetShader() { return skyShader; };
+        const DirectionalLight& GetGlobalLight() const { return globalLight; };
 
     // Data / implementation
     private:
@@ -50,6 +47,13 @@ class Sky
         Cubemap dayBox;
         Cubemap nightBox;
         Shader skyShader;
+
+        // Time of day variables
+        float dayCycle = 15;
+        float currentTime = 0;
+
+        // Main directional light
+        DirectionalLight globalLight;
 
         // Static resources
         static inline GPUBuffer* skyboxVBO = nullptr;

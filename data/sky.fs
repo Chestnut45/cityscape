@@ -3,6 +3,7 @@
 uniform samplerCube dayCube;
 uniform samplerCube nightCube;
 
+// Normalized TOD: 0 = noon, 1 = midnight
 uniform float time;
 
 // Direction vector

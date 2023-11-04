@@ -5,8 +5,8 @@ const int MAX_LIGHTS = 450;
 // Light structures
 struct DirectionalLight
 {
-    vec4 direction;
-    vec4 color;
+    vec3 direction;
+    vec3 color;
 };
 
 struct PointLight

@@ -32,13 +32,13 @@ class Cityscape: public wolf::App
         ~Cityscape();
 
         // Simulates all city blocks and handles generation
-        void update(float dt) override;
+        void update(float delta) override;
 
         // Renders all currently active components
         void render() override;
 
         // Input handling
-        void ProcessInput(float dt);
+        void ProcessInput(float delta);
 
     // Data / implementation
     private:
@@ -77,6 +77,7 @@ class Cityscape: public wolf::App
 
         // Timing
         float elapsedTime = 0;
+        float timeOfDay = 0;
 
         // Default random seed
         long int seed = 4545L;

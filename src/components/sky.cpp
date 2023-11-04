@@ -106,14 +106,29 @@ Sky::~Sky()
     }
 }
 
-// Set normalized time of day (0 = day, 1 = night)
-// This value is used by the shader to interpolate between
-// the day skybox and the night skybox
-void Sky::SetTOD(float time)
+// Advances the time by delta, setting appropriate variables
+void Sky::AdvanceTime(float delta)
 {
+    // Advance time and clamp to 0 -> dayCycle
+    currentTime += delta;
+    if (currentTime > dayCycle) currentTime = 0;
+
+    // Calculate normalized TOD (0 = noon, 1 = midnight)
+    float sinTime = (float)sin(currentTime * 3.141592 * 2 / dayCycle);
+    float normalizedTOD = (sinTime + 1) / 2;
+
+    std::cout << normalizedTOD << std::endl;
+
+    // Calculate sun / moon positions
+    glm::vec3 sunPos = {sinTime, sinTime, 0};
+
+    // Update global directional light
+    globalLight.direction = glm::normalize(-sunPos);
+    globalLight.color = {1, 1, 1};
+
     // Update skyshader time uniform
     skyShader.Use();
-    skyShader.SetUniform("time", time);
+    skyShader.SetUniform("time", normalizedTOD);
 }
 
 // Renders the sky

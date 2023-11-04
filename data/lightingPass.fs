@@ -22,7 +22,7 @@ layout(std140) uniform CameraBlock
     vec4 cameraPos;
 };
 
-// Single directional light
+// Lighting uniforms
 uniform DirectionalLight globalLight;
 uniform float ambient;
 

@@ -48,6 +48,7 @@ void main()
     float specularStrength = 0.5;
     float shininess = 32;
 
+    // Initial values
     vec3 result = vec3(0);
     vec3 lightDir = normalize(-globalLight.direction.xyz);
     vec3 lightColor = globalLight.color.rgb;

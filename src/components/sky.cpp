@@ -119,23 +119,28 @@ void Sky::Update(float delta)
     // Advance time and clamp to [0, dayCycle]
     currentTime += delta;
     if (currentTime > dayCycle) currentTime = 0;
+    offsetTime = currentTime + (dayCycle / 2);
 
     // Calculate normalized TOD (0 = noon, 1 = midnight)
     // This is used for interpolating between the 2 skybox images
-    float s = std::sin(TAU * currentTime / dayCycle);
-    float c = std::cos(TAU * currentTime / dayCycle);
-    float normalizedTOD = 1 - ((s + 1) / 2);
+    float ss = std::sin(TAU * currentTime / dayCycle);
+    float cs = std::cos(TAU * currentTime / dayCycle);
+    float sm = std::sin(TAU * offsetTime / dayCycle);
+    float cm = std::cos(TAU * offsetTime / dayCycle);
+    float normalizedTOD = 1 - ((ss + 1) / 2);
 
     // Update sky shader time uniform
     skyShader.Use();
     skyShader.SetUniform("time", normalizedTOD);
 
-    // Calculate global light positions
-    sun.position = {0.0f, std::abs(s), 1 - c - 1, 1};
-
-    // Update global directional lights
+    // Calculate global light positions + directions
+    sun.position = {0.0f, std::abs(ss), 1 - cs - 1, 1};
+    moon.position = {0.0f, std::abs(sm), 1 - cm - 1, 1};
     sun.direction = glm::normalize(-sun.position);
-    ambient = ((s + 1) / 2) * 0.4 + 0.04;
+    moon.direction = glm::normalize(-moon.position);
+
+    // Update ambient lighting
+    ambient = ((ss + 1) / 2) * 0.4 + 0.04;
 
     // Update UBO
     lightUBO.Write(sun.position);

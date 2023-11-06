@@ -49,6 +49,7 @@ class Sky
         // Time of day variables
         float dayCycle = 24;
         float currentTime = 0;
+        float offsetTime = 0;
 
         // Global light data
         DirectionalLight sun;

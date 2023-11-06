@@ -4,14 +4,13 @@
 
 struct DirectionalLight
 {
-    glm::vec3 direction;
-    glm::vec3 color;
-    float ambient, diffuse, specular;
+    glm::vec4 position;
+    glm::vec4 direction;
+    glm::vec4 color;
 };
 
 struct PointLight
 {
-    glm::vec3 position;
-    glm::vec3 color;
-    float ambient, diffuse, specular;
+    glm::vec4 position;
+    glm::vec4 color;
 };

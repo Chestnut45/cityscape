@@ -90,7 +90,7 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     lightingShader.SetUniform("gNorm", 1);
     lightingShader.SetUniform("gColorSpec", 2);
     lightingShader.BindUniformBlock("CameraBlock", 0);
-    lightingShader.BindUniformBlock("LightBlock", 2);
+    lightingShader.BindUniformBlock("GlobalLightBlock", 2);
 
     // Generate placeholder empty VAO
     glGenVertexArrays(1, &dummyVAO);
@@ -140,7 +140,7 @@ void Cityscape::update(float delta)
     ProcessInput(delta);
 
     // Update sky
-    sky.AdvanceTime(delta);
+    sky.Update(delta);
 
     // Update the simulated city blocks
     UpdateBlocks();
@@ -184,9 +184,6 @@ void Cityscape::render()
 
     // Use the lighting pass shader and update lights
     lightingShader.Use();
-    lightingShader.SetUniform("sun.direction", sky.GetSun().direction);
-    lightingShader.SetUniform("sun.color", sky.GetSun().color);
-    lightingShader.SetUniform("sun.ambient", sky.GetSun().ambient);
 
     // Draw a fullscreen triangle to calculate lighting on every pixel in the scene
     // We want to disable writing to the depth buffer here so we don't prevent the skybox from drawing later

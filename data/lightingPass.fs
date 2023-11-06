@@ -5,20 +5,15 @@ const int MAX_LIGHTS = 450;
 // Light structures
 struct DirectionalLight
 {
-    vec3 direction;
-    vec3 color;
-    float ambient;
-    float specular;
-    float diffuse;
+    vec4 position;
+    vec4 direction;
+    vec4 color;
 };
 
 struct PointLight
 {
-    vec3 position;
-    vec3 color;
-    float ambient;
-    float specular;
-    float diffuse;
+    vec4 position;
+    vec4 color;
 };
 
 // Camera uniform block
@@ -28,8 +23,13 @@ layout(std140) uniform CameraBlock
     vec4 cameraPos;
 };
 
-// Lighting uniforms
-uniform DirectionalLight sun;
+// Lighting uniform block
+layout(std140) uniform GlobalLightBlock
+{
+    DirectionalLight sun;
+    DirectionalLight moon;
+    float ambient;
+};
 
 // Geometry buffer textures
 uniform sampler2D gPos;
@@ -49,8 +49,8 @@ void main()
     vec3 fragNorm = texture(gNorm, texCoords).xyz;
     vec3 fragAlbedo = texture(gColorSpec, texCoords).xyz;
 
-    // Constants
-    float specularStrength = 0.5;
+    // Constant material properties
+    float specularStrength = 0.45;
     float shininess = 32;
 
     // Initial values
@@ -67,6 +67,6 @@ void main()
     vec3 specular = specularStrength * spec * lightColor;
 
     // Final color composition
-    result += (sun.ambient + diffuse + specular) * fragAlbedo;
+    result += (ambient + diffuse + specular) * fragAlbedo;
     outColor = vec4(result, 1);
 }

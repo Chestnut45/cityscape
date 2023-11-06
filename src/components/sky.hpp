@@ -32,15 +32,11 @@ class Sky
         Sky(Sky&& other) = delete;
         void operator=(Sky&& other) = delete;
 
-        // Advances the time by delta, setting appropriate variables
-        void AdvanceTime(float delta);
+        // Advances the time by delta, updating a global light UBO
+        void Update(float delta);
 
         // Renders the sky
         void Draw();
-
-        // Accessors
-        const DirectionalLight& GetSun() const { return sun; };
-        const DirectionalLight& GetMoon() const { return moon; };
 
     // Data / implementation
     private:
@@ -48,14 +44,16 @@ class Sky
         Cubemap dayBox;
         Cubemap nightBox;
         Shader skyShader;
+        GPUBuffer lightUBO{BufferType::Uniform, sizeof(DirectionalLight) * 2 + sizeof(GLfloat)};
 
         // Time of day variables
         float dayCycle = 24;
         float currentTime = 0;
 
-        // Main directional lights
+        // Global light data
         DirectionalLight sun;
         DirectionalLight moon;
+        float ambient;
 
         // Static resources
         static inline GPUBuffer* skyboxVBO = nullptr;

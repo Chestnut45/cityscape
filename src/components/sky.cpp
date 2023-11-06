@@ -81,9 +81,12 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, c
     skyShader.SetUniform("nightCube", (int)SkyTextureUnit::Night);
     skyShader.BindUniformBlock("CameraBlock", 0);
 
+    // Bind UBO to default light binding point
+    lightUBO.BindBase(GL_UNIFORM_BUFFER, 2);
+
     // Initialize default lighting values
-    sun = {{0.0f, 0.0f, 0.0f}, {1.0f, 0.9f, 0.5f}, 0.1f, 1.0f, 0.45f};
-    moon = {{0.0f, 0.0f, 0.0f}, {0.2f, 0.2f, 0.3f}, 0.1f, 1.0f, 0.45f};
+    sun = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.9f, 0.5f, 1.0f}};
+    moon = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {0.2f, 0.2f, 0.3f, 1.0f}};
 
     // If first instance, initialize static resources
     if (refCount == 0)
@@ -110,8 +113,8 @@ Sky::~Sky()
     }
 }
 
-// Advances the time by delta, setting appropriate variables
-void Sky::AdvanceTime(float delta)
+// Advances the time by delta, updating a global light UBO
+void Sky::Update(float delta)
 {
     // Advance time and clamp to [0, dayCycle]
     currentTime += delta;
@@ -128,12 +131,21 @@ void Sky::AdvanceTime(float delta)
     skyShader.SetUniform("time", normalizedTOD);
 
     // Calculate global light positions
-    glm::vec3 sunPos = {0, std::abs(s), 1 - c - 1};
+    sun.position = {0.0f, std::abs(s), 1 - c - 1, 1};
 
     // Update global directional lights
-    sun.direction = glm::normalize(-sunPos);
-    sun.color = glm::vec3(glm::mix(glm::vec3{1.0f, 0.9f, 0.5f}, glm::vec3{0.2f, 0.2f, 0.3f}, normalizedTOD));
-    sun.ambient = ((s + 1) / 2) * 0.4 + 0.04;
+    sun.direction = glm::normalize(-sun.position);
+    ambient = ((s + 1) / 2) * 0.4 + 0.04;
+
+    // Update UBO
+    lightUBO.Write(sun.position);
+    lightUBO.Write(sun.direction);
+    lightUBO.Write(sun.color);
+    lightUBO.Write(moon.position);
+    lightUBO.Write(moon.direction);
+    lightUBO.Write(moon.color);
+    lightUBO.Write(ambient);
+    lightUBO.Flush();
 }
 
 // Renders the sky

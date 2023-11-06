@@ -33,6 +33,7 @@ class GPUBuffer
         void operator=(GPUBuffer&& other) = delete;
 
         // Write operations
+        bool Write(float value);
         bool Write(const glm::vec3& value);
         bool Write(const glm::vec4& value);
         bool Write(const glm::mat4& value);

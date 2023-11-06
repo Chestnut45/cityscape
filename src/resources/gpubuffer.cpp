@@ -69,6 +69,22 @@ GPUBuffer::~GPUBuffer()
     glDeleteBuffers(1, &bufferID);
 }
 
+bool GPUBuffer::Write(float value)
+{
+    if (!CanWrite(sizeof(float)))
+    {
+        std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
+        return false;
+    }
+
+    // Grab a float pointer at the current offset
+    GLfloat* pData = (GLfloat*)(data + byteOffset);
+    *(pData) = value;
+    byteOffset += sizeof(float);
+
+    return true;
+}
+
 // Writes a single vec3 into the internal buffer
 bool GPUBuffer::Write(const glm::vec3& value)
 {

@@ -131,7 +131,7 @@ void Building::Draw()
     // Flush if either of the static buffers are full
     if (!(vbo->CanWrite(vertBytes) && ebo->CanWrite(indBytes)))
     {
-        Flush();
+        FlushDrawCalls();
     }
 
     // Write vertex data
@@ -150,7 +150,7 @@ void Building::Draw()
 }
 
 // Flushes all buildings drawn since last flush
-void Building::Flush()
+void Building::FlushDrawCalls()
 {
     // Only flush if we have drawn at least once building
     if (drawCount == 0) return;

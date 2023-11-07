@@ -168,7 +168,7 @@ void Cityscape::render()
     {
         building.Draw();
     }
-    Building::Flush();
+    Building::FlushDrawCalls();
 
     // Blit the gBuffer's depth buffer texture to the default framebuffer
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

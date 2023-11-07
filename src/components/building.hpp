@@ -66,7 +66,7 @@ class Building
 
         // Rendering methods
         void Draw();
-        static void Flush();
+        static void FlushDrawCalls();
     
     // Data / implementation
     private:

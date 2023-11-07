@@ -32,7 +32,7 @@ class Sky
         Sky(Sky&& other) = delete;
         void operator=(Sky&& other) = delete;
 
-        // Advances the time by delta, updating a global light UBO
+        // Advances the time by delta, updating the global lights
         void Update(float delta);
 
         // Renders the sky

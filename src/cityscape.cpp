@@ -170,7 +170,7 @@ void Cityscape::render()
     }
     Building::Flush();
 
-    // Blit the gBuffer's depth buffer texture to the default framebuffer so we can use the depth values
+    // Blit the gBuffer's depth buffer texture to the default framebuffer
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
@@ -182,10 +182,10 @@ void Cityscape::render()
     gNormalTex->Bind(1);
     gColorSpecTex->Bind(2);
 
-    // Use the lighting pass shader and update lights
+    // Use the lighting pass shader
     globalLightShader.Use();
 
-    // Draw a fullscreen triangle to calculate lighting on every pixel in the scene
+    // Draw a fullscreen triangle to calculate global lighting on every pixel in the scene
     // We want to disable writing to the depth buffer here so we don't prevent the skybox from drawing later
     glDepthMask(GL_FALSE);
     glBindVertexArray(dummyVAO);
@@ -193,7 +193,10 @@ void Cityscape::render()
     glBindVertexArray(0);
     glDepthMask(GL_TRUE);
 
-    // Draw the sky last
+    // TODO: Point light pass, render instanced spheres scaled by light size
+    // Use pointLightPass.vs / .fs (blend with existing color, don't account for global lights)
+
+    // Draw the sky
     sky.Draw();
 }
 

@@ -47,8 +47,8 @@ class Cityscape: public wolf::App
         Sky sky;
 
         // Lighting pass objects
-        Shader globalLightShader;
         GLuint dummyVAO; // When using attributeless rendering, a non-zero VAO must still be bound
+        Shader globalLightShader;
 
         // Registry of all active entities
         entt::registry registry;

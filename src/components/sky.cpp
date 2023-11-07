@@ -113,7 +113,7 @@ Sky::~Sky()
     }
 }
 
-// Advances the time by delta, updating a global light UBO
+// Advances the time by delta, updating the global lights
 void Sky::Update(float delta)
 {
     // Advance time and clamp to [0, dayCycle]
@@ -122,26 +122,23 @@ void Sky::Update(float delta)
     offsetTime = currentTime + (dayCycle / 2);
 
     // Perform expensive trig calculations once
-    float ss = std::sin(TAU * currentTime / dayCycle);
-    float cs = std::cos(TAU * currentTime / dayCycle);
-    float sm = std::sin(TAU * offsetTime / dayCycle);
-    float cm = std::cos(TAU * offsetTime / dayCycle);
+    float st = std::sin(TAU * currentTime / dayCycle);
+    float ct = std::cos(TAU * currentTime / dayCycle);
+    float so = std::sin(TAU * offsetTime / dayCycle);
+    float co = std::cos(TAU * offsetTime / dayCycle);
     
-    // Calculate normalized TOD (0 = noon, 1 = midnight)
-    float normalizedTOD = 1 - ((ss + 1) / 2);
-
-    // Update sky shader time uniform
+    // Calculate normalized TOD (t for lerping between day / night skyboxes)
     skyShader.Use();
-    skyShader.SetUniform("time", normalizedTOD);
+    skyShader.SetUniform("time", 1 - ((st + 1) / 2));
 
     // Calculate global light positions + directions
-    sun.position = {0.0f, sm, 1 - cm - 1, std::max(0.0f, ss + 0.1f)};
-    moon.position = {0.0f, ss, 1 - cs - 1, std::max(0.0f, sm + 0.1f)};
+    sun.position = {0.0f, so, 1 - co - 1, std::max(0.0f, st + 0.1f)};
+    moon.position = {0.0f, st, 1 - ct - 1, std::max(0.0f, so + 0.1f)};
     sun.direction = glm::normalize(-sun.position);
     moon.direction = glm::normalize(-moon.position);
 
     // Update ambient lighting
-    ambient = ((ss + 1) / 2) * 0.4 + 0.04;
+    ambient = ((st + 1) / 2) * 0.4 + 0.04;
 
     // Update UBO
     lightUBO.Write(sun.position);

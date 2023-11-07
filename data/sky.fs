@@ -18,5 +18,5 @@ void main()
     vec4 nightTexel = texture(nightCube, texCoords);
 
     // Blend both texels based on normalized time of day
-    finalColor = dayTexel * (1 - time) + nightTexel * time;
+    finalColor = mix(dayTexel, nightTexel, time);
 }

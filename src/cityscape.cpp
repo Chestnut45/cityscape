@@ -82,15 +82,15 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     gBuffer->CheckCompleteness();
 
     // Load lighting pass shader
-    lightingShader.LoadShaderSource(GL_VERTEX_SHADER, "data/lightingPass.vs");
-    lightingShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/lightingPass.fs");
-    lightingShader.Link();
-    lightingShader.Use();
-    lightingShader.SetUniform("gPos", 0);
-    lightingShader.SetUniform("gNorm", 1);
-    lightingShader.SetUniform("gColorSpec", 2);
-    lightingShader.BindUniformBlock("CameraBlock", 0);
-    lightingShader.BindUniformBlock("GlobalLightBlock", 2);
+    globalLightShader.LoadShaderSource(GL_VERTEX_SHADER, "data/globalLightPass.vs");
+    globalLightShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/globalLightPass.fs");
+    globalLightShader.Link();
+    globalLightShader.Use();
+    globalLightShader.SetUniform("gPos", 0);
+    globalLightShader.SetUniform("gNorm", 1);
+    globalLightShader.SetUniform("gColorSpec", 2);
+    globalLightShader.BindUniformBlock("CameraBlock", 0);
+    globalLightShader.BindUniformBlock("GlobalLightBlock", 2);
 
     // Generate placeholder empty VAO
     glGenVertexArrays(1, &dummyVAO);
@@ -183,7 +183,7 @@ void Cityscape::render()
     gColorSpecTex->Bind(2);
 
     // Use the lighting pass shader and update lights
-    lightingShader.Use();
+    globalLightShader.Use();
 
     // Draw a fullscreen triangle to calculate lighting on every pixel in the scene
     // We want to disable writing to the depth buffer here so we don't prevent the skybox from drawing later

@@ -349,6 +349,7 @@ void Cityscape::DeleteBlock(const glm::ivec2& id)
 void Cityscape::RecreateFBO()
 {
     // Delete gBuffer + textures
+    // This is safe the first time since calling delete on nullptr is allowed
     delete gBuffer;
     delete gPositionTex;
     delete gNormalTex;

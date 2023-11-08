@@ -68,7 +68,9 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, c
         nightSkyboxPath + "/bottom.png",
         nightSkyboxPath + "/front.png",
         nightSkyboxPath + "/back.png"
-    })
+    }),
+
+    lightUBO(BufferType::Uniform, sizeof(DirectionalLight) * 2 + sizeof(GLfloat))
 {
     // Load source for skybox shader and link
     skyShader.LoadShaderSource(GL_VERTEX_SHADER, skyVS);
@@ -84,9 +86,9 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, c
     // Bind UBO to default light binding point
     lightUBO.BindBase(GL_UNIFORM_BUFFER, 2);
 
-    // Initialize default lighting values
-    sun = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.9f, 0.4f, 1.0f}};
-    moon = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {0.2f, 0.2f, 0.4f, 1.0f}};
+    // Initialize global light colors
+    sun.color = {1.0f, 0.9f, 0.4f, 1.0f};
+    moon.color = {0.2f, 0.2f, 0.4f, 1.0f};
 
     // If first instance, initialize static resources
     if (refCount == 0)
@@ -132,8 +134,8 @@ void Sky::Update(float delta)
     skyShader.SetUniform("time", 1 - ((st + 1) / 2));
 
     // Calculate global light positions + directions
-    sun.position = {0.0f, so, 1 - co - 1, std::max(0.0f, st + 0.2f)};
-    moon.position = {0.0f, st, 1 - ct - 1, std::max(0.0f, so + 0.2f)};
+    sun.position = {0.0f, so * sunDistance, (1 - co - 1) * sunDistance, std::min(std::max(0.0f, st) + 0.2f, 1.0f)};
+    moon.position = {0.0f, st * moonDistance, (1 - ct - 1) * moonDistance, std::min(std::max(0.0f, so) + 0.2f, 1.0f)};
     sun.direction = glm::normalize(-sun.position);
     moon.direction = glm::normalize(-moon.position);
 

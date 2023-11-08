@@ -51,10 +51,12 @@ class Sky
         float offsetTime = 0;
 
         // Global light data
-        GPUBuffer lightUBO{BufferType::Uniform, sizeof(DirectionalLight) * 2 + sizeof(GLfloat)};
+        GPUBuffer lightUBO;
         DirectionalLight sun;
         DirectionalLight moon;
         float ambient;
+        float sunDistance = 800;
+        float moonDistance = 800;
 
         // Static resources
         static inline GPUBuffer* skyboxVBO = nullptr;

@@ -136,7 +136,7 @@ void App::_internalUpdate(float dt)
 void App::run()
 {
     double lastTime = glfwGetTime();
-    while (!glfwWindowShouldClose(m_pWindow) && !isKeyDown(GLFW_KEY_ESCAPE))
+    while (!glfwWindowShouldClose(m_pWindow) && !isKeyDown(GLFW_KEY_END))
     {
         double currTime = glfwGetTime();
         float elapsedTime = (float)(currTime - lastTime);

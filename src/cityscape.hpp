@@ -71,6 +71,7 @@ class Cityscape: public wolf::App
         // Timing
         float elapsedTime = 0;
         float timeOfDay = 0;
+        bool paused = false;
 
         // Default random seed
         long int seed = 4545L;
@@ -91,4 +92,5 @@ class Cityscape: public wolf::App
         // Framebuffer update / regen methods
         void RecreateFBO();
         void WindowResizeCallback(GLFWwindow* window, int width, int height);
+        friend void WindowResizeCallback(GLFWwindow* window, int width, int height);
 };

@@ -72,11 +72,14 @@ void Cityscape::update(float delta)
     // Process all input for this frame
     ProcessInput(delta);
 
-    // Update sky
-    sky.Update(delta);
+    if (!paused)
+    {
+        // Update sky
+        sky.Update(delta);
 
-    // Update the simulated city blocks
-    UpdateBlocks();
+        // Update the simulated city blocks
+        UpdateBlocks();
+    }
 }
 
 void Cityscape::render()
@@ -136,38 +139,50 @@ void Cityscape::render()
 // Handles all input for this demo
 void Cityscape::ProcessInput(float delta)
 {
-    // Calculate mouse movement
-    glm::vec2 mousePos = getMousePos();
-    glm::vec2 mouseOffset = (mousePos - prevMousePos) * delta * mouseSensitivity;
-
-    // Rotate the camera according to mouse movement
-    camera.Rotate(mouseOffset.x, -mouseOffset.y);
-
-    // Boost if shift is held
-    float boost = isKeyDown(GLFW_KEY_LEFT_SHIFT) ? 2 : 1;
-
-    // Move the camera according to WASD
-    if (isKeyDown(GLFW_KEY_W)) camera.Translate(camera.GetDirection() * delta * cameraSpeed * boost);
-    if (isKeyDown(GLFW_KEY_S)) camera.Translate(-camera.GetDirection() * delta * cameraSpeed * boost);
-    if (isKeyDown(GLFW_KEY_A)) camera.Translate(-camera.GetRight() * delta * cameraSpeed * boost);
-    if (isKeyDown(GLFW_KEY_D)) camera.Translate(camera.GetRight() * delta * cameraSpeed * boost);
-
-    // Unload blocks and regenerate if we press R
-    if (isKeyJustDown(GLFW_KEY_R)) Regenerate();
-
-    // Toggle infinite generation mode with I
-    if (isKeyJustDown(GLFW_KEY_I))
+    if (!paused)
     {
-        infinite = !infinite;
-        Regenerate();
-    };
+        // Calculate mouse movement
+        glm::vec2 mousePos = getMousePos();
+        glm::vec2 mouseOffset = (mousePos - prevMousePos) * delta * mouseSensitivity;
 
-    // Zoom the camera according to scroll
-    glm::vec2 scroll = getMouseScroll();
-    camera.Zoom(scroll.y);
+        // Rotate the camera according to mouse movement
+        camera.Rotate(mouseOffset.x, -mouseOffset.y);
 
-    // Keep track of previous mouse position
-    prevMousePos = mousePos;
+        // Boost if shift is held
+        float boost = isKeyDown(GLFW_KEY_LEFT_SHIFT) ? 2 : 1;
+
+        // Move the camera according to WASD
+        if (isKeyDown(GLFW_KEY_W)) camera.Translate(camera.GetDirection() * delta * cameraSpeed * boost);
+        if (isKeyDown(GLFW_KEY_S)) camera.Translate(-camera.GetDirection() * delta * cameraSpeed * boost);
+        if (isKeyDown(GLFW_KEY_A)) camera.Translate(-camera.GetRight() * delta * cameraSpeed * boost);
+        if (isKeyDown(GLFW_KEY_D)) camera.Translate(camera.GetRight() * delta * cameraSpeed * boost);
+
+        // Unload blocks and regenerate if we press R
+        if (isKeyJustDown(GLFW_KEY_R)) Regenerate();
+
+        // Toggle infinite generation mode with I
+        if (isKeyJustDown(GLFW_KEY_I))
+        {
+            infinite = !infinite;
+            Regenerate();
+        };
+
+        // Zoom the camera according to scroll
+        glm::vec2 scroll = getMouseScroll();
+        camera.Zoom(scroll.y);
+
+        // Keep track of previous mouse position
+        prevMousePos = mousePos;
+    }
+
+    // Update pause state regardless of whether we are paused or not
+    if (isKeyJustDown(GLFW_KEY_ESCAPE))
+    {
+        paused = !paused;
+
+        if (paused) glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        else glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
 }
 
 // Unloads all city blocks and destroys their entities
@@ -365,5 +380,7 @@ void Cityscape::RecreateFBO()
 // Recreate the geometry buffer and other FBOs when the window is resized
 void Cityscape::WindowResizeCallback(GLFWwindow* window, int width, int height)
 {
+    m_width = width;
+    m_height = height;
     RecreateFBO();
 }

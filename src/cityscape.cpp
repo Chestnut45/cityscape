@@ -11,26 +11,8 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
-    // Generate geometry buffer textures
-    gPositionTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST);
-    gNormalTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST);
-    gColorSpecTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST);
-    gDepthStencilTex = new Texture2D(m_width, m_height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST);
-
-    // Attach textures to geometry buffer
-    gBuffer = new FrameBuffer();
-    gBuffer->Bind();
-    gBuffer->AttachTexture(gPositionTex, GL_COLOR_ATTACHMENT0);
-    gBuffer->AttachTexture(gNormalTex, GL_COLOR_ATTACHMENT1);
-    gBuffer->AttachTexture(gColorSpecTex, GL_COLOR_ATTACHMENT2);
-    gBuffer->AttachTexture(gDepthStencilTex, GL_DEPTH_STENCIL_ATTACHMENT);
-
-    // Set the draw buffers for the currently bound FBO
-    GLenum drawBuffers[3] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
-    glDrawBuffers(3, drawBuffers);
-
-    // Check for completeness :)
-    gBuffer->CheckCompleteness();
+    // Create the gBuffer FBO
+    RecreateFBO();
 
     // Load lighting pass shader
     globalLightShader.LoadShaderSource(GL_VERTEX_SHADER, "data/globalLightPass.vs");
@@ -60,6 +42,9 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
         std::cout << "Raw mouse motion enabled" << std::endl;
     }
     prevMousePos = getMousePos();
+
+    // Set the window resize callback
+    glfwSetWindowSizeCallback(getWindow(), WindowResizeCallback);
 	
     // Success msg
     std::cout << "Successfully initialized Cityscape" << std::endl;
@@ -346,4 +331,42 @@ void Cityscape::DeleteBlock(const glm::ivec2& id)
     {
         registry.destroy(entity);
     }
+}
+
+// Regenerates the Geometry Buffer FBO with current width and height
+void Cityscape::RecreateFBO()
+{
+    // Delete gBuffer + textures
+    delete gBuffer;
+    delete gPositionTex;
+    delete gNormalTex;
+    delete gColorSpecTex;
+    delete gDepthStencilTex;
+
+    // Generate geometry buffer textures
+    gPositionTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST);
+    gNormalTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST);
+    gColorSpecTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST);
+    gDepthStencilTex = new Texture2D(m_width, m_height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST);
+
+    // Attach textures to geometry buffer
+    gBuffer = new FrameBuffer();
+    gBuffer->Bind();
+    gBuffer->AttachTexture(gPositionTex, GL_COLOR_ATTACHMENT0);
+    gBuffer->AttachTexture(gNormalTex, GL_COLOR_ATTACHMENT1);
+    gBuffer->AttachTexture(gColorSpecTex, GL_COLOR_ATTACHMENT2);
+    gBuffer->AttachTexture(gDepthStencilTex, GL_DEPTH_STENCIL_ATTACHMENT);
+
+    // Set the draw buffers for the currently bound FBO
+    GLenum drawBuffers[3] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
+    glDrawBuffers(3, drawBuffers);
+
+    // Check for completeness :)
+    gBuffer->CheckCompleteness();
+}
+
+// Recreate the geometry buffer and other FBOs when the window is resized
+void Cityscape::WindowResizeCallback(GLFWwindow* window, int width, int height)
+{
+    RecreateFBO();
 }

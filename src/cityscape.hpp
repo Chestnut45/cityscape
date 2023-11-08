@@ -60,13 +60,6 @@ class Cityscape: public wolf::App
         std::deque<glm::ivec2> generationQueue;
         std::deque<glm::ivec2> deletionQueue;
 
-        // Geometry buffer + textures for deferred shading
-        FrameBuffer* gBuffer = nullptr;
-        Texture2D* gPositionTex = nullptr;
-        Texture2D* gNormalTex = nullptr;
-        Texture2D* gColorSpecTex = nullptr;
-        Texture2D* gDepthStencilTex = nullptr;
-
         // Input
         glm::vec2 prevMousePos;
 
@@ -87,4 +80,15 @@ class Cityscape: public wolf::App
         void UpdateBlocks();
         void GenerateBlock(const glm::ivec2& id);
         void DeleteBlock(const glm::ivec2& id);
+
+        // Geometry buffer + textures for deferred shading
+        FrameBuffer* gBuffer = nullptr;
+        Texture2D* gPositionTex = nullptr;
+        Texture2D* gNormalTex = nullptr;
+        Texture2D* gColorSpecTex = nullptr;
+        Texture2D* gDepthStencilTex = nullptr;
+
+        // Framebuffer update / regen methods
+        void RecreateFBO();
+        void WindowResizeCallback(GLFWwindow* window, int width, int height);
 };

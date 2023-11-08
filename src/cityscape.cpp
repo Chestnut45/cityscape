@@ -1,54 +1,5 @@
 #include "cityscape.hpp"
 
-// Offset locations relative to a city block origin for buildings
-static const glm::ivec3 smallBuildingOffsets[] =
-{
-    {4, 0, 7},
-    {4, 0, 4},
-    {7, 0, 4},
-    {9, 0, 4},
-    {12, 0, 4},
-    {12, 0, 7},
-    {12, 0, 9},
-    {12, 0, 12},
-    {9, 0, 12},
-    {7, 0, 12},
-    {4, 0, 12},
-    {4, 0, 9},
-};
-
-static const Building::Orientation smallBuildingOrientations[] =
-{
-    Building::Orientation::West,
-    Building::Orientation::North,
-    Building::Orientation::North,
-    Building::Orientation::North,
-    Building::Orientation::East,
-    Building::Orientation::East,
-    Building::Orientation::East,
-    Building::Orientation::South,
-    Building::Orientation::South,
-    Building::Orientation::South,
-    Building::Orientation::West,
-    Building::Orientation::West
-};
-
-static const glm::ivec3 largeBuildingOffsets[] =
-{
-    {5, 0, 5},
-    {11, 0, 5},
-    {11, 0, 11},
-    {5, 0, 11}
-};
-
-static const Building::Orientation largeBuildingOrientations[] =
-{
-    Building::Orientation::West,
-    Building::Orientation::North,
-    Building::Orientation::East,
-    Building::Orientation::South
-};
-
 // Constructor
 Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data/skyboxNight", "data/sky.vs", "data/sky.fs")
 {

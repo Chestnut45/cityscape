@@ -46,7 +46,7 @@ class Sky
         Shader skyShader;
 
         // Time of day variables
-        float dayCycle = 24;
+        float dayCycle = 30;
         float currentTime = 0;
         float offsetTime = 0;
 

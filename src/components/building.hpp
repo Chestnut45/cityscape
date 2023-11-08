@@ -107,4 +107,5 @@ class Building
         static inline std::default_random_engine rng;
         static inline std::uniform_int_distribution<int> wallDist{(int)TexOffset::Wall, (int)TexOffset::LargeWindow};
         static inline std::uniform_int_distribution<int> stepDist{0, 6};
+        static inline std::uniform_int_distribution<int> boolDist{0, 1};
 };

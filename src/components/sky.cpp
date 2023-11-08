@@ -86,7 +86,7 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, c
 
     // Initialize default lighting values
     sun = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.9f, 0.5f, 1.0f}};
-    moon = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {0.2f, 0.2f, 0.3f, 1.0f}};
+    moon = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {0.2f, 0.2f, 0.4f, 1.0f}};
 
     // If first instance, initialize static resources
     if (refCount == 0)
@@ -132,13 +132,13 @@ void Sky::Update(float delta)
     skyShader.SetUniform("time", 1 - ((st + 1) / 2));
 
     // Calculate global light positions + directions
-    sun.position = {0.0f, so, 1 - co - 1, std::max(0.0f, st + 0.1f)};
-    moon.position = {0.0f, st, 1 - ct - 1, std::max(0.0f, so + 0.1f)};
+    sun.position = {0.0f, so, 1 - co - 1, std::max(0.0f, st + 0.2f)};
+    moon.position = {0.0f, st, 1 - ct - 1, std::max(0.0f, so + 0.2f)};
     sun.direction = glm::normalize(-sun.position);
     moon.direction = glm::normalize(-moon.position);
 
     // Update ambient lighting
-    ambient = ((st + 1) / 2) * 0.4 + 0.04;
+    ambient = ((st + 1) / 2) * 0.45 + 0.1;
 
     // Update UBO
     lightUBO.Write(sun.position);

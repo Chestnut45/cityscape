@@ -181,15 +181,45 @@ void Building::FlushDrawCalls()
 // Constructs a wall with the given parameters
 void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, int blocks)
 {
-    // Calculate texture offsets for upper left vertex of the wall
-    float xTexOffs = (float)type * tileSizeNormalized.x;
-    float yTexOffs = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
+    bool doorPlaced = false;
 
+    // Calculate texture offsets for upper left vertices of the wall faces
+    float texOffsets[blocks * 2];
+    for (int i = 0; i < blocks * 2; i += 2)
+    {
+        if (type == TexOffset::Door)
+        {
+            if (!doorPlaced && (boolDist(rng) || i == blocks * 2 - 2))
+            {
+                texOffsets[i] = (float)type * tileSizeNormalized.x;
+                texOffsets[i + 1] = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
+                doorPlaced = true;
+            }
+            else
+            {
+                texOffsets[i] = (float)RandomWallType() * tileSizeNormalized.x;
+                texOffsets[i + 1] = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
+            }
+        }
+        else
+        {
+            if (type == TexOffset::Wall || type == TexOffset::Window || type == TexOffset::LargeWindow)
+            {
+                texOffsets[i] = (float)RandomWallType() * tileSizeNormalized.x;
+                texOffsets[i + 1] = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
+            }
+            else
+            {
+                texOffsets[i] = (float)type * tileSizeNormalized.x;
+                texOffsets[i + 1] = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
+            }
+        }
+    }
+
+    // Calculate story dimensions and offsets
     float storySize = 1.0f;
     float halfSize = 0.5f;
     float yPosOffs = storySize * story;
-
-    // Calculate offset based on number of blocks
     float xOffset = -halfSize * (blocks - 1);
     float zOffset = xOffset;
 
@@ -201,10 +231,10 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
             {
                 GLuint n = vertices.size();
 
-                vertices.push_back({halfSize + xOffset, yPosOffs + storySize, -halfSize * blocks, 0.0f, 0.0f, -1.0f, xTexOffs, yTexOffs});
-                vertices.push_back({-halfSize + xOffset, yPosOffs + storySize, -halfSize * blocks, 0.0f, 0.0f, -1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
-                vertices.push_back({halfSize + xOffset, yPosOffs, -halfSize * blocks, 0.0f, 0.0f, -1.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
-                vertices.push_back({-halfSize + xOffset, yPosOffs, -halfSize * blocks, 0.0f, 0.0f, -1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+                vertices.push_back({halfSize + xOffset, yPosOffs + storySize, -halfSize * blocks, 0.0f, 0.0f, -1.0f, texOffsets[i * 2], texOffsets[i * 2 + 1]});
+                vertices.push_back({-halfSize + xOffset, yPosOffs + storySize, -halfSize * blocks, 0.0f, 0.0f, -1.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1]});
+                vertices.push_back({halfSize + xOffset, yPosOffs, -halfSize * blocks, 0.0f, 0.0f, -1.0f, texOffsets[i * 2], texOffsets[i * 2 + 1] - tileSizeNormalized.y});
+                vertices.push_back({-halfSize + xOffset, yPosOffs, -halfSize * blocks, 0.0f, 0.0f, -1.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y});
 
                 // Add indices
                 indices.push_back(n);
@@ -225,10 +255,10 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
             {
                 GLuint n = vertices.size();
 
-                vertices.push_back({halfSize * blocks, yPosOffs + storySize, halfSize + xOffset, 1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs});
-                vertices.push_back({halfSize * blocks, yPosOffs + storySize, -halfSize + xOffset, 1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
-                vertices.push_back({halfSize * blocks, yPosOffs, halfSize + xOffset, 1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
-                vertices.push_back({halfSize * blocks, yPosOffs, -halfSize + xOffset, 1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+                vertices.push_back({halfSize * blocks, yPosOffs + storySize, halfSize + xOffset, 1.0f, 0.0f, 0.0f, texOffsets[i * 2], texOffsets[i * 2 + 1]});
+                vertices.push_back({halfSize * blocks, yPosOffs + storySize, -halfSize + xOffset, 1.0f, 0.0f, 0.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1]});
+                vertices.push_back({halfSize * blocks, yPosOffs, halfSize + xOffset, 1.0f, 0.0f, 0.0f, texOffsets[i * 2], texOffsets[i * 2 + 1] - tileSizeNormalized.y});
+                vertices.push_back({halfSize * blocks, yPosOffs, -halfSize + xOffset, 1.0f, 0.0f, 0.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y});
 
                 // Add indices
                 indices.push_back(n);
@@ -249,10 +279,10 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
             {
                 GLuint n = vertices.size();
                 
-                vertices.push_back({-halfSize + xOffset, yPosOffs + storySize, halfSize * blocks, 0.0f, 0.0f, 1.0f, xTexOffs, yTexOffs});
-                vertices.push_back({halfSize + xOffset, yPosOffs + storySize, halfSize * blocks, 0.0f, 0.0f, 1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
-                vertices.push_back({-halfSize + xOffset, yPosOffs, halfSize * blocks, 0.0f, 0.0f, 1.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
-                vertices.push_back({halfSize + xOffset, yPosOffs, halfSize * blocks, 0.0f, 0.0f, 1.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+                vertices.push_back({-halfSize + xOffset, yPosOffs + storySize, halfSize * blocks, 0.0f, 0.0f, 1.0f, texOffsets[i * 2], texOffsets[i * 2 + 1]});
+                vertices.push_back({halfSize + xOffset, yPosOffs + storySize, halfSize * blocks, 0.0f, 0.0f, 1.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1]});
+                vertices.push_back({-halfSize + xOffset, yPosOffs, halfSize * blocks, 0.0f, 0.0f, 1.0f, texOffsets[i * 2], texOffsets[i * 2 + 1] - tileSizeNormalized.y});
+                vertices.push_back({halfSize + xOffset, yPosOffs, halfSize * blocks, 0.0f, 0.0f, 1.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y});
 
                 // Add indices
                 indices.push_back(n);
@@ -274,10 +304,10 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
             {
                 GLuint n = vertices.size();
 
-                vertices.push_back({-halfSize * blocks, yPosOffs + storySize, -halfSize + xOffset, -1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs});
-                vertices.push_back({-halfSize * blocks, yPosOffs + storySize, halfSize + xOffset, -1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
-                vertices.push_back({-halfSize * blocks, yPosOffs, -halfSize + xOffset, -1.0f, 0.0f, 0.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
-                vertices.push_back({-halfSize * blocks, yPosOffs, halfSize + xOffset, -1.0f, 0.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+                vertices.push_back({-halfSize * blocks, yPosOffs + storySize, -halfSize + xOffset, -1.0f, 0.0f, 0.0f, texOffsets[i * 2], texOffsets[i * 2 + 1]});
+                vertices.push_back({-halfSize * blocks, yPosOffs + storySize, halfSize + xOffset, -1.0f, 0.0f, 0.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1]});
+                vertices.push_back({-halfSize * blocks, yPosOffs, -halfSize + xOffset, -1.0f, 0.0f, 0.0f, texOffsets[i * 2], texOffsets[i * 2 + 1] - tileSizeNormalized.y});
+                vertices.push_back({-halfSize * blocks, yPosOffs, halfSize + xOffset, -1.0f, 0.0f, 0.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y});
 
                 // Add indices
                 indices.push_back(n);
@@ -298,10 +328,10 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
             {
                 GLuint n = vertices.size();
 
-                vertices.push_back({-halfSize + xOffset, yPosOffs + storySize, -halfSize + zOffset, 0.0f, 1.0f, 0.0f, xTexOffs, yTexOffs});
-                vertices.push_back({halfSize + xOffset, yPosOffs + storySize, -halfSize + zOffset, 0.0f, 1.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs});
-                vertices.push_back({-halfSize + xOffset, yPosOffs + storySize, halfSize + zOffset, 0.0f, 1.0f, 0.0f, xTexOffs, yTexOffs - tileSizeNormalized.y});
-                vertices.push_back({halfSize + xOffset, yPosOffs + storySize, halfSize + zOffset, 0.0f, 1.0f, 0.0f, xTexOffs + tileSizeNormalized.x, yTexOffs - tileSizeNormalized.y});
+                vertices.push_back({-halfSize + xOffset, yPosOffs + storySize, -halfSize + zOffset, 0.0f, 1.0f, 0.0f, texOffsets[0], texOffsets[1]});
+                vertices.push_back({halfSize + xOffset, yPosOffs + storySize, -halfSize + zOffset, 0.0f, 1.0f, 0.0f, texOffsets[0] + tileSizeNormalized.x, texOffsets[1]});
+                vertices.push_back({-halfSize + xOffset, yPosOffs + storySize, halfSize + zOffset, 0.0f, 1.0f, 0.0f, texOffsets[0], texOffsets[1] - tileSizeNormalized.y});
+                vertices.push_back({halfSize + xOffset, yPosOffs + storySize, halfSize + zOffset, 0.0f, 1.0f, 0.0f, texOffsets[0] + tileSizeNormalized.x, texOffsets[1] - tileSizeNormalized.y});
 
                 // Add indices
                 indices.push_back(n);

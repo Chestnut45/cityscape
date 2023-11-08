@@ -130,7 +130,6 @@ void Cityscape::render()
     glDepthMask(GL_TRUE);
 
     // TODO: Point light pass, render instanced spheres scaled by light size
-    // Use pointLightPass.vs / .fs (blend with existing color, don't account for global lights)
 
     // Draw the sky
     sky.Draw();

@@ -194,18 +194,19 @@ void GPUBuffer::Flush()
 }
 
 // Binds the buffer to the default target
-void GPUBuffer::Bind()
+void GPUBuffer::Bind() const
 {
     glBindBuffer(defaultTarget, bufferID);
 }
+
 // Binds the buffer to the specified target
-void GPUBuffer::Bind(GLenum target)
+void GPUBuffer::Bind(GLenum target) const
 {
     glBindBuffer(target, bufferID);
 }
 
 // Binds the buffer to the specified target and index
-void GPUBuffer::BindBase(GLenum target, GLuint index)
+void GPUBuffer::BindBase(GLenum target, GLuint index) const
 {
     glBindBufferBase(target, index, bufferID);
 }

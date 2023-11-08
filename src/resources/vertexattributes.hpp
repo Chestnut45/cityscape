@@ -7,7 +7,7 @@
 #include "gpubuffer.hpp"
 #include "vertex.hpp"
 
-// RAII VAO wrapper
+// RAII VAO wrapper with automagical constructor for internal vertex types
 class VertexAttributes
 {
     // Interface
@@ -32,8 +32,7 @@ class VertexAttributes
         void Add(GLuint numComponents, GLenum type);
 
         // Binding methods
-        void Bind();
-        void Unbind();
+        void Bind() const;
 
     // Data / implementation
     private:

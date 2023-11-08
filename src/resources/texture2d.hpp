@@ -24,7 +24,7 @@ class Texture2D
         void operator=(Texture2D&& other) = delete;
 
         // Binding operations
-        void Bind(int texUnit = 0);
+        void Bind(int texUnit = 0) const;
 
         // Accessors
         inline GLuint GetID() const { return textureID; };

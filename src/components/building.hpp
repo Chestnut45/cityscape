@@ -89,7 +89,7 @@ class Building
         static inline glm::vec2 tileSizeNormalized;
 
         // Static resources
-        static inline Texture2D* texture = nullptr;
+        static inline Texture2D* textureAtlas = nullptr;
         static inline GPUBuffer* vbo = nullptr;
         static inline GPUBuffer* ebo = nullptr;
         static inline VertexAttributes* vao = nullptr;
@@ -101,12 +101,10 @@ class Building
         // Helper methods for procedural generation
         void AddFace(Orientation dir, TexOffset type, int variant, int story, int blocks);
         void AddFeature(Feature feature, Orientation orientation);
+        TexOffset RandomWallType() const;
 
         // RNG
         static inline std::default_random_engine rng;
         static inline std::uniform_int_distribution<int> wallDist{(int)TexOffset::Wall, (int)TexOffset::LargeWindow};
         static inline std::uniform_int_distribution<int> stepDist{0, 6};
-
-        // RNG methods
-        TexOffset RandomWallType() const;
 };

@@ -25,10 +25,10 @@ class FrameBuffer
         void AttachTexture(const Texture2D* const texture, GLenum attachment);
 
         // Bind the framebuffer (defaults to both read and draw)
-        void Bind(GLenum target = GL_FRAMEBUFFER);
+        void Bind(GLenum target = GL_FRAMEBUFFER) const;
 
         // Checks if the framebuffer is complete
-        bool CheckCompleteness();
+        bool CheckCompleteness() const;
 
     // Data / implementation
     private:

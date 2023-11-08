@@ -6,7 +6,7 @@ Building::Building(const glm::ivec3 &pos, int stories, int blocks, int variant, 
     // Initialize static resources if first instance
     if (refCount == 0)
     {
-        texture = new Texture2D("data/buildingAtlas.png", GL_NEAREST);
+        textureAtlas = new Texture2D("data/buildingAtlas.png", GL_NEAREST);
         vbo = new GPUBuffer(BufferType::DynamicVertex, sizeof(VertexPosNormUv) * MAX_VERTICES);
         ebo = new GPUBuffer(BufferType::DynamicIndex, sizeof(GLuint) * MAX_INDICES);
         vao = new VertexAttributes(VertexFormat::POS_NORM_UV, vbo, ebo);
@@ -16,6 +16,10 @@ Building::Building(const glm::ivec3 &pos, int stories, int blocks, int variant, 
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/building.fs");
 
         // Set gBuffer fragment output locations
+        // If we don't assign an explicit location, OpenGL will automatically assign each
+        // output to a fragment color, but it is unreliable. Most implementations will assign
+        // based on the order they are declared in the shader, but some AMD implementations,
+        // for instance, will sort the outputs by name before assigning them to fragment colors.
         glBindFragDataLocation(shader->GetProgramID(), 0, "gPos");
         glBindFragDataLocation(shader->GetProgramID(), 1, "gNorm");
         glBindFragDataLocation(shader->GetProgramID(), 2, "gColorSpec");
@@ -26,8 +30,8 @@ Building::Building(const glm::ivec3 &pos, int stories, int blocks, int variant, 
         shader->SetUniform("buildingAtlas", 0);
 
         // Calculate normalized tile size for atlas offsets
-        float w = texture->GetWidth();
-        float h = texture->GetHeight();
+        float w = textureAtlas->GetWidth();
+        float h = textureAtlas->GetHeight();
         tileSizeNormalized = glm::vec2((float)TILE_SIZE / w, (float)TILE_SIZE / h);
     }
     refCount++;
@@ -117,7 +121,7 @@ Building::~Building()
     if (refCount == 0)
     {
         // Cleanup static resources
-        delete texture;
+        delete textureAtlas;
         delete vbo;
         delete ebo;
         delete vao;
@@ -161,7 +165,7 @@ void Building::FlushDrawCalls()
     
     // Bind relevant resources
     shader->Use();
-    texture->Bind();
+    textureAtlas->Bind();
     vao->Bind();
 
     // Issue draw call

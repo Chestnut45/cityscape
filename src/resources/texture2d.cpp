@@ -65,7 +65,7 @@ Texture2D::~Texture2D()
 
 // Bind this texture to GL_TEXTURE_2D on a given texture unit
 // NOTE: This leaves texUnit as the currently active texture unit on return
-void Texture2D::Bind(int texUnit)
+void Texture2D::Bind(int texUnit) const
 {
     // Ensure valid texture unit is supplied
     // OpenGL 3.x requires a minimum of 16 units per stage

@@ -23,6 +23,10 @@ void Shader::Use() const
 // Call this for each stage you want to add to a shader program
 bool Shader::LoadShaderSource(GLenum stage, const std::string& sourcePath)
 {
+    // Verification vars
+    GLint success;
+    GLchar infoLog[512];
+    
     // Read the file stream
     std::ifstream ifs(sourcePath);
     std::string shaderSourceString((std::istreambuf_iterator<char>(ifs)),
@@ -56,8 +60,12 @@ bool Shader::LoadShaderSource(GLenum stage, const std::string& sourcePath)
 
 // Link the shader program
 // This method detaches and deletes all shaders from the program if successful
-bool Shader::Link()
+bool Shader::Link() const
 {
+    // Verification vars
+    GLint success;
+    GLchar infoLog[512];
+    
     // Link the program
     glLinkProgram(programID);
 

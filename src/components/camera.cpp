@@ -30,7 +30,8 @@ void Camera::Translate(const glm::vec3& offset)
     UpdateView();
 }
 
-// Rotates the camera according to yawOffset and pitchOffset in degrees
+// Rotates the camera according to yawOffset and pitchOffset in degrees,
+// then updates the view matrix
 void Camera::Rotate(float yawOffset, float pitchOffset)
 {
     yaw += yawOffset;
@@ -43,7 +44,7 @@ void Camera::Rotate(float yawOffset, float pitchOffset)
     UpdateView();
 }
 
-// Zoom (fov adjust)
+// Zooms the camera by amount, updating the projection matrix
 void Camera::Zoom(float amount)
 {
     fov -= amount;
@@ -52,13 +53,13 @@ void Camera::Zoom(float amount)
     UpdateProjection();
 }
 
-// Updates the camera's width and height in pixels, then recalculates the projection matrix
+// Updates the camera's viewport's width and height in pixels, then recalculates the projection matrix
 void Camera::UpdateViewport(int width, int height)
 {
     this->width = width;
     this->height = height;
-
     aspect = (float)width / (float)height;
+    
     UpdateProjection();
 }
 
@@ -74,9 +75,9 @@ void Camera::UpdateView()
     dir.x = cosY * cosP;
     dir.y = sinP;
     dir.z = sinY * cosP;
-    direction = glm::normalize(dir);
 
-    // Calculate right axis
+    // Calculate forward and right axes
+    direction = glm::normalize(dir);
     right = glm::normalize(glm::cross(direction, up));
 
     // Update view matrix
@@ -94,19 +95,8 @@ void Camera::UpdateUBO()
 {
     // Combine view and projection into one matrix
     glm::mat4 viewProj = proj * view;
-    
-    /*
-    // Build up local buffer with camera data
-    unsigned char data[20 * sizeof(GLfloat)];
 
-    memcpy(data, glm::value_ptr(viewProj), sizeof(glm::mat4));
-    memcpy(data + sizeof(glm::mat4), glm::value_ptr(glm::vec4(position, 1)), sizeof(glm::vec4));
-
-    // Copy over to the GPU and unbind
-    ubo.Write(data, sizeof(data));
-    */
-
-    // New write method
+    // Write camera matrix data to UBO
     ubo.Write(viewProj);
     ubo.Write(glm::vec4(position, 1));
     ubo.Flush();

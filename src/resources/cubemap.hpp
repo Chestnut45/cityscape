@@ -23,7 +23,7 @@ class Cubemap
         void operator=(Cubemap&& other) = delete;
 
         // Bind this cubemap's texture to GL_TEXTURE_CUBE_MAP on a given texture unit
-        void Bind(int texUnit = 0);
+        void Bind(int texUnit = 0) const;
     
     private:
         // OpenGL objects

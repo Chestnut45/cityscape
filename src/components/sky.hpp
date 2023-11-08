@@ -44,7 +44,6 @@ class Sky
         Cubemap dayBox;
         Cubemap nightBox;
         Shader skyShader;
-        GPUBuffer lightUBO{BufferType::Uniform, sizeof(DirectionalLight) * 2 + sizeof(GLfloat)};
 
         // Time of day variables
         float dayCycle = 24;
@@ -52,6 +51,7 @@ class Sky
         float offsetTime = 0;
 
         // Global light data
+        GPUBuffer lightUBO{BufferType::Uniform, sizeof(DirectionalLight) * 2 + sizeof(GLfloat)};
         DirectionalLight sun;
         DirectionalLight moon;
         float ambient;

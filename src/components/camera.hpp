@@ -33,11 +33,11 @@ class Camera
         void UpdateUBO();
         
         // Accessors
-        inline const glm::vec3& GetDirection() { return direction; };
-        inline const glm::vec3& GetPosition() { return position; };
-        inline const glm::vec3& GetRight() { return right; };
-        inline int GetWidth() { return width; };
-        inline int GetHeight() { return height; };
+        inline const glm::vec3& GetDirection() const { return direction; };
+        inline const glm::vec3& GetPosition() const { return position; };
+        inline const glm::vec3& GetRight() const { return right; };
+        inline int GetWidth() const { return width; };
+        inline int GetHeight() const { return height; };
 
     private:
         // Camera properties

@@ -54,7 +54,7 @@ Cubemap::~Cubemap()
 
 // Bind this cubemap's texture to GL_TEXTURE_CUBE_MAP on a given texture unit
 // NOTE: This leaves texUnit as the currently active texture unit on return
-void Cubemap::Bind(int texUnit)
+void Cubemap::Bind(int texUnit) const
 {
     // Ensure valid texture unit is supplied
     // OpenGL 3.x requires a minimum of 16 units per stage

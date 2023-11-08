@@ -25,14 +25,14 @@ void FrameBuffer::AttachTexture(const Texture2D* const texture, GLenum attachmen
 }
 
 // Bind this framebuffer to the specified target (or GL_FRAMEBUFFER, if none is supplied)
-void FrameBuffer::Bind(GLenum target)
+void FrameBuffer::Bind(GLenum target) const
 {
     glBindFramebuffer(target, fbo);
 }
 
 // Checks this fbo for completeness
-// NOTE: This object must be bound
-bool FrameBuffer::CheckCompleteness()
+// NOTE: This object must be bound to GL_FRAMEBUFFER first
+bool FrameBuffer::CheckCompleteness() const
 {
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 

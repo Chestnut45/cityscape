@@ -41,9 +41,9 @@ class GPUBuffer
         void Flush();
 
         // State management
-        void Bind();
-        void Bind(GLenum target);
-        void BindBase(GLenum target, GLuint index);
+        void Bind() const;
+        void Bind(GLenum target) const;
+        void BindBase(GLenum target, GLuint index) const;
 
         // Accessors
         inline GLuint GetName() const { return bufferID; };

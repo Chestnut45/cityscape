@@ -125,13 +125,7 @@ void VertexAttributes::Add(GLuint numComponents, GLenum type)
 }
 
 // Binds the VAO
-void VertexAttributes::Bind()
+void VertexAttributes::Bind() const
 {
     glBindVertexArray(vao);
-}
-
-// Unbinds the VAO
-void VertexAttributes::Unbind()
-{
-    glBindVertexArray(0);
 }

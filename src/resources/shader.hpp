@@ -19,7 +19,7 @@ class Shader
 
         // Loading / compiling
         bool LoadShaderSource(GLenum stage, const std::string& sourcePath);
-        bool Link();
+        bool Link() const;
 
         // Delete copy constructor/assignment
         Shader(const Shader&) = delete;
@@ -46,10 +46,6 @@ class Shader
     private:
         // Identifiers
         GLuint programID;
-
-        // Verification vars
-        GLint success;
-        GLchar infoLog[512];
 
         // IDs of individual shaders
         std::vector<GLuint> shaders;

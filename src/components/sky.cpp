@@ -85,7 +85,7 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, c
     lightUBO.BindBase(GL_UNIFORM_BUFFER, 2);
 
     // Initialize default lighting values
-    sun = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.9f, 0.5f, 1.0f}};
+    sun = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.9f, 0.4f, 1.0f}};
     moon = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {0.2f, 0.2f, 0.4f, 1.0f}};
 
     // If first instance, initialize static resources

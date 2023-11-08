@@ -42,9 +42,6 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
         std::cout << "Raw mouse motion enabled" << std::endl;
     }
     prevMousePos = getMousePos();
-
-    // Set the window resize callback
-    glfwSetWindowSizeCallback(getWindow(), WindowResizeCallback);
 	
     // Success msg
     std::cout << "Successfully initialized Cityscape" << std::endl;

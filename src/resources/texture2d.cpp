@@ -1,7 +1,7 @@
 #include "texture2d.hpp"
 
 // Generate texture constructor
-Texture2D::Texture2D(int width, int height, GLint internalFormat, GLint format, GLenum type, GLenum filter)
+Texture2D::Texture2D(int width, int height, GLint internalFormat, GLint format, GLenum type, GLenum minFilter, GLenum magFilter, bool mipmap)
 {
     // Generate the texture object
     glGenTextures(1, &textureID);
@@ -10,11 +10,12 @@ Texture2D::Texture2D(int width, int height, GLint internalFormat, GLint format, 
     // Apply default texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 
     // Specify the texture details
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, NULL);
+    if (mipmap) glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     this->width = width;
@@ -22,7 +23,7 @@ Texture2D::Texture2D(int width, int height, GLint internalFormat, GLint format, 
 }
 
 // Load from file constructor
-Texture2D::Texture2D(const std::string& texPath, GLenum filter)
+Texture2D::Texture2D(const std::string& texPath, GLenum minFilter, GLenum magFilter, bool mipmap)
 {
     // Generate the texture object
     glGenTextures(1, &textureID);
@@ -31,8 +32,8 @@ Texture2D::Texture2D(const std::string& texPath, GLenum filter)
     // Default default texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 
     // Load the image data
     int width, height, channelCount;
@@ -42,6 +43,7 @@ Texture2D::Texture2D(const std::string& texPath, GLenum filter)
     {
         // Send image data to texture target
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        if (mipmap) glGenerateMipmap(GL_TEXTURE_2D);
         stbi_image_free(data);
     }
     else

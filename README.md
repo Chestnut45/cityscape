@@ -5,6 +5,8 @@
 ## Controls:
 
 WASD: Move around\
+R: Regenerate cityscape\
+I: Toggle Infinite Mode\
 Escape: Pause (toggles mouse capture so you can resize window)\
 End: End the program\
 Mouse: Look around\

@@ -6,10 +6,10 @@
 
 WASD: Move around\
 R: Regenerate cityscape\
-I: Toggle Infinite Mode\
+I: Toggle Infinite Mode
 
 Escape: Pause\
-End: End the program\
+End: End the program
 
 Mouse Movement: Look around\
 Mouse Scroll: Zoom

@@ -1,8 +1,6 @@
 # Cityscape Assignment
 
-### D'Anyil Landry\
-### 0326217\
-### Fall 2023\
+### D'Anyil Landry
 
 ## Controls:
 
@@ -10,7 +8,7 @@ WASD: Move around\
 Escape: Pause (toggles mouse capture so you can resize window)\
 End: End the program\
 Mouse: Look around\
-Mouse Scroll: Zoom\
+Mouse Scroll: Zoom
 
 ## Core:
 

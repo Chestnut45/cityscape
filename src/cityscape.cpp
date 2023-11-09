@@ -112,14 +112,13 @@ void Cityscape::render()
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Lighting pass
+    // Global light pass
+    globalLightShader.Use();
+
     // First bind all gBuffer textures appropriately
     gPositionTex->Bind(0);
     gNormalTex->Bind(1);
     gColorSpecTex->Bind(2);
-
-    // Use the lighting pass shader
-    globalLightShader.Use();
 
     // Draw a fullscreen triangle to calculate global lighting on every pixel in the scene
     // We want to disable writing to the depth buffer here so we don't prevent the skybox from drawing later
@@ -319,9 +318,9 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
     // Register the entity with the block
     cityBlocks[id].push_back(temp);
 
-    // Create a point light
+    // TESTING: Create a point light
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{(float)id.x * 16, 4.0f, (float)id.y * 16, 8.0f}, glm::vec4{1.0f, 0.8f, 0.0f, 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{(float)id.x * 16, 1.0f, (float)id.y * 16, 8.0f}, glm::vec4{1.0f, 0.8f, 0.0f, 1.0f});
     cityBlocks[id].push_back(temp);
 
     // Generate buildings for each quadrant

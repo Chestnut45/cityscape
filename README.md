@@ -4,7 +4,11 @@
 
 ## Controls:
 
-WASD: Move around\
+W: Move forward\
+A: Move left\
+S: Move backward\
+D: Move right
+
 R: Regenerate cityscape\
 I: Toggle Infinite Mode
 

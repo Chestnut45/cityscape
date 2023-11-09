@@ -7,6 +7,7 @@ layout(std140) uniform CameraBlock
 {
     mat4 viewProj;
     vec4 cameraPos;
+    vec2 resolution;
 };
 
 // Instance uniform block

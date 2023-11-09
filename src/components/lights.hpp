@@ -18,7 +18,7 @@ class PointLight
 {
     // Interface
     public:
-        PointLight();
+        PointLight(const glm::vec4& pos = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), const glm::vec4& col = glm::vec4(1.0f));
         ~PointLight();
 
         // Delete copy constructor/assignment
@@ -29,6 +29,14 @@ class PointLight
         PointLight(PointLight&& other) = delete;
         void operator=(PointLight&& other) = delete;
 
+        // Mutators
+        inline void SetPosition(const glm::vec4& pos) { position = pos; };
+        inline void SetColor(const glm::vec4& col) { color = col; };
+
+        // Accessors
+        inline const glm::vec4& GetPosition() const { return position; };
+        inline const glm::vec4& GetColor() const { return color; };
+
         // Draws into instance buffer, flushing if it is full
         void Draw();
 
@@ -37,6 +45,7 @@ class PointLight
     
     // Data / implementation
     private:
+        // Per-Instance data
         glm::vec4 position;
         glm::vec4 color;
 
@@ -47,9 +56,13 @@ class PointLight
         // Static resources
         static inline GPUBuffer* vbo = nullptr;
         static inline GPUBuffer* ebo = nullptr;
-        static inline GPUBuffer* instanceUBO = nullptr;
         static inline VertexAttributes* vao = nullptr;
+
+        static inline GPUBuffer* instanceUBO = nullptr;
         static inline Shader* shader = nullptr;
+
+        // Reference counting for static resources
+        static inline int refCount = 0;
 };
 
 // Wrapped it in a namespace so globals X and Z are constrained to this scope

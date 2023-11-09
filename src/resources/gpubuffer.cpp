@@ -85,6 +85,28 @@ bool GPUBuffer::Write(float value)
     return true;
 }
 
+// Writes a single vec2 into the internal buffer
+bool GPUBuffer::Write(const glm::vec2& value)
+{
+    // Ensure buffer has space for write
+    if (!CanWrite(sizeof(glm::vec2))) 
+    {
+        std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
+        return false;
+    }
+
+    // Grab a float pointer at the current offset
+    GLfloat* pData = (GLfloat*)(data + byteOffset);
+
+    // Write all components
+    *(pData) = value.x;
+    *(pData + 1) = value.y;
+
+    byteOffset += sizeof(glm::vec2);
+
+    return true;
+}
+
 // Writes a single vec3 into the internal buffer
 bool GPUBuffer::Write(const glm::vec3& value)
 {

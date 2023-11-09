@@ -127,9 +127,25 @@ void Cityscape::render()
     glBindVertexArray(dummyVAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
-    glDepthMask(GL_TRUE);
 
-    // TODO: Point light pass, render instanced spheres scaled by light size
+    // Point light pass
+    // Enable blending
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_ONE, GL_ONE);
+    glDepthFunc(GL_ALWAYS);
+
+    // Draw each point light
+    for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
+    {
+        pointLight.Draw();
+    }
+    PointLight::FlushDrawCalls();
+
+    // Disable blending
+    glDisable(GL_BLEND);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
 
     // Draw the sky
     sky.Draw();
@@ -301,6 +317,11 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
     glm::ivec3 blockPos = registry.get<GroundTile>(temp).GetPosition();
 
     // Register the entity with the block
+    cityBlocks[id].push_back(temp);
+
+    // Create a point light
+    temp = registry.create();
+    registry.emplace<PointLight>(temp, glm::vec4{(float)id.x * 16, 4.0f, (float)id.y * 16, 8.0f}, glm::vec4{1.0f, 0.8f, 0.0f, 1.0f});
     cityBlocks[id].push_back(temp);
 
     // Generate buildings for each quadrant

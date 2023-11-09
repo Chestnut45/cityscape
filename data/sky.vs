@@ -1,10 +1,11 @@
 #version 150
 
 // Camera uniform block
-uniform CameraBlock
+layout(std140) uniform CameraBlock
 {
     mat4 viewProj;
     vec4 cameraPos;
+    vec2 resolution;
 };
 
 // Vertex data

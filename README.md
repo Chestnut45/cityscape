@@ -4,15 +4,15 @@
 
 ## Controls:
 
-WASD: Movement\
-R: Regenerate cityscape\
-I: Toggle Infinite Mode
+WASD:           Movement\
+R:              Regenerate cityscape\
+I:              Toggle Infinite Mode
 
-Escape: Pause\
-End: End the program
+Escape:         Pause\
+End:            End the program
 
 Mouse Movement: Look around\
-Mouse Scroll: Zoom
+Mouse Scroll:   Zoom
 
 ## Core:
 

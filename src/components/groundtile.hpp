@@ -37,7 +37,7 @@ class GroundTile
         // State
         glm::ivec3 position;
 
-        // Instance information
+        // Instancing information
         static const int MAX_INSTANCES = 128;
         static inline int drawCount = 0;
 

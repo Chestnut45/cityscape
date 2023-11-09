@@ -14,14 +14,44 @@ End: End the program
 Mouse Movement: Look around\
 Mouse Scroll: Zoom
 
-## Core:
+## Project Structure:
 
-for the core qwertyuiopasdfghjklzxcvbnm
+### Components:
 
-## Extra:
+Components are anything that can be simulated. Typically they will manage some resource over the lifetime of the program, and provide an interface to interact with its data.
 
-for the extra qwertyuiopasdfghjklzxcvbnm
+### Resources:
+
+Resources are OpenGL RAII Wrapper classes. I chose to write these to challenge myself to not use wolf and to better understand the OpenGL state machine.
+
+## Extras Chosen:
+
+### Road Generation:
+
+Roads are essentially just painted onto each ground tile. Nothing else to it.
+
+### Lighting:
+
+Deferred lighting, point lights, sky class...
+
+### Building Shapes:
+
+Procedural generation + batching...
 
 ## Other Considerations:
 
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+### Sky:
+
+...
+
+### Shadow Mapping:
+
+...
+
+### Texture Atlasing:
+
+...
+
+### Automagical VAOs:
+
+...

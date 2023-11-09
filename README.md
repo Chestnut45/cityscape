@@ -7,9 +7,11 @@
 WASD: Move around\
 R: Regenerate cityscape\
 I: Toggle Infinite Mode\
-Escape: Pause (toggles mouse capture so you can resize window)\
+
+Escape: Pause\
 End: End the program\
-Mouse: Look around\
+
+Mouse Movement: Look around\
 Mouse Scroll: Zoom
 
 ## Core:

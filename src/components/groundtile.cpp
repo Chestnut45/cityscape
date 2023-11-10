@@ -18,7 +18,7 @@ static const GLuint GROUND_INDICES[] =
 };
 
 // Constructor with initial position
-GroundTile::GroundTile(const glm::vec2& id) : position(id.x * TILE_SIZE, 0, id.y * TILE_SIZE)
+GroundTile::GroundTile(const glm::ivec2& id) : position(id.x * TILE_SIZE, 0, id.y * TILE_SIZE, 1)
 {
     // If first tile created
     if (refCount == 0)
@@ -85,7 +85,7 @@ void GroundTile::Draw()
 
     // Increase counter and write instance position to buffer
     drawCount++;
-    instanceUBO->Write(glm::vec4(position, 1));
+    instanceUBO->Write(position);
 }
 
 // Flushes all grounds drawn since the last flush

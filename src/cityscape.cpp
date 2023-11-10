@@ -75,7 +75,8 @@ void Cityscape::update(float delta)
     if (!paused)
     {
         // Update sky
-        sky.Update(delta);
+        // sky.Update(delta);
+        sky.SetTime(23);
 
         // Update the simulated city blocks
         UpdateBlocks();
@@ -312,14 +313,14 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
     registry.emplace<GroundTile>(temp, id);
 
     // Retrieve the block position
-    glm::ivec3 blockPos = registry.get<GroundTile>(temp).GetPosition();
+    glm::vec3 blockPos = registry.get<GroundTile>(temp).GetPosition();
 
     // Register the entity with the block
     cityBlocks[id].push_back(temp);
 
     // TESTING: Create a point light
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{(float)id.x * 16, 1.0f, (float)id.y * 16, 8.0f}, glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{(float)id.x * 16, 1.0f, (float)id.y * 16, 12.0f}, glm::vec4{1.0f, 0.8f, 0.0f, 1.0f});
     cityBlocks[id].push_back(temp);
 
     // Generate buildings for each quadrant

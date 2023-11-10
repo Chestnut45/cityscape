@@ -12,7 +12,7 @@ class GroundTile
 {
     // Interface
     public:
-        GroundTile(const glm::vec2& id);
+        GroundTile(const glm::ivec2& id);
         ~GroundTile();
 
         // Delete copy constructor/assignment
@@ -30,12 +30,12 @@ class GroundTile
         static void FlushDrawCalls();
 
         // Accessors
-        inline const glm::ivec3& GetPosition() const { return position; };
+        inline const glm::vec4& GetPosition() const { return position; };
 
     // Data / Implementation
     private:
         // State
-        glm::ivec3 position;
+        glm::vec4 position;
 
         // Instancing information
         static const int MAX_INSTANCES = 128;

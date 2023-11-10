@@ -118,11 +118,48 @@ Sky::~Sky()
 // Advances the time by delta, updating the global lights
 void Sky::Update(float delta)
 {
-    // Advance time and clamp to [0, dayCycle]
+    // Advance time and wrap at dayCycle
     currentTime += delta;
-    if (currentTime > dayCycle) currentTime = 0;
+    while (currentTime > dayCycle) currentTime -= dayCycle;
     offsetTime = currentTime + (dayCycle / 2);
 
+    Update();
+}
+
+// Sets the time directly
+void Sky::SetTime(float time)
+{
+    // Set time and wrap at dayCycle
+    currentTime = time;
+    while (currentTime > dayCycle) currentTime -= dayCycle;
+    offsetTime = currentTime + (dayCycle / 2);
+
+    Update();
+}
+
+// Renders the sky
+void Sky::Draw()
+{
+    // Bind resources
+    skyShader.Use();
+    skyboxVAO->Bind();
+
+    // Bind day / night cubemaps to texture units
+    dayBox.Bind((int)SkyTextureUnit::Day);
+    nightBox.Bind((int)SkyTextureUnit::Night);
+
+    // Change depth function so max distance still renders
+    glDepthFunc(GL_LEQUAL);
+    
+    // Draw, unbind, and reset depth function
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+    glDepthFunc(GL_LESS);
+}
+
+// Internal update method
+void Sky::Update()
+{
     // Perform expensive trig calculations once
     float st = std::sin(TAU * currentTime / dayCycle);
     float ct = std::cos(TAU * currentTime / dayCycle);
@@ -151,24 +188,4 @@ void Sky::Update(float delta)
     lightUBO.Write(moon.color);
     lightUBO.Write(ambient);
     lightUBO.Flush();
-}
-
-// Renders the sky
-void Sky::Draw()
-{
-    // Bind resources
-    skyShader.Use();
-    skyboxVAO->Bind();
-
-    // Bind day / night cubemaps to texture units
-    dayBox.Bind((int)SkyTextureUnit::Day);
-    nightBox.Bind((int)SkyTextureUnit::Night);
-
-    // Change depth function so max distance still renders
-    glDepthFunc(GL_LEQUAL);
-    
-    // Draw, unbind, and reset depth function
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    glBindVertexArray(0);
-    glDepthFunc(GL_LESS);
 }

@@ -55,7 +55,6 @@ void main()
     float shininess = 32;
 
     // Initial values
-    vec3 result = vec3(0);
     vec3 sunDir = normalize(-sun.position.xyz);
     vec3 moonDir = normalize(-moon.position.xyz);
 
@@ -71,6 +70,5 @@ void main()
     vec3 specular = specularStrength * (specSun * sun.color.rgb * sun.position.w) + (specMoon * moon.color.rgb * moon.position.w);
 
     // Final color composition
-    result += (ambient + diffuse + specular) * fragAlbedo;
-    outColor = vec4(result, 1);
+    outColor = vec4((ambient + diffuse + specular) * fragAlbedo, 1.0);
 }

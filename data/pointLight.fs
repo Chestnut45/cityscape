@@ -35,13 +35,12 @@ void main()
     float shininess = 32;
 
     // Initial values
-    vec3 result = vec3(0);
     vec3 lightDir = normalize(lightPos.xyz - fragPos);
 
-    // Diffuse calculations
+    // Diffuse lighting
     vec3 diffuse =  max(dot(fragNorm, lightDir), 0) * lightColor.rgb;
 
-    // Specular calculations
+    // Specular reflections
     vec3 halfDir = normalize(lightDir + (normalize(cameraPos.xyz - fragPos)));
     float spec = pow(max(dot(fragNorm, halfDir), 0), shininess);
     vec3 specular = specularStrength * spec * lightColor.rgb;
@@ -53,5 +52,5 @@ void main()
     attenuation *= attenuation;
 
     // Set final output color
-    outColor = vec4((diffuse + specular) * attenuation, 1.0);
+    outColor = vec4((diffuse + specular) * attenuation * fragAlbedo, 1.0);
 }

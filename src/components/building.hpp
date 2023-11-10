@@ -111,7 +111,7 @@ class Building
 };
 
 // Offset locations relative to a city block origin for buildings
-static const glm::ivec3 smallBuildingOffsets[] =
+static const glm::vec3 smallBuildingOffsets[] =
 {
     {4, 0, 7},
     {4, 0, 4},
@@ -143,7 +143,7 @@ static const Building::Orientation smallBuildingOrientations[] =
     Building::Orientation::West
 };
 
-static const glm::ivec3 largeBuildingOffsets[] =
+static const glm::vec3 largeBuildingOffsets[] =
 {
     {5, 0, 5},
     {11, 0, 5},

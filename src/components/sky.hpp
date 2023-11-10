@@ -34,6 +34,7 @@ class Sky
 
         // Advances the time by delta, updating the global lights
         void Update(float delta);
+        void SetTime(float time);
 
         // Renders the sky
         void Draw();
@@ -67,6 +68,9 @@ class Sky
 
         // Geometric constants
         static constexpr float TAU = 6.28318530718;
+
+        // Internal update
+        void Update();
 };
 
 GLenum glCheckError();

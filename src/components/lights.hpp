@@ -79,6 +79,10 @@ namespace Icosphere
         {Z, X, 0.0f}, {-Z, X, 0.0f}, {Z, -X, 0.0f}, {-Z, -X, 0.0f}
     };
 
+    // NOTE: These indices specify the INTERNAL tris of an icosphere
+    // This is so we can avoid changing glCullFace() modes in the render method,
+    // since we only want to render the internal faces of light volumes
+    // to avoid them disappearing when we enter them
     static const GLuint ICOSPHERE_INDICES[] =
     {
         0, 4, 1,

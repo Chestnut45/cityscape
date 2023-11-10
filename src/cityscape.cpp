@@ -11,6 +11,10 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
+    // Initialize blend functions (only used for point light pass)
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_ONE, GL_ONE);
+
     // Create the gBuffer FBO
     RecreateFBO();
 
@@ -85,9 +89,10 @@ void Cityscape::update(float delta)
 
 void Cityscape::render()
 {
-    // Bind the geometry framebuffer and clear it
+    // Geometry pass
+
+    // Bind the geometry fbo and clear it
     gBuffer->Bind();
-	glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Update the camera's UBO so all shaders have access to the new values
@@ -107,31 +112,32 @@ void Cityscape::render()
     }
     Building::FlushDrawCalls();
 
-    // Blit the gBuffer's depth buffer texture to the default framebuffer
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    // Global light pass
-    globalLightShader.Use();
+    // Lighting passes
 
     // First bind all gBuffer textures appropriately
     gPositionTex->Bind(0);
     gNormalTex->Bind(1);
     gColorSpecTex->Bind(2);
 
-    // Draw a fullscreen triangle to calculate global lighting on every pixel in the scene
-    // We want to disable writing to the depth buffer here so we don't prevent the skybox from drawing later
+    // Then blit the gBuffer's depth buffer texture to the default framebuffer
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Disable writing to the depth buffer here so lights don't affect it
     glDepthMask(GL_FALSE);
+
+    // Global light pass
+
+    // Draw a fullscreen triangle to calculate global lighting on every pixel in the scene
+    globalLightShader.Use();
     glBindVertexArray(dummyVAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
 
     // Point light pass
-    // Enable blending
+    
     glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_ONE, GL_ONE);
     glDepthFunc(GL_ALWAYS);
 
     // Draw each point light
@@ -141,13 +147,14 @@ void Cityscape::render()
     }
     PointLight::FlushDrawCalls();
 
-    // Disable blending
     glDisable(GL_BLEND);
-    glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
 
-    // Draw the sky
+    // Draw sky
     sky.Draw();
+
+    // Re-enable writing into the depth buffer after all lights have been drawn
+    glDepthMask(GL_TRUE);
 }
 
 // Handles all input for this demo
@@ -227,11 +234,10 @@ void Cityscape::UpdateBlocks()
     // Update which chunks should be loaded
     if (infinite)
     {
-        // Initialize static list of chunks to load
         static std::vector<glm::ivec2> shouldBeLoaded;
         shouldBeLoaded.clear();
 
-        // Build should be loaded list
+        // Calculate which chunks should be loaded given the camera's position
         glm::ivec3 pos = camera.GetPosition() / 16.0f;
         for (int x = pos.x - 5; x < pos.x + 5; ++x)
         {

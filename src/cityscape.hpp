@@ -34,7 +34,7 @@ class Cityscape: public wolf::App
         // Simulates all city blocks and handles generation
         void update(float delta) override;
 
-        // Renders all currently active components
+        // Rendering methods
         void render() override;
 
         // Input handling

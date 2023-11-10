@@ -36,12 +36,13 @@ void main()
 
     // Initial values
     vec3 lightDir = normalize(lightPos.xyz - fragPos);
+    vec3 viewDir = normalize(cameraPos.xyz - fragPos);
 
     // Diffuse lighting
     vec3 diffuse =  max(dot(fragNorm, lightDir), 0) * lightColor.rgb;
 
     // Specular reflections
-    vec3 halfDir = normalize(lightDir + (normalize(cameraPos.xyz - fragPos)));
+    vec3 halfDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(fragNorm, halfDir), 0), shininess);
     vec3 specular = specularStrength * spec * lightColor.rgb;
 

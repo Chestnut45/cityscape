@@ -69,6 +69,24 @@ GPUBuffer::~GPUBuffer()
     glDeleteBuffers(1, &bufferID);
 }
 
+// Writes a single int into the internal buffer
+bool GPUBuffer::Write(int value)
+{
+    if (!CanWrite(sizeof(int)))
+    {
+        std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
+        return false;
+    }
+
+    // Grab a float pointer at the current offset
+    GLint* pData = (GLint*)(data + byteOffset);
+    *(pData) = value;
+    byteOffset += sizeof(int);
+
+    return true;
+}
+
+// Writes a single float into the internal buffer
 bool GPUBuffer::Write(float value)
 {
     if (!CanWrite(sizeof(float)))

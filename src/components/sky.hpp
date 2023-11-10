@@ -72,5 +72,3 @@ class Sky
         // Internal update
         void Update();
 };
-
-GLenum glCheckError();

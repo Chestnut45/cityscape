@@ -48,10 +48,9 @@ void main()
 
     // Attenuation
     float radius = lightPos.w;
-    float minLight = 0.1;
-    float b = 1.0 / (radius * radius * minLight);
     float dist = distance(fragPos, lightPos.xyz);
-    float attenuation = 1.0 / (1.0 + b * dist * dist);
+    float attenuation = clamp(1.0 - dist / radius, 0.0, 1.0);
+    attenuation *= attenuation;
 
     // Set final output color
     outColor = vec4((diffuse + specular) * attenuation, 1.0);

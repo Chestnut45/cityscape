@@ -50,7 +50,7 @@ class PointLight
         glm::vec4 color;
 
         // Instancing information
-        static const int MAX_INSTANCES = 128;
+        static const int MAX_INSTANCES = 512; // 512 * 2 * sizeof(glm::vec4) = 16,384 = minimum UBO limit required by OpenGL
         static inline int drawCount = 0;
 
         // Static resources

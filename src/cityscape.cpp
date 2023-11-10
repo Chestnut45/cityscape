@@ -175,11 +175,7 @@ void Cityscape::ProcessInput(float delta)
         if (isKeyJustDown(GLFW_KEY_R)) Regenerate();
 
         // Toggle infinite generation mode with I
-        if (isKeyJustDown(GLFW_KEY_I))
-        {
-            infinite = !infinite;
-            Regenerate();
-        };
+        if (isKeyJustDown(GLFW_KEY_I)) infinite = !infinite;
 
         // Zoom the camera according to scroll
         glm::vec2 scroll = getMouseScroll();
@@ -203,31 +199,20 @@ void Cityscape::ProcessInput(float delta)
 // If not in infinite mode, regenerates 10x10 city blocks
 void Cityscape::Regenerate()
 {
-    if (infinite)
+    // Delete all loaded blocks
+    for (const auto&[id, entityList] : cityBlocks)
     {
-        // Delete all loaded blocks
-        for (const auto&[id, entityList] : cityBlocks)
-        {
-            DeleteBlock(id);
-        }
-        cityBlocks.clear();
+        DeleteBlock(id);
     }
-    else
-    {
-        // Delete all loaded blocks
-        for (const auto&[id, entityList] : cityBlocks)
-        {
-            DeleteBlock(id);
-        }
-        cityBlocks.clear();
+    cityBlocks.clear();
 
-        // Generate a 10x10 grid of city blocks
-        for (int x = -5; x < 5; x++)
+    // Generate a 10x10 grid of city blocks around the camera
+    glm::ivec3 pos = camera.GetPosition() / 16.0f;
+    for (int x = pos.x - 5; x < pos.x + 5; x++)
+    {
+        for (int z = pos.z - 5; z < pos.z + 5; z++)
         {
-            for (int z = -5; z < 5; z++)
-            {
-                GenerateBlock({x, z});
-            }
+            GenerateBlock({x, z});
         }
     }
 
@@ -278,7 +263,7 @@ void Cityscape::UpdateBlocks()
         }
     }
 
-    // Delete all blocks from queue once per frame
+    // Delete all blocks from deletion queue once per frame
     for (const auto& id : deletionQueue)
     {
         DeleteBlock(id);
@@ -286,8 +271,8 @@ void Cityscape::UpdateBlocks()
     }
     deletionQueue.clear();
 
-    // Generate a max of one chunk per frame from the queue
-    // This helps reduce the impact of any generation stutter on lower end systems
+    // Generate a max of one chunk per frame from the generation queue
+    // This helps reduce the impact of any generation stutter on lower end systems when moving around
     if (!generationQueue.empty())
     {
         GenerateBlock(generationQueue.front());
@@ -320,7 +305,19 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
 
     // TESTING: Create a point light
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{(float)id.x * 16, 1.0f, (float)id.y * 16, 12.0f}, glm::vec4{1.0f, 0.8f, 0.0f, 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8, 2, 2), 10.0f}, glm::vec4{1.0f, 0.8f, 0.1f, 1.0f});
+    cityBlocks[id].push_back(temp);
+
+    temp = registry.create();
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(2, 2, 8), 10.0f}, glm::vec4{1.0f, 0.8f, 0.1f, 1.0f});
+
+    cityBlocks[id].push_back(temp);
+    temp = registry.create();
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(14, 2, 8), 10.0f}, glm::vec4{1.0f, 0.8f, 0.1f, 1.0f});
+
+    cityBlocks[id].push_back(temp);
+    temp = registry.create();
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8, 2, 14), 10.0f}, glm::vec4{1.0f, 0.8f, 0.1f, 1.0f});
     cityBlocks[id].push_back(temp);
 
     // Generate buildings for each quadrant

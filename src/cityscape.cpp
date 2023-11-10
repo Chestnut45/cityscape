@@ -319,7 +319,7 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
 
     // TESTING: Create a point light
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{(float)id.x * 16, 1.0f, (float)id.y * 16, 8.0f}, glm::vec4{1.0f, 0.8f, 0.0f, 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{(float)id.x * 16, 1.0f, (float)id.y * 16, 8.0f}, glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
     cityBlocks[id].push_back(temp);
 
     // Generate buildings for each quadrant

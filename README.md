@@ -8,7 +8,7 @@ WASD: Movement\
 R: Regenerate cityscape\
 I: Toggle Infinite Mode
 
-Escape: Pause (Uncapture mouse + freeze time)\
+Escape: Pause + Toggle GUI\
 End: End the program
 
 Mouse Movement: Look around\

@@ -72,10 +72,13 @@ class Cityscape: public wolf::App
         float mouseSensitivity = 8.0f;
         float cameraSpeed = 8.0f;
         bool infinite = false;
+        bool partyMode = false;
+        bool fullscreen = false;
 
         // Timing
         float elapsedTime = 0;
         bool paused = false;
+        bool timeAdvance = true;
 
         // Internal methods for simulation / generation
         void Regenerate();

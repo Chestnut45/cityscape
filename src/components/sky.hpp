@@ -21,7 +21,7 @@ class Sky
 {
     // Interface
     public:
-        Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, const std::string& skyVS, const std::string& skyFS);
+        Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath);
         ~Sky();
 
         // Delete copy constructor/assignment
@@ -32,35 +32,38 @@ class Sky
         Sky(Sky&& other) = delete;
         void operator=(Sky&& other) = delete;
 
-        // Advances the time by delta, updating the global lights
-        void Update(float delta);
-        void SetTime(float time);
+        // Simulation
+        void Update();
 
         // Renders the sky
         void Draw();
 
+        // Time of day variables
+        // These are global to allow full control over timing,
+        // and to give access to the ImGui window for editing
+        float dayCycle = 45.0f;
+        float currentTime = 0.0f;
+        float offsetTime = 0.0f;
+
         // Accessors
-        inline bool IsNight() const { return (currentTime > dayCycle / 2); };
+        inline bool IsNight() const { return (currentTime > dayCycle / 2.0f); };
 
     // Data / implementation
     private:
         // Instance resources
         Cubemap dayBox;
         Cubemap nightBox;
-        Shader skyShader;
-
-        // Time of day variables
-        float dayCycle = 45;
-        float currentTime = 0;
-        float offsetTime = 0;
+        Shader skyboxShader;
+        Shader sunShader;
+        Shader moonShader;
 
         // Global light data
         GPUBuffer lightUBO;
         DirectionalLight sun;
         DirectionalLight moon;
         float ambient;
-        float sunDistance = 800;
-        float moonDistance = 800;
+        float sunDistance = 800.0f;
+        float moonDistance = 800.0f;
 
         // Static resources
         static inline GPUBuffer* skyboxVBO = nullptr;
@@ -71,7 +74,4 @@ class Sky
 
         // Geometric constants
         static constexpr float TAU = 6.28318530718;
-
-        // Internal update
-        void Update();
 };

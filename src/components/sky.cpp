@@ -51,7 +51,7 @@ static const VertexPos SKYBOX_VERTICES[] =
 // skyVS, skyFS: paths to sky vertex / fragment shader sources
 // NOTE: If you want access to the sky's day/night cubemaps, then your shader source
 // should contain 2 samplerCubes "dayCube", "nightCube" and 1 uniform float "time"
-Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, const std::string& skyVS, const std::string& skyFS)
+Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath)
     : dayBox({
         daySkyboxPath + "/right.png",
         daySkyboxPath + "/left.png",
@@ -73,22 +73,22 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath, c
     lightUBO(BufferType::Uniform, sizeof(DirectionalLight) * 2 + sizeof(GLfloat))
 {
     // Load source for skybox shader and link
-    skyShader.LoadShaderSource(GL_VERTEX_SHADER, skyVS);
-    skyShader.LoadShaderSource(GL_FRAGMENT_SHADER, skyFS);
-    skyShader.Link();
+    skyboxShader.LoadShaderSource(GL_VERTEX_SHADER, "data/skybox.vs");
+    skyboxShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/skybox.fs");
+    skyboxShader.Link();
 
     // Bind samplers to proper texture units
-    skyShader.Use();
-    skyShader.SetUniform("dayCube", (int)SkyTextureUnit::Day);
-    skyShader.SetUniform("nightCube", (int)SkyTextureUnit::Night);
-    skyShader.BindUniformBlock("CameraBlock", 0);
+    skyboxShader.Use();
+    skyboxShader.SetUniform("dayCube", (int)SkyTextureUnit::Day);
+    skyboxShader.SetUniform("nightCube", (int)SkyTextureUnit::Night);
+    skyboxShader.BindUniformBlock("CameraBlock", 0);
 
     // Bind UBO to default light binding point
     lightUBO.BindBase(GL_UNIFORM_BUFFER, 2);
 
     // Initialize global light colors
-    sun.color = {1.0f, 0.9f, 0.4f, 1.0f};
-    moon.color = {0.2f, 0.2f, 0.4f, 1.0f};
+    sun.SetColor({1.0f, 0.9f, 0.4f, 1.0f});
+    moon.SetColor({0.2f, 0.2f, 0.4f, 1.0f});
 
     // If first instance, initialize static resources
     if (refCount == 0)
@@ -115,33 +115,49 @@ Sky::~Sky()
     }
 }
 
-// Advances the time by delta, updating the global lights
-void Sky::Update(float delta)
+// Updates all internal lighting values for rendering
+void Sky::Update()
 {
-    // Advance time and wrap at dayCycle
-    currentTime += delta;
-    while (currentTime > dayCycle) currentTime -= dayCycle;
+    // Calculate offset time
     offsetTime = currentTime + (dayCycle / 2);
 
-    Update();
-}
+    // Perform expensive trig calculations once
+    float st = std::sin(TAU * currentTime / dayCycle);
+    float ct = std::cos(TAU * currentTime / dayCycle);
+    float so = std::sin(TAU * offsetTime / dayCycle);
+    float co = std::cos(TAU * offsetTime / dayCycle);
+    
+    // Calculate normalized TOD (t for lerping between day / night skyboxes)
+    skyboxShader.Use();
+    skyboxShader.SetUniform("time", 1 - ((st + 1) / 2));
 
-// Sets the time directly
-void Sky::SetTime(float time)
-{
-    // Set time and wrap at dayCycle
-    currentTime = time;
-    while (currentTime > dayCycle) currentTime -= dayCycle;
-    offsetTime = currentTime + (dayCycle / 2);
+    // Calculate global light positions + directions
+    sun.SetPosition({0.0f, so * sunDistance, (1 - co - 1) * sunDistance, std::min(std::max(-0.2f, st) + 0.2f, 1.0f)});
+    moon.SetPosition({0.0f, st * moonDistance, (1 - ct - 1) * moonDistance, std::min(std::max(-0.2f, so) + 0.2f, 1.0f)});
+    sun.SetDirection(glm::normalize(-sun.GetPosition()));
+    moon.SetDirection(glm::normalize(-moon.GetPosition()));
 
-    Update();
+    // Update ambient lighting
+    ambient = ((st + 1) / 2) * 0.45f + 0.01f;
+
+    // Update UBO
+    lightUBO.Write(sun.GetPosition());
+    lightUBO.Write(sun.GetDirection());
+    lightUBO.Write(sun.GetColor());
+    lightUBO.Write(moon.GetPosition());
+    lightUBO.Write(moon.GetDirection());
+    lightUBO.Write(moon.GetColor());
+    lightUBO.Write(ambient);
+    lightUBO.Flush();
 }
 
 // Renders the sky
 void Sky::Draw()
 {
+    // First pass: Draw skybox
+
     // Bind resources
-    skyShader.Use();
+    skyboxShader.Use();
     skyboxVAO->Bind();
 
     // Bind day / night cubemaps to texture units
@@ -155,37 +171,6 @@ void Sky::Draw()
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
     glDepthFunc(GL_LESS);
-}
 
-// Internal update method
-void Sky::Update()
-{
-    // Perform expensive trig calculations once
-    float st = std::sin(TAU * currentTime / dayCycle);
-    float ct = std::cos(TAU * currentTime / dayCycle);
-    float so = std::sin(TAU * offsetTime / dayCycle);
-    float co = std::cos(TAU * offsetTime / dayCycle);
-    
-    // Calculate normalized TOD (t for lerping between day / night skyboxes)
-    skyShader.Use();
-    skyShader.SetUniform("time", 1 - ((st + 1) / 2));
-
-    // Calculate global light positions + directions
-    sun.position = {0.0f, so * sunDistance, (1 - co - 1) * sunDistance, std::min(std::max(0.0f, st) + 0.2f, 1.0f)};
-    moon.position = {0.0f, st * moonDistance, (1 - ct - 1) * moonDistance, std::min(std::max(0.0f, so) + 0.2f, 1.0f)};
-    sun.direction = glm::normalize(-sun.position);
-    moon.direction = glm::normalize(-moon.position);
-
-    // Update ambient lighting
-    ambient = ((st + 1) / 2) * 0.45f + 0.01f;
-
-    // Update UBO
-    lightUBO.Write(sun.position);
-    lightUBO.Write(sun.direction);
-    lightUBO.Write(sun.color);
-    lightUBO.Write(moon.position);
-    lightUBO.Write(moon.direction);
-    lightUBO.Write(moon.color);
-    lightUBO.Write(ambient);
-    lightUBO.Flush();
+    // Second pass: Draw sun / moon
 }

@@ -1,6 +1,19 @@
 #include "lights.hpp"
 
 // Constructor
+DirectionalLight::DirectionalLight(const glm::vec4& pos, const glm::vec4& dir, const glm::vec4& col)
+    : position(pos), direction(dir), color(col)
+{
+
+}
+
+// Destructor
+DirectionalLight::~DirectionalLight()
+{
+
+}
+
+// Constructor
 PointLight::PointLight(const glm::vec4& pos, const glm::vec4& col) : position(pos), color(col)
 {
     // Initialize static resources on first instance created

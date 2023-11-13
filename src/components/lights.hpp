@@ -32,6 +32,9 @@ class PointLight
         // Mutators
         inline void SetPosition(const glm::vec4& pos) { position = pos; };
         inline void SetColor(const glm::vec4& col) { color = col; };
+        inline void TurnOn() { on = true; };
+        inline void TurnOff() { on = false; };
+        inline bool GetState() const { return on; };
 
         // Accessors
         inline const glm::vec4& GetPosition() const { return position; };
@@ -48,6 +51,7 @@ class PointLight
         // Per-Instance data
         glm::vec4 position;
         glm::vec4 color;
+        bool on = true;
 
         // Instancing information
         static const int MAX_INSTANCES = 512; // 512 * 2 * sizeof(glm::vec4) = 16,384 = minimum UBO limit required by OpenGL

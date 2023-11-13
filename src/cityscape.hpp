@@ -73,14 +73,18 @@ class Cityscape: public wolf::App
         float timeOfDay = 0;
         bool paused = false;
 
-        // Default random seed
-        long int seed = 4545L;
-
         // Internal methods for simulation / generation
         void Regenerate();
         void UpdateBlocks();
         void GenerateBlock(const glm::ivec2& id);
         void DeleteBlock(const glm::ivec2& id);
+
+        // RNG objects
+        static inline std::default_random_engine rng{4545L};
+        static inline std::uniform_int_distribution<int> storyDist{3, Building::MAX_STORIES};
+        static inline std::uniform_int_distribution<int> variantDist{0, Building::NUM_VARIANTS - 1};
+        static inline std::uniform_int_distribution<int> boolDist{0, 1};
+        static inline std::uniform_real_distribution<float> colorDist{0.0f, 1.0f};
 
         // Geometry buffer + textures for deferred shading
         FrameBuffer* gBuffer = nullptr;

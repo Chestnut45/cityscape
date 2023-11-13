@@ -22,7 +22,12 @@
 #include "resources/texture2d.hpp"
 
 // EnTT: https://github.com/skypjack/entt
-#include "entt.hpp"
+#include "../thirdparty/entt.hpp"
+
+// Dear ImGui: https://github.com/ocornut/imgui
+#include "../thirdparty/imgui/imgui.h"
+#include "../thirdparty/imgui/imgui_impl_glfw.h"
+#include "../thirdparty/imgui/imgui_impl_opengl3.h"
 
 class Cityscape: public wolf::App
 {

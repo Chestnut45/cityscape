@@ -29,6 +29,16 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     globalLightShader.BindUniformBlock("CameraBlock", 0);
     globalLightShader.BindUniformBlock("GlobalLightBlock", 2);
 
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    // Setup Dear ImGui Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(getWindow(), true);
+    ImGui_ImplOpenGL3_Init();
+
     // Generate placeholder empty VAO
     glGenVertexArrays(1, &dummyVAO);
 
@@ -62,6 +72,11 @@ Cityscape::~Cityscape()
     delete gNormalTex;
     delete gColorSpecTex;
     delete gDepthStencilTex;
+
+    // Shutdown ImGui
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 void Cityscape::update(float delta)
@@ -76,11 +91,11 @@ void Cityscape::update(float delta)
     // Process all input for this frame
     ProcessInput(delta);
 
+    // Render imgui window if paused
     if (!paused)
     {
         // Update sky
         sky.Update(delta);
-        // sky.SetTime(23);
 
         // Turn on lights at night
         if (sky.IsNight())
@@ -183,6 +198,20 @@ void Cityscape::render()
 
     // Re-enable writing into the depth buffer after all lights have been drawn
     glDepthMask(GL_TRUE);
+
+    // Render ImGui window
+
+    // Init ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    // Demo window
+    ImGui::ShowDemoWindow();
+
+    // Finish ImGui rendering
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 // Handles all input for this demo
@@ -331,21 +360,21 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
     // Register the entity with the block
     cityBlocks[id].push_back(temp);
 
-    // TESTING: Create a point light
+    // Create point lights for each street lamp
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8, 2, 2), 10.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8, 2, 2), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
     cityBlocks[id].push_back(temp);
 
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(2, 2, 8), 10.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(2, 2, 8), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
 
     cityBlocks[id].push_back(temp);
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(14, 2, 8), 10.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(14, 2, 8), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
 
     cityBlocks[id].push_back(temp);
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8, 2, 14), 10.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8, 2, 14), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
     cityBlocks[id].push_back(temp);
 
     // Generate buildings for each quadrant

@@ -92,6 +92,14 @@ file(GLOB_RECURSE HEADER_FILES
 	${CMAKE_SOURCE_DIR}/src/*.h
     ${CMAKE_SOURCE_DIR}/src/*.hpp)
 
+# Add ImGui
+set(IMGUI_PATH  ${CMAKE_SOURCE_DIR}/thirdparty/imgui/)
+
+file(GLOB IMGUI_SOURCES
+    ${IMGUI_PATH}/*.cpp)
+
+add_library(ImGui STATIC ${IMGUI_SOURCES})
+
 add_executable(sample 
     ${SAMPLEFW_SOURCE_FILES}
     ${SAMPLEFW_HEADER_FILES}
@@ -99,6 +107,7 @@ add_executable(sample
     ${WOLF_HEADER_FILES}
     ${SOURCE_FILES}
     ${HEADER_FILES}
+    ${IMGUI_SOURCES}
     )
 
 target_link_libraries(sample assimp glfw glew ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})

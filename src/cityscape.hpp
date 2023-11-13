@@ -70,7 +70,6 @@ class Cityscape: public wolf::App
 
         // Timing
         float elapsedTime = 0;
-        float timeOfDay = 0;
         bool paused = false;
 
         // Internal methods for simulation / generation

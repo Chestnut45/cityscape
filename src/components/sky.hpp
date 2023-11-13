@@ -39,6 +39,9 @@ class Sky
         // Renders the sky
         void Draw();
 
+        // Accessors
+        inline bool IsNight() const { return (currentTime > dayCycle / 2); };
+
     // Data / implementation
     private:
         // Instance resources
@@ -47,7 +50,7 @@ class Sky
         Shader skyShader;
 
         // Time of day variables
-        float dayCycle = 30;
+        float dayCycle = 45;
         float currentTime = 0;
         float offsetTime = 0;
 

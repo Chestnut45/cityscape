@@ -23,6 +23,7 @@ PointLight::PointLight(const glm::vec4& pos, const glm::vec4& col) : position(po
         shader->SetUniform("gColorSpec", 2);
 
         // Instance buffer data
+        // 512 * 2 * sizeof(glm::vec4) = 16,384 = minimum UBO limit required by OpenGL
         instanceUBO = new GPUBuffer(BufferType::Uniform, sizeof(glm::vec4) * 2 * MAX_INSTANCES);
     }
 

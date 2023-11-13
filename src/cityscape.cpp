@@ -79,21 +79,39 @@ void Cityscape::update(float delta)
     if (!paused)
     {
         // Update sky
-        // sky.Update(delta);
-        sky.SetTime(23);
+        sky.Update(delta);
+        // sky.SetTime(23);
+
+        // Turn on lights at night
+        if (sky.IsNight())
+        {
+            for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
+            {
+                if (!pointLight.IsOn()) pointLight.TurnOn();
+            }
+        }
+        
+        // Turn off lights during the day
+        if (!sky.IsNight())
+        {
+            for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
+            {
+                if (pointLight.IsOn()) pointLight.TurnOff();
+            }
+        }
 
         // Update the simulated city blocks
         UpdateBlocks();
 
-        // Strobe lights option
-        if (abs(fmod(elapsedTime, 0.2f)) < 0.01f)
+        // Light effects
+        for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
         {
-            for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
-            {
-                pointLight.SetColor({colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
-            }
+            // Strobe lights option
+            // if (abs(fmod(elapsedTime, 0.2f)) < 0.01f)
+            // {
+            //     pointLight.SetColor({colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+            // } 
         }
-        
     }
 }
 
@@ -153,7 +171,7 @@ void Cityscape::render()
     // Draw each point light
     for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
     {
-        if (pointLight.GetState()) pointLight.Draw();
+        if (pointLight.IsOn()) pointLight.Draw();
     }
     PointLight::FlushDrawCalls();
 

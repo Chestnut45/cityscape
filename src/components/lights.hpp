@@ -34,7 +34,7 @@ class PointLight
         inline void SetColor(const glm::vec4& col) { color = col; };
         inline void TurnOn() { on = true; };
         inline void TurnOff() { on = false; };
-        inline bool GetState() const { return on; };
+        inline bool IsOn() const { return on; };
 
         // Accessors
         inline const glm::vec4& GetPosition() const { return position; };
@@ -54,7 +54,7 @@ class PointLight
         bool on = true;
 
         // Instancing information
-        static const int MAX_INSTANCES = 512; // 512 * 2 * sizeof(glm::vec4) = 16,384 = minimum UBO limit required by OpenGL
+        static const int MAX_INSTANCES = 512;
         static inline int drawCount = 0;
 
         // Static resources

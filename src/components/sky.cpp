@@ -177,7 +177,7 @@ void Sky::Update()
     moon.direction = glm::normalize(-moon.position);
 
     // Update ambient lighting
-    ambient = ((st + 1) / 2) * 0.45 + 0.1;
+    ambient = ((st + 1) / 2) * 0.45f + 0.01f;
 
     // Update UBO
     lightUBO.Write(sun.position);

@@ -223,7 +223,6 @@ void Cityscape::render()
         ImGui::Text("Simulation:");
         ImGui::Checkbox("Infinite Mode", &infinite);
         ImGui::Checkbox("Party Mode", &partyMode);
-        if (ImGui::Button("Regenerate")) Regenerate();
         ImGui::NewLine();
 
         ImGui::Text("Graphics Settings:");
@@ -245,6 +244,9 @@ void Cityscape::render()
                 glfwSetWindowMonitor(window, NULL, (mode->width - m_width) / 2, (mode->height - m_height) / 2, 1280, 720, 0);
             }
         }
+        ImGui::NewLine();
+
+        if (ImGui::Button("Regenerate")) Regenerate();
 
         ImGui::End();
 

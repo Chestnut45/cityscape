@@ -32,8 +32,6 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
     // Setup Dear ImGui Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(getWindow(), true);
@@ -470,17 +468,19 @@ void Cityscape::DeleteBlock(const glm::ivec2& id)
 void Cityscape::RecreateFBO()
 {
     // Delete gBuffer + textures
-    // This is safe the first time since calling delete on nullptr is allowed
-    delete gBuffer;
-    delete gPositionTex;
-    delete gNormalTex;
-    delete gColorSpecTex;
-    delete gDepthStencilTex;
+    if (gBuffer)
+    {
+        delete gBuffer;
+        delete gPositionTex;
+        delete gNormalTex;
+        delete gColorSpecTex;
+        delete gDepthStencilTex;
+    }
 
     // Generate geometry buffer textures
     gPositionTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST, GL_NEAREST);
-    gNormalTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST, GL_NEAREST);
-    gColorSpecTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST, GL_NEAREST);
+    gNormalTex = new Texture2D(m_width, m_height, GL_RGBA8_SNORM, GL_RGBA, GL_BYTE, GL_NEAREST, GL_NEAREST);
+    gColorSpecTex = new Texture2D(m_width, m_height, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, GL_NEAREST);
     gDepthStencilTex = new Texture2D(m_width, m_height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST, GL_NEAREST);
 
     // Attach textures to geometry buffer

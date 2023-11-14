@@ -35,7 +35,7 @@ void main()
     vec4 nightTexel = texture(nightCube, texCoords);
 
     // Calculate influence on sky color
-    vec4 celestialBodyInfluence = mix(sun.color * sun.color.a, moon.color * moon.color.a, time) * mix(ambient, 0.0, time);
+    vec4 celestialBodyInfluence = mix(sun.color, moon.color, time) * mix(ambient, 0.0, time);
 
     // Blend both texels based on normalized time of day and influence from sun + moon
     finalColor = mix(dayTexel, nightTexel, time) + celestialBodyInfluence;

@@ -1,6 +1,9 @@
 #include "../resources/vertexattributes.hpp"
 #include "../resources/vertex.hpp"
 
+// Geometric constants
+static constexpr float TAU = 6.28318530718;
+
 // Wrapped it in a namespace so globals X and Z are constrained to this scope
 namespace Icosphere
 {

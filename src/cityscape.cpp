@@ -103,9 +103,6 @@ void Cityscape::update(float delta)
     {
         // Advance time and wrap at dayCycle
         sky.currentTime += delta;
-        while (sky.currentTime > sky.dayCycle) sky.currentTime -= sky.dayCycle;
-        
-        // Update global lights after editing time
         sky.Update();
     }
 
@@ -218,8 +215,8 @@ void Cityscape::render()
         ImGui::Begin("Cityscape");
 
         ImGui::Text("Timing:");
-        if (ImGui::SliderFloat("Day Cycle", &sky.dayCycle, 1.0f, 120.0f)) sky.Update();
-        if (ImGui::SliderFloat("Time", &sky.currentTime, 0.0f, sky.dayCycle)) sky.Update();
+        if (ImGui::SliderFloat("Day Cycle", &sky.dayCycle, 1.0f, 120.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
+        if (ImGui::SliderFloat("Time", &sky.currentTime, 0.0f, sky.dayCycle, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
         ImGui::Checkbox("Time Playback", &timeAdvance);
         ImGui::NewLine();
 

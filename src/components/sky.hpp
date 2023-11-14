@@ -39,7 +39,7 @@ class Sky
         void Draw();
 
         // Time of day variables
-        // These are global to allow full control over timing,
+        // These are public to allow full control over timing,
         // and to give access to the ImGui window for editing
         float dayCycle = 45.0f;
         float currentTime = 0.0f;
@@ -51,27 +51,32 @@ class Sky
     // Data / implementation
     private:
         // Instance resources
+        // Skybox textures
         Cubemap dayBox;
         Cubemap nightBox;
-        Shader skyboxShader;
-        Shader sunShader;
-        Shader moonShader;
 
         // Global light data
         GPUBuffer lightUBO;
         DirectionalLight sun;
         DirectionalLight moon;
-        float ambient;
+        float ambient = 0.0f;
         float sunDistance = 800.0f;
-        float moonDistance = 800.0f;
+        float moonDistance = 400.0f;
+        float sunRadius = 50.0f;
+        float moonRadius = 10.0f;
+        float sunlightInfluence = 2.0f;
+        float moonlightInfluence = 0.32f;
 
-        // Static resources
+        // Static internal resources
         static inline GPUBuffer* skyboxVBO = nullptr;
         static inline VertexAttributes* skyboxVAO = nullptr;
+        static inline Shader* skyboxShader = nullptr;
+
+        static inline GPUBuffer* sphereVBO = nullptr;
+        static inline GPUBuffer* sphereEBO = nullptr;
+        static inline VertexAttributes* sphereVAO = nullptr;
+        static inline Shader* celestialBodyShader = nullptr;
 
         // Reference counting for static resources
         static inline int refCount = 0;
-
-        // Geometric constants
-        static constexpr float TAU = 6.28318530718;
 };

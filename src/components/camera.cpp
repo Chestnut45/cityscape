@@ -2,7 +2,7 @@
 
 // Constructor
 Camera::Camera() : position(0), direction(0, 0, -1), up(0, 1, 0), right(1, 0, 0),
-                    ubo(BufferType::Uniform, sizeof(glm::mat4) + sizeof(glm::vec4) + sizeof(glm::vec2))
+                    ubo(BufferType::Uniform, sizeof(glm::mat4) + sizeof(glm::vec4) * 2)
 {
     // Bind UBO to binding point 0
     ubo.BindBase(GL_UNIFORM_BUFFER, 0);
@@ -100,6 +100,6 @@ void Camera::UpdateUBO()
     // Write camera matrix data to UBO
     ubo.Write(viewProj);
     ubo.Write(glm::vec4(position, 1));
-    ubo.Write(glm::vec2(width, height));
+    ubo.Write(glm::vec4(width, height, 0.0f, 0.0f));
     ubo.Flush();
 }

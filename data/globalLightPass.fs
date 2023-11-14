@@ -2,17 +2,11 @@
 
 const int MAX_LIGHTS = 450;
 
-// Light structures
+// Light structure
 struct DirectionalLight
 {
     vec4 position;
     vec4 direction;
-    vec4 color;
-};
-
-struct PointLight
-{
-    vec4 position;
     vec4 color;
 };
 
@@ -54,20 +48,20 @@ void main()
     float specularStrength = 0.45;
     float shininess = 32;
 
-    // Initial values
-    vec3 sunDir = normalize(-sun.position.xyz);
-    vec3 moonDir = normalize(-moon.position.xyz);
+    // Directions TO sun and moon
+    vec3 sunDir = normalize(-sun.direction.xyz);
+    vec3 moonDir = normalize(-moon.direction.xyz);
 
     // Diffuse lighting
-    vec3 diffuse =  (max(dot(fragNorm, sunDir), 0) * sun.color.rgb * sun.position.w) +
-                    (max(dot(fragNorm, moonDir), 0) * moon.color.rgb * moon.position.w);
+    vec3 diffuse =  (max(dot(fragNorm, sunDir), 0) * sun.color.rgb * sun.color.a) +
+                    (max(dot(fragNorm, moonDir), 0) * moon.color.rgb * moon.color.a);
 
     // Specular reflections
     vec3 sunHalfDir = normalize(sunDir + (normalize(cameraPos.xyz - fragPos)));
     vec3 moonHalfDir = normalize(moonDir + (normalize(cameraPos.xyz - fragPos)));
     float specSun = pow(max(dot(fragNorm, sunHalfDir), 0), shininess);
     float specMoon = pow(max(dot(fragNorm, moonHalfDir), 0), shininess);
-    vec3 specular = specularStrength * (specSun * sun.color.rgb * sun.position.w) + (specMoon * moon.color.rgb * moon.position.w);
+    vec3 specular = specularStrength * ((specSun * sun.color.rgb * sun.color.a) + (specMoon * moon.color.rgb * moon.color.a));
 
     // Final color composition
     outColor = vec4((ambient + diffuse + specular) * fragAlbedo, 1.0);

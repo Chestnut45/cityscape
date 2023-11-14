@@ -239,7 +239,7 @@ void Cityscape::render()
                 // Get window monitor and revert to windowed mode
                 GLFWmonitor* monitor = glfwGetWindowMonitor(window);
                 const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-                glfwSetWindowMonitor(window, NULL, (mode->width - m_width) / 2, (mode->height - m_height) / 2, defaultWidth, defaultHeight, 0);
+                glfwSetWindowMonitor(window, NULL, (mode->width - defaultWidth) / 2, (mode->height - defaultHeight) / 2, defaultWidth, defaultHeight, 0);
             }
         }
         ImGui::NewLine();

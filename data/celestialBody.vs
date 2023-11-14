@@ -15,6 +15,6 @@ in vec3 vPos;
 
 void main()
 {
-    // Scale vertex position by sun radius and center around camera
+    // Scale vertex position by radius and center around camera
     gl_Position = viewProj * vec4(cameraPos.xyz + position.xyz + (vPos * position.w), 1.0);
 }

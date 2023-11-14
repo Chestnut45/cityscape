@@ -61,7 +61,7 @@ class Sky
         DirectionalLight moon;
         float ambient = 0.0f;
         float sunDistance = 800.0f;
-        float moonDistance = 400.0f;
+        float moonDistance = 500.0f;
         float sunRadius = 50.0f;
         float moonRadius = 10.0f;
         float sunlightInfluence = 2.0f;

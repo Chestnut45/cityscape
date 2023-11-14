@@ -68,6 +68,11 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "charconv": "cpp",
+        "optional": "cpp",
+        "span": "cpp",
+        "variant": "cpp",
+        "format": "cpp"
     }
 }

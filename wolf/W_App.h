@@ -32,6 +32,9 @@ namespace wolf
         int m_width = 0;
         int m_height = 0;
 
+        int defaultWidth = 1280;
+        int defaultHeight = 720;
+
     private:
         void _init();
         void _internalUpdate(float dt);

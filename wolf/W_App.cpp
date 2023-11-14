@@ -96,18 +96,16 @@ void App::_init()
         }
     }
 #else
-    int resX = 1280;
-    int resY = 720;
     GLFWmonitor* pMonitorToUse = nullptr;
 #endif
 
-    m_pWindow = glfwCreateWindow(resX, resY, m_name.c_str(), pMonitorToUse, NULL);
+    m_pWindow = glfwCreateWindow(defaultWidth, defaultHeight, m_name.c_str(), pMonitorToUse, NULL);
     if (!m_pWindow)
         _fatalError("Couldn't create window\n");
 
     // Set width and height here so all Apps can access them in their constructors
-    m_width = resX;
-    m_height = resY;
+    m_width = defaultWidth;
+    m_height = defaultHeight;
 
     glfwSetWindowUserPointer(m_pWindow, this);
     glfwSetScrollCallback(m_pWindow, _mouseScrollCallback);
@@ -120,7 +118,7 @@ void App::_init()
     else   
         printf("Successfully initialized GLEW\n");
 
-    RenderTarget::InitScreen(resX, resY);
+    RenderTarget::InitScreen(defaultWidth, defaultHeight);
 }
 
 void App::_internalUpdate(float dt)

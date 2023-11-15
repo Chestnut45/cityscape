@@ -31,6 +31,9 @@
 #include "../thirdparty/imgui/imgui_impl_glfw.h"
 #include "../thirdparty/imgui/imgui_impl_opengl3.h"
 
+// Wolf
+#include "../wolf/wolf.h"
+
 class Cityscape: public wolf::App
 {
     // Interface

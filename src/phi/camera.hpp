@@ -5,7 +5,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
 
-#include "../../wolf/wolf.h"
 #include "../../thirdparty/glew/include/GL/glew.h"
 
 #include "gpubuffer.hpp"
@@ -18,7 +17,15 @@ class Camera
         Camera();
         ~Camera();
 
-        // Temporal manipulation
+        // Delete copy constructor/assignment
+        Camera(const Camera&) = delete;
+        Camera& operator=(const Camera&) = delete;
+
+        // Delete move constructor/assignment
+        Camera(Camera&& other) = delete;
+        void operator=(Camera&& other) = delete;
+
+        // Movement
         void SetPosition(const glm::vec3& position);
         void Translate(const glm::vec3& offset);
 

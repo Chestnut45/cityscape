@@ -13,7 +13,7 @@
 #include "shader.hpp"
 
 // Represents a renderable mesh of any internal vertex format
-template <typename VertexFormat>
+template <typename Vertex>
 class Mesh
 {
     // Interface
@@ -31,8 +31,8 @@ class Mesh
         void operator=(Mesh&& other) = delete;
 
         // Procedural geometry generation
-        void AddSurface(const std::vector<VertexFormat>& vertices, const std::vector<GLuint>* const indices = nullptr);
-        void AddTriangle(const VertexFormat& a, const VertexFormat& b, const VertexFormat& c);
+        void AddSurface(const std::vector<Vertex>& vertices, const std::vector<GLuint>* const indices = nullptr);
+        void AddTriangle(const Vertex& a, const Vertex& b, const Vertex& c);
         void AddQuad();
 
         // TODO: Factory mesh generation functions
@@ -50,7 +50,7 @@ class Mesh
     private:
 
         // Vertex / index data
-        std::vector<VertexFormat> vertices;
+        std::vector<Vertex> vertices;
         std::vector<GLuint> indices;
 
         // OpenGL Resources

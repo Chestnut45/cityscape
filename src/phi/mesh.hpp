@@ -30,7 +30,7 @@ class Mesh
         Mesh(Mesh&& other) = delete;
         void operator=(Mesh&& other) = delete;
 
-        // Procedural geometry generation
+        // Procedural vertex data generation
         void AddSurface(const std::vector<Vertex>& vertices, const std::vector<GLuint>* const indices = nullptr);
         void AddTriangle(const Vertex& a, const Vertex& b, const Vertex& c);
         void AddQuad();

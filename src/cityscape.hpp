@@ -12,11 +12,13 @@
 #endif
 #include <glm/gtx/hash.hpp>
 
-// Components and resources
+// Cityscape components
 #include "components/building.hpp"
-#include "components/camera.hpp"
 #include "components/groundtile.hpp"
 #include "components/sky.hpp"
+
+// Phi resources
+#include "phi/camera.hpp"
 #include "phi/framebuffer.hpp"
 #include "phi/shader.hpp"
 #include "phi/texture2d.hpp"

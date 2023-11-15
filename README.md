@@ -16,13 +16,13 @@ Mouse Scroll: Zoom
 
 ## Project Structure:
 
-### Components:
+### Components (src/components):
 
-Components are anything that can be simulated. Typically they manage some resource and provide an interface to interact with its data.
+Components are anything that can be attached to an entity and simulated. Typically they manage resources and provide an interface to their data.
 
-### Phi:
+### Phi (src/phi):
 
-Phi is the micro-engine I've built for this assignment. 
+Phi is the micro-engine I've put together for this assignment. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, shaders, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera.
 
 ## Extras Chosen:
 

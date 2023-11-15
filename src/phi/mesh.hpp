@@ -12,7 +12,8 @@
 #include "vertexattributes.hpp"
 #include "shader.hpp"
 
-// Represents a renderable mesh
+// Represents a renderable mesh of any internal vertex format
+template <typename VertexFormat>
 class Mesh
 {
     // Interface
@@ -29,41 +30,32 @@ class Mesh
         Mesh(Mesh&& other) = delete;
         void operator=(Mesh&& other) = delete;
 
-        // Vertex data generation / manipulation
+        // Procedural geometry generation
+        void AddSurface(const std::vector<VertexFormat>& vertices, const std::vector<GLuint>* const indices = nullptr);
+        void AddTriangle(const VertexFormat& a, const VertexFormat& b, const VertexFormat& c);
+        void AddQuad();
 
-        // Adds a surface to the mesh
-        template <typename VtxFmt>
-        void AddSurface(const std::vector<VtxFmt>& vertices, const std::vector<GLuint>* const indices = nullptr);
+        // TODO: Factory mesh generation functions
 
-        // Commit all mesh data to GPU resources
+        // Commits all mesh data to GPU resources in preperation for rendering
         void Commit();
+
+        // Rendering methods
+        void Draw(const Shader& shader);
 
         // Clear all mesh data, cleanup resources, return to initial state
         void Reset();
-
-        // Immediate render method
-        void Draw(const Shader& shader);
-
-        // Instanced rendering methods
-        // NOTE: Assumes IData is a GPUBuffer-writable type
-        template <typename IData>
-        void DrawInstance(const IData& data);
-        void FlushInstances(const Shader& shader);
     
     // Data / implementation
     private:
 
-        // Resources
-        VertexAttributes* vao = nullptr;
+        // Vertex / index data
+        std::vector<VertexFormat> vertices;
+        std::vector<GLuint> indices;
+
+        // OpenGL Resources
+        VertexAttributes* vertexAttributes = nullptr;
         GPUBuffer* vertexBuffer = nullptr;
         GPUBuffer* indexBuffer = nullptr;
         GPUBuffer* instanceBuffer = nullptr;
-
-        // Represents a single surface; a set of vertex data
-        template <typename VtxFmt>
-        struct Surface
-        {
-            std::vector<VtxFmt> vertices;
-            std::vector<GLuint> indices;
-        };
 };

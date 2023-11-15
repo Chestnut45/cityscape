@@ -4,10 +4,10 @@
 #include <string>
 
 #include "../components/lights.hpp"
-#include "../resources/cubemap.hpp"
-#include "../resources/shader.hpp"
-#include "../resources/gpubuffer.hpp"
-#include "../resources/vertexattributes.hpp"
+#include "../phi/cubemap.hpp"
+#include "../phi/shader.hpp"
+#include "../phi/gpubuffer.hpp"
+#include "../phi/vertexattributes.hpp"
 
 // Centralize texture unit bindings so we don't have a bunch of magic numbers everywhere
 enum class SkyTextureUnit : int

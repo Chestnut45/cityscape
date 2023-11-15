@@ -5,11 +5,11 @@
 #include <random>
 #include <glm/glm.hpp>
 
-#include "../resources/gpubuffer.hpp"
-#include "../resources/shader.hpp"
-#include "../resources/texture2d.hpp"
-#include "../resources/vertex.hpp"
-#include "../resources/vertexattributes.hpp"
+#include "../phi/gpubuffer.hpp"
+#include "../phi/shader.hpp"
+#include "../phi/texture2d.hpp"
+#include "../phi/vertex.hpp"
+#include "../phi/vertexattributes.hpp"
 
 class Building
 {

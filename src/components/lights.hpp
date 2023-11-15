@@ -2,11 +2,11 @@
 
 #include <glm/glm.hpp>
 
-#include "../resources/gpubuffer.hpp"
-#include "../resources/vertexattributes.hpp"
-#include "../resources/vertex.hpp"
-#include "../resources/shader.hpp"
-#include "../resources/geometry.hpp"
+#include "../phi/gpubuffer.hpp"
+#include "../phi/vertexattributes.hpp"
+#include "../phi/vertex.hpp"
+#include "../phi/shader.hpp"
+#include "../phi/geometry.hpp"
 
 class DirectionalLight
 {

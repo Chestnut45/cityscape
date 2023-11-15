@@ -17,9 +17,9 @@
 #include "components/camera.hpp"
 #include "components/groundtile.hpp"
 #include "components/sky.hpp"
-#include "resources/framebuffer.hpp"
-#include "resources/shader.hpp"
-#include "resources/texture2d.hpp"
+#include "phi/framebuffer.hpp"
+#include "phi/shader.hpp"
+#include "phi/texture2d.hpp"
 
 // EnTT: https://github.com/skypjack/entt
 #include "../thirdparty/entt.hpp"

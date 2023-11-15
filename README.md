@@ -1,4 +1,4 @@
-# Cityscape Assignment
+# CS-4350 Cityscape Assignment
 
 ### D'Anyil Landry
 
@@ -20,9 +20,9 @@ Mouse Scroll: Zoom
 
 Components are anything that can be simulated. Typically they manage some resource and provide an interface to interact with its data.
 
-### Resources:
+### Phi:
 
-Resources are OpenGL RAII Wrapper classes. I chose to write these to challenge myself to not use wolf and further my understanding of the OpenGL state machine.
+Phi is the micro-engine I've built for this assignment. 
 
 ## Extras Chosen:
 

@@ -8,7 +8,7 @@
 #include "../../wolf/wolf.h"
 #include "../../thirdparty/glew/include/GL/glew.h"
 
-#include "../resources/gpubuffer.hpp"
+#include "../phi/gpubuffer.hpp"
 
 // Provides an interface to manipulate and update a camera used for rendering
 class Camera

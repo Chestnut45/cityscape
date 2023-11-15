@@ -160,8 +160,8 @@ void Building::FlushDrawCalls()
     if (drawCount == 0) return;
 
     // Ensure all buffer writes are flushed
-    vbo->Flush();
-    ebo->Flush();
+    vbo->Flush(true);
+    ebo->Flush(true);
     
     // Bind relevant resources
     shader->Use();

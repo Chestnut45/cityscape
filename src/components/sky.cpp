@@ -163,7 +163,7 @@ void Sky::Update()
     lightUBO.Write(moon.GetDirection());
     lightUBO.Write(moon.GetColor());
     lightUBO.Write(ambient);
-    lightUBO.Flush();
+    lightUBO.Flush(true);
 }
 
 // Renders the sky

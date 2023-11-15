@@ -80,7 +80,7 @@ void PointLight::FlushDrawCalls()
     if (drawCount == 0) return;
 
     // Flush all buffer writes and bind objects
-    instanceUBO->Flush();
+    instanceUBO->Flush(true);
     instanceUBO->BindBase(GL_UNIFORM_BUFFER, 1);
     vao->Bind();
     shader->Use();

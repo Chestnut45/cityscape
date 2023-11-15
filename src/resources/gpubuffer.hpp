@@ -32,7 +32,16 @@ class GPUBuffer
         GPUBuffer(GPUBuffer&& other) = delete;
         void operator=(GPUBuffer&& other) = delete;
 
+        // Accessors
+        inline GLuint GetOffset() const { return currentByteOffset; };
+        inline GLuint GetSize() const { return size; };
+
+        // Sets the internal buffer's current offset
+        inline void SetOffset(GLuint offset) { currentByteOffset = offset < size ? offset : currentByteOffset; };
+
         // Write operations
+        // NOTE: All writes are performed at the internal buffer's current offset
+        // If the write succeeds, the current offset will be increased by the size of the data written
         bool Write(int value);
         bool Write(float value);
         bool Write(const glm::vec2& value);
@@ -40,7 +49,10 @@ class GPUBuffer
         bool Write(const glm::vec4& value);
         bool Write(const glm::mat4& value);
         bool Write(const void* const data, GLuint size);
-        void Flush();
+
+        // Flush all or part of the internal buffer to the OpenGL buffer object
+        void Flush(bool resetOffset = false);
+        bool FlushSection(GLuint offset, GLuint bytes, bool resetOffset = false);
 
         // State management
         void Bind() const;
@@ -52,7 +64,7 @@ class GPUBuffer
         inline BufferType GetType() const { return type; };
 
         // Helper method to ensure buffer writes are safe
-        inline bool CanWrite(size_t bytes) const { return (byteOffset + bytes <= size); };
+        inline bool CanWrite(GLuint bytes) const { return (currentByteOffset + bytes <= size); };
 
     // Data / implementation
     private:
@@ -60,11 +72,11 @@ class GPUBuffer
         BufferType type;
 
         // Internal buffer
-        const unsigned char * data = nullptr;
-        const GLuint size;
+        unsigned char * data = nullptr;
+        GLuint size;
 
         // Current write offset
-        unsigned int byteOffset = 0;
+        GLuint currentByteOffset = 0;
 
         // OpenGL object handles
         GLuint bufferID;

@@ -7,6 +7,7 @@
 #include "../resources/texture2d.hpp"
 #include "../resources/vertexattributes.hpp"
 #include "../resources/vertex.hpp"
+#include "../resources/mesh.hpp"
 
 class GroundTile
 {

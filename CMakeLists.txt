@@ -1,9 +1,11 @@
-cmake_minimum_required(VERSION 3.0.0)
-project(sample VERSION 0.1.0)
+cmake_minimum_required(VERSION 3.0.0...3.5.0)
+project(cityscape VERSION 1.0.0)
 
+# Find OpenGL
 set(OpenGL_GL_PREFERENCE "GLVND")
 find_package(OpenGL REQUIRED)
 
+# Set Assimp build flags
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "If the test suite for Assimp is built in addition to the library." FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE BOOL "Disable Assimp's export functionality." FORCE)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "If the supplementary tools for Assimp are built in addition to the library." FORCE)
@@ -61,6 +63,7 @@ add_subdirectory(thirdparty/glm)
 add_subdirectory(thirdparty/assimp)
 add_subdirectory(thirdparty/glew/build/cmake)
 
+# Add all project-wide includes
 include_directories(
     thirdparty/glfw/include 
     thirdparty/glm 
@@ -98,7 +101,7 @@ set(IMGUI_PATH  ${CMAKE_SOURCE_DIR}/thirdparty/imgui/)
 file(GLOB IMGUI_SOURCES ${IMGUI_PATH}/*.cpp)
 add_library(ImGui STATIC ${IMGUI_SOURCES})
 
-add_executable(sample 
+add_executable(cityscape 
     ${SAMPLEFW_SOURCE_FILES}
     ${SAMPLEFW_HEADER_FILES}
     ${WOLF_SOURCE_FILES}
@@ -107,7 +110,7 @@ add_executable(sample
     ${HEADER_FILES}
     ${IMGUI_SOURCES})
 
-target_link_libraries(sample assimp glfw glew ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
+target_link_libraries(cityscape assimp glfw glew ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

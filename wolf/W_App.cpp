@@ -69,8 +69,8 @@ void App::_init()
     printf("Successfully initialized GLFW\n");
     glfwSetErrorCallback(_errorCallback);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -117,6 +117,11 @@ void App::_init()
         _fatalError((const char*)glewGetErrorString(err));
     else   
         printf("Successfully initialized GLEW\n");
+    
+    // Output current OpenGL context version
+    printf("%s\n", glGetString(GL_VERSION));
+
+    // TODO: Tell Gordon about mesa drivers for 4.4 on linux
 
     RenderTarget::InitScreen(defaultWidth, defaultHeight);
 }

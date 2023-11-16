@@ -2,10 +2,11 @@
 
 #include <vector>
 
-#include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types / functions
+#include <GL/glew.h> // OpenGL types / functions
 
 #include "texture2d.hpp"
 
+// RAII Wrapper for an FBO
 class FrameBuffer
 {
     // Interface

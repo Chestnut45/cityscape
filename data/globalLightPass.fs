@@ -64,5 +64,5 @@ void main()
     vec3 specular = specularStrength * ((specSun * sun.color.rgb * sun.color.a) + (specMoon * moon.color.rgb * moon.color.a));
 
     // Final color composition
-    outColor = vec4((ambient + diffuse + specular) * fragAlbedo, 1.0);
+    outColor = vec4((ambient + diffuse) * fragAlbedo + specular, 1.0);
 }

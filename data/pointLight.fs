@@ -39,7 +39,7 @@ void main()
     vec3 viewDir = normalize(cameraPos.xyz - fragPos);
 
     // Diffuse lighting
-    vec3 diffuse =  max(dot(fragNorm, lightDir), 0) * lightColor.rgb;
+    vec3 diffuse =  max(dot(fragNorm, lightDir), 0) * lightColor.rgb * fragAlbedo;
 
     // Specular reflections
     vec3 halfDir = normalize(lightDir + viewDir);
@@ -53,5 +53,5 @@ void main()
     attenuation *= attenuation;
 
     // Set final output color
-    outColor = vec4((diffuse + specular) * attenuation * fragAlbedo, 1.0);
+    outColor = vec4((diffuse + specular) * attenuation, 1.0);
 }

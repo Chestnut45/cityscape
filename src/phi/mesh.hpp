@@ -14,6 +14,7 @@
 #include "shader.hpp"
 
 // Represents a renderable mesh with a vertex format and (optionally) an instance data format
+// NOTE: Vertex is assumed to be a GPUBuffer-writable format
 template <typename Vertex, typename InstanceData = glm::mat4>
 class Mesh
 {

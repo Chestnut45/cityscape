@@ -5,7 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
 
-#include "../../thirdparty/glew/include/GL/glew.h"
+#include <GL/glew.h> // OpenGL types / functions
 
 #include "gpubuffer.hpp"
 

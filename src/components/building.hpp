@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include <random>
+
 #include <glm/glm.hpp>
 
 #include "../phi/gpubuffer.hpp"

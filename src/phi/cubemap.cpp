@@ -1,9 +1,5 @@
 #include "cubemap.hpp"
 
-// Include stb image header
-// NOTE: Do not define STB_IMAGE_IMPLEMENTATION here, wolf already defines it in W_Texture.cpp
-#include "../../wolf/stb_image.h"
-
 // Constructor
 // faces should contain 6 file paths (relative to project directory)
 // to image files in the order: right, left, top, bottom, front, back

@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types / functions
+#include <GL/glew.h> // OpenGL types / functions
 
 // Shader management class
 class Shader

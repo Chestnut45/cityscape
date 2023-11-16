@@ -4,7 +4,8 @@
 #include <vector>
 #include <string>
 
-#include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types / functions
+#include <GL/glew.h> // OpenGL types / functions
+#include <stb_image.h>
 
 // Cubemap data
 class Cubemap

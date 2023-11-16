@@ -3,8 +3,8 @@
 #include <iostream>
 #include <string>
 
-#include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types / functions
-#include "../../wolf/stb_image.h"
+#include <GL/glew.h> // OpenGL types / functions
+#include <stb_image.h>
 
 // 2D texture RAII wrapper
 class Texture2D

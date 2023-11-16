@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types / functions
+#include <GL/glew.h> // OpenGL types / functions
 
 #include "gpubuffer.hpp"
 #include "vertex.hpp"

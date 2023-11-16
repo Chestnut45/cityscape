@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types / functions
+#include <GL/glew.h> // OpenGL types / functions
 
 // List of all internal formats, used to construct VertexAttributes objects automagically when possible
 // POS      = 3 GLfloats x, y, z

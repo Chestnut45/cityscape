@@ -1,12 +1,12 @@
 #pragma once
 
 #include <iostream>
-#include "string.h" // For memcpy
+#include <string.h> // For memcpy
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../../thirdparty/glew/include/GL/glew.h" // OpenGL types / functions
+#include <GL/glew.h> // OpenGL types / functions
 
 enum class BufferType
 {

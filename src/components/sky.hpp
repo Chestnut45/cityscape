@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-#include "../components/lights.hpp"
+#include "lights.hpp"
 #include "../phi/cubemap.hpp"
 #include "../phi/shader.hpp"
 #include "../phi/gpubuffer.hpp"

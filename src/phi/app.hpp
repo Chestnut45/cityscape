@@ -4,6 +4,15 @@
 #include <string>
 
 #include <GLFW/glfw3.h>
+#define GLEW_NO_GLU
+#include <GL/glew.h>
+
+#if defined(__APPLE__)
+    #include <OpenGL/gl.h>
+#else
+    #include <GL/gl.h>
+#endif
+
 #include <glm/glm.hpp>
 
 namespace Phi
@@ -13,12 +22,12 @@ namespace Phi
     {
         public:
 
-            App(const std::string& name, int glMajVer = 4, int glMinVer = 5);
+            App(const std::string& name, int width, int height, int glMajVer = 4, int glMinVer = 5);
             virtual ~App();
 
-            virtual void Run() = delete;
-            virtual void Update(float delta) = delete;
-            virtual void Render() = delete;
+            virtual void Run();
+            virtual void Update(float delta) = 0;
+            virtual void Render() = 0;
 
             // Accessors
             glm::vec2 GetWindowSize() const;
@@ -37,6 +46,11 @@ namespace Phi
             int wWidth = 0;
             int wHeight = 0;
 
+            // Timing
+            float elapsedTime = 0;
+            float lastUpdate = 0;
+            float lastRender = 0;
+
             // Input helpers
             bool IsKeyDown(int key) const;
             bool IsKeyJustDown(int key) const;
@@ -47,9 +61,16 @@ namespace Phi
             glm::vec2 GetMouseScroll() const;
 
         private:
+            
+            // Internal methods
+            void InternalUpdate(float delta);
 
-            // Key inputs
+            // Internal input handling data
+            glm::vec2 mouseScroll;
             static const int NUM_KEYS = GLFW_KEY_LAST - GLFW_KEY_SPACE;
-            bool m_lastKeysDown[NUM_KEYS];
+            bool keysDownLastFrame[NUM_KEYS] = { false };
+
+            // Friends who should have access to private data
+            friend void MouseScrollCallback(GLFWwindow* pWindow, double xoffset, double yoffset);
     };
 }

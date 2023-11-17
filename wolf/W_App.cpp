@@ -30,7 +30,7 @@ App::App(const std::string& name)
   : m_name(name)
 {
     _init();
-    for(int i = 0; i < NUM_KEYS; ++i)
+    for (int i = 0; i < NUM_KEYS; ++i)
     {
         m_lastKeysDown[i] = false;
     }
@@ -120,8 +120,6 @@ void App::_init()
     
     // Output current OpenGL context version
     printf("%s\n", glGetString(GL_VERSION));
-
-    // TODO: Tell Gordon about mesa drivers for 4.4 on linux
 
     RenderTarget::InitScreen(defaultWidth, defaultHeight);
 }

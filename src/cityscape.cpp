@@ -212,6 +212,10 @@ void Cityscape::render()
         // Main window
         ImGui::Begin("Cityscape");
 
+        ImGui::Text("Performance:");
+        
+        ImGui::NewLine();
+
         ImGui::Text("Timing:");
         if (ImGui::SliderFloat("Day Cycle", &sky.dayCycle, 1.0f, 120.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
         if (ImGui::SliderFloat("Time", &sky.currentTime, 0.0f, sky.dayCycle, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();

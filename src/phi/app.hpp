@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
 namespace Phi
@@ -15,13 +16,13 @@ namespace Phi
             App(const std::string& name, int glMajVer, int glMinVer);
             virtual ~App();
 
-            virtual void Run();
+            virtual void Run() = delete;
             virtual void Update(float delta) = delete;
             virtual void Render() = delete;
 
             // Accessors
             glm::vec2 GetScreenSize() const;
-            GLFWwindow* GetWindow() const { return m_pWindow; }
+            GLFWwindow* GetWindow() const { return nullptr; };
 
             // Used internally but needs to be public
             void _setMouseScroll(const glm::vec2 &scroll);
@@ -44,7 +45,7 @@ namespace Phi
             bool IsRMBDown() const;
             bool IsMMBDown() const;
             glm::vec2 GetMousePos() const;
-            glm::vec2 GetMouseScroll() const { return m_mouseScroll; }
+            glm::vec2 GetMouseScroll() const { return {0, 0}; };
 
         private:
 

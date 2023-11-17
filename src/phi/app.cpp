@@ -6,4 +6,9 @@ namespace Phi
     {
         
     }
+
+    App::~App()
+    {
+        
+    }
 }

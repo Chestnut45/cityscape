@@ -33,6 +33,7 @@
 
 // Wolf
 #include "../wolf/wolf.h"
+#include "phi/app.hpp"
 
 class Cityscape: public wolf::App
 {

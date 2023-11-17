@@ -70,23 +70,8 @@ include_directories(
     thirdparty/glew/include 
     thirdparty/assimp/include 
     thirdparty 
+    ${CMAKE_SOURCE_DIR} 
     ${OPENGL_INCLUDE_DIRS})
-
-file(GLOB_RECURSE SAMPLEFW_SOURCE_FILES 
-	${CMAKE_SOURCE_DIR}/samplefw/*.c
-    ${CMAKE_SOURCE_DIR}/samplefw/*.cpp)
-
-file(GLOB_RECURSE SAMPLEFW_HEADER_FILES 
-	${CMAKE_SOURCE_DIR}/samplefw/*.h
-    ${CMAKE_SOURCE_DIR}/samplefw/*.hpp)
-
-file(GLOB_RECURSE WOLF_SOURCE_FILES 
-	${CMAKE_SOURCE_DIR}/wolf/*.c
-    ${CMAKE_SOURCE_DIR}/wolf/*.cpp)
-
-file(GLOB_RECURSE WOLF_HEADER_FILES 
-	${CMAKE_SOURCE_DIR}/wolf/*.h
-    ${CMAKE_SOURCE_DIR}/wolf/*.hpp)
 
 file(GLOB_RECURSE SOURCE_FILES 
 	${CMAKE_SOURCE_DIR}/src/*.c
@@ -96,19 +81,23 @@ file(GLOB_RECURSE HEADER_FILES
 	${CMAKE_SOURCE_DIR}/src/*.h
     ${CMAKE_SOURCE_DIR}/src/*.hpp)
 
+file(GLOB_RECURSE PHI_SOURCE
+    ${CMAKE_SOURCE_DIR}/phi/*.cpp)
+
+file(GLOB_RECURSE PHI_HEADERS
+    ${CMAKE_SOURCE_DIR}/phi/*.hpp)
+
 # Add ImGui
 set(IMGUI_PATH  ${CMAKE_SOURCE_DIR}/thirdparty/imgui/)
 file(GLOB IMGUI_SOURCES ${IMGUI_PATH}/*.cpp)
 add_library(ImGui STATIC ${IMGUI_SOURCES})
 
 add_executable(cityscape 
-    ${SAMPLEFW_SOURCE_FILES}
-    ${SAMPLEFW_HEADER_FILES}
-    ${WOLF_SOURCE_FILES}
-    ${WOLF_HEADER_FILES}
+    ${PHI_SOURCE}
+    ${PHI_HEADERS}
+    ${IMGUI_SOURCES}
     ${SOURCE_FILES}
-    ${HEADER_FILES}
-    ${IMGUI_SOURCES})
+    ${HEADER_FILES})
 
 target_link_libraries(cityscape assimp glfw glew ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
 

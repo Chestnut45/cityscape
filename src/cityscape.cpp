@@ -1,7 +1,7 @@
 #include "cityscape.hpp"
 
 // Constructor
-Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data/skyboxNight")
+Cityscape::Cityscape() : App("Cityscape", 4, 4), camera(), sky("data/skyboxDay", "data/skyboxNight")
 {
     // Enable programs
     glEnable(GL_DEPTH_TEST);
@@ -34,7 +34,7 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     ImGui::CreateContext();
 
     // Setup Dear ImGui Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(getWindow(), true);
+    ImGui_ImplGlfw_InitForOpenGL(GetWindow(), true);
     ImGui_ImplOpenGL3_Init();
 
     // Generate placeholder empty VAO for attributeless rendering
@@ -51,13 +51,13 @@ Cityscape::Cityscape() : App("Cityscape"), camera(), sky("data/skyboxDay", "data
     Regenerate();
 
     // Initialize mouse input
-    glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (glfwRawMouseMotionSupported())
     {
-        glfwSetInputMode(getWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        glfwSetInputMode(GetWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
         std::cout << "Raw mouse motion enabled" << std::endl;
     }
-    prevMousePos = getMousePos();
+    prevMousePos = GetMousePos();
 	
     // Success msg
     std::cout << "Successfully initialized Cityscape" << std::endl;
@@ -81,14 +81,21 @@ Cityscape::~Cityscape()
     ImGui::DestroyContext();
 }
 
-void Cityscape::update(float delta)
+void Cityscape::Update(float delta)
 {
     // Keep track of total elapsed time
-    elapsedTime += delta;
+    programLifetime += delta;
+
+    // Recreate the Geometry Buffer if the app's window was resized
+    if (windowResized)
+    {
+        RecreateFBO();
+        windowResized = false;
+    }
 
     // Update the camera's viewport if the window size has changed
-    if (m_width != camera.GetWidth() || m_height != camera.GetHeight())
-        camera.UpdateViewport(m_width, m_height);
+    if (wWidth != camera.GetWidth() || wHeight != camera.GetHeight())
+        camera.UpdateViewport(wWidth, wHeight);
 
     // Process all input for this frame
     ProcessInput(delta);
@@ -109,7 +116,7 @@ void Cityscape::update(float delta)
     {
         for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
         {
-            if (abs(fmod(elapsedTime, 0.2f)) < 0.02f) pointLight.SetColor({colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+            if (abs(fmod(programLifetime, 0.2f)) < 0.02f) pointLight.SetColor({colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
         }
     }
 
@@ -132,7 +139,7 @@ void Cityscape::update(float delta)
     }
 }
 
-void Cityscape::render()
+void Cityscape::Render()
 {
     // Geometry pass
 
@@ -166,7 +173,7 @@ void Cityscape::render()
 
     // Then blit the gBuffer's depth buffer texture to the default framebuffer
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    glBlitFramebuffer(0, 0, wWidth, wHeight, 0, 0, wWidth, wHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Disable writing to the depth buffer here so lights don't affect it
@@ -230,7 +237,7 @@ void Cityscape::render()
         ImGui::Text("Graphics Settings:");
         if (ImGui::Checkbox("Fullscreen", &fullscreen))
         {
-            GLFWwindow* window = getWindow();
+            GLFWwindow* window = GetWindow();
             if (fullscreen)
             {
                 // Get primary monitor and enable fullscreen
@@ -265,29 +272,29 @@ void Cityscape::ProcessInput(float delta)
     if (!paused)
     {
         // Calculate mouse movement
-        glm::vec2 mousePos = getMousePos();
+        glm::vec2 mousePos = GetMousePos();
         glm::vec2 mouseOffset = (mousePos - prevMousePos) * delta * mouseSensitivity;
 
         // Rotate the camera according to mouse movement
         camera.Rotate(mouseOffset.x, -mouseOffset.y);
 
         // Boost if shift is held
-        float boost = isKeyDown(GLFW_KEY_LEFT_SHIFT) ? 2 : 1;
+        float boost = IsKeyDown(GLFW_KEY_LEFT_SHIFT) ? 2 : 1;
 
         // Move the camera according to WASD
-        if (isKeyDown(GLFW_KEY_W)) camera.Translate(camera.GetDirection() * delta * cameraSpeed * boost);
-        if (isKeyDown(GLFW_KEY_S)) camera.Translate(-camera.GetDirection() * delta * cameraSpeed * boost);
-        if (isKeyDown(GLFW_KEY_A)) camera.Translate(-camera.GetRight() * delta * cameraSpeed * boost);
-        if (isKeyDown(GLFW_KEY_D)) camera.Translate(camera.GetRight() * delta * cameraSpeed * boost);
+        if (IsKeyDown(GLFW_KEY_W)) camera.Translate(camera.GetDirection() * delta * cameraSpeed * boost);
+        if (IsKeyDown(GLFW_KEY_S)) camera.Translate(-camera.GetDirection() * delta * cameraSpeed * boost);
+        if (IsKeyDown(GLFW_KEY_A)) camera.Translate(-camera.GetRight() * delta * cameraSpeed * boost);
+        if (IsKeyDown(GLFW_KEY_D)) camera.Translate(camera.GetRight() * delta * cameraSpeed * boost);
 
         // Unload blocks and regenerate if we press R
-        if (isKeyJustDown(GLFW_KEY_R)) Regenerate();
+        if (IsKeyJustDown(GLFW_KEY_R)) Regenerate();
 
         // Toggle infinite generation mode with I
-        if (isKeyJustDown(GLFW_KEY_I)) infinite = !infinite;
+        if (IsKeyJustDown(GLFW_KEY_I)) infinite = !infinite;
 
         // Zoom the camera according to scroll
-        glm::vec2 scroll = getMouseScroll();
+        glm::vec2 scroll = GetMouseScroll();
         camera.Zoom(scroll.y);
 
         // Keep track of previous mouse position
@@ -295,16 +302,16 @@ void Cityscape::ProcessInput(float delta)
     }
 
     // Update pause state regardless of whether we are paused or not
-    if (isKeyJustDown(GLFW_KEY_ESCAPE))
+    if (IsKeyJustDown(GLFW_KEY_ESCAPE))
     {
         paused = !paused;
 
         // Capture / uncapture mouse
-        if (paused) glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        if (paused) glfwSetInputMode(GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         else 
         {
-            glfwSetInputMode(getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            prevMousePos = getMousePos();
+            glfwSetInputMode(GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            prevMousePos = GetMousePos();
         }
     }
 }
@@ -482,10 +489,10 @@ void Cityscape::RecreateFBO()
     }
 
     // Generate geometry buffer textures
-    gPositionTex = new Texture2D(m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST, GL_NEAREST);
-    gNormalTex = new Texture2D(m_width, m_height, GL_RGBA8_SNORM, GL_RGBA, GL_BYTE, GL_NEAREST, GL_NEAREST);
-    gColorSpecTex = new Texture2D(m_width, m_height, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, GL_NEAREST);
-    gDepthStencilTex = new Texture2D(m_width, m_height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST, GL_NEAREST);
+    gPositionTex = new Texture2D(wWidth, wHeight, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST, GL_NEAREST);
+    gNormalTex = new Texture2D(wWidth, wHeight, GL_RGBA8_SNORM, GL_RGBA, GL_BYTE, GL_NEAREST, GL_NEAREST);
+    gColorSpecTex = new Texture2D(wWidth, wHeight, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, GL_NEAREST);
+    gDepthStencilTex = new Texture2D(wWidth, wHeight, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST, GL_NEAREST);
 
     // Attach textures to geometry buffer
     gBuffer = new FrameBuffer();
@@ -501,12 +508,4 @@ void Cityscape::RecreateFBO()
 
     // Check for completeness :)
     gBuffer->CheckCompleteness();
-}
-
-// Recreate the geometry buffer and other FBOs when the window is resized
-void Cityscape::WindowResizeCallback(GLFWwindow* window, int width, int height)
-{
-    m_width = width;
-    m_height = height;
-    RecreateFBO();
 }

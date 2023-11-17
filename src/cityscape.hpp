@@ -6,22 +6,8 @@
 #include <random>
 
 // Required for hashing glm vectors for use as keys in a std::unordered_map
-// Define guard here since I'm unsure if any wolf files use GLM hashing
-#ifndef GLM_ENABLE_EXPERIMENTAL
-    #define GLM_ENABLE_EXPERIMENTAL
-#endif
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
-
-// Cityscape components
-#include "components/building.hpp"
-#include "components/groundtile.hpp"
-#include "components/sky.hpp"
-
-// Phi resources
-#include "phi/camera.hpp"
-#include "phi/framebuffer.hpp"
-#include "phi/shader.hpp"
-#include "phi/texture2d.hpp"
 
 // EnTT: https://github.com/skypjack/entt
 #include "../thirdparty/entt.hpp"
@@ -31,11 +17,19 @@
 #include "../thirdparty/imgui/imgui_impl_glfw.h"
 #include "../thirdparty/imgui/imgui_impl_opengl3.h"
 
-// Wolf
-#include "../wolf/wolf.h"
-#include "phi/app.hpp"
+// Phi engine components
+#include <phi/app.hpp>
+#include <phi/camera.hpp>
+#include <phi/framebuffer.hpp>
+#include <phi/shader.hpp>
+#include <phi/texture2d.hpp>
 
-class Cityscape: public wolf::App
+// Cityscape components
+#include "building.hpp"
+#include "groundtile.hpp"
+#include "sky.hpp"
+
+class Cityscape: public Phi::App
 {
     // Interface
     public:
@@ -43,10 +37,10 @@ class Cityscape: public wolf::App
         ~Cityscape();
 
         // Simulates all city blocks and handles generation
-        void update(float delta) override;
+        void Update(float delta) override;
 
-        // Rendering methods
-        void render() override;
+        // Renders the cityscape
+        void Render() override;
 
         // Input handling
         void ProcessInput(float delta);
@@ -82,7 +76,6 @@ class Cityscape: public wolf::App
         bool fullscreen = false;
 
         // Timing
-        float elapsedTime = 0;
         bool paused = false;
         bool timeAdvance = true;
 
@@ -108,6 +101,4 @@ class Cityscape: public wolf::App
 
         // Framebuffer update / regen methods
         void RecreateFBO();
-        void WindowResizeCallback(GLFWwindow* window, int width, int height);
-        friend void WindowResizeCallback(GLFWwindow* window, int width, int height);
 };

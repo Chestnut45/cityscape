@@ -13,7 +13,7 @@ namespace Phi
     {
         public:
 
-            App(const std::string& name, int glMajVer, int glMinVer);
+            App(const std::string& name, int glMajVer = 4, int glMinVer = 5);
             virtual ~App();
 
             virtual void Run() = delete;
@@ -21,11 +21,9 @@ namespace Phi
             virtual void Render() = delete;
 
             // Accessors
-            glm::vec2 GetScreenSize() const;
+            glm::vec2 GetWindowSize() const;
+            glm::vec2 GetFramebufferSize() const;
             GLFWwindow* GetWindow() const { return nullptr; };
-
-            // Used internally but needs to be public
-            void _setMouseScroll(const glm::vec2 &scroll);
 
         protected:
 
@@ -34,7 +32,8 @@ namespace Phi
             int glMajorVersion;
             int glMinorVersion;
 
-            // Window size
+            // Window details
+            GLFWwindow* pWindow;
             int wWidth = 0;
             int wHeight = 0;
 
@@ -45,11 +44,12 @@ namespace Phi
             bool IsRMBDown() const;
             bool IsMMBDown() const;
             glm::vec2 GetMousePos() const;
-            glm::vec2 GetMouseScroll() const { return {0, 0}; };
+            glm::vec2 GetMouseScroll() const;
 
         private:
 
-            // Helpers
-            void Init();
+            // Key inputs
+            static const int NUM_KEYS = GLFW_KEY_LAST - GLFW_KEY_SPACE;
+            bool m_lastKeysDown[NUM_KEYS];
     };
 }

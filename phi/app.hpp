@@ -61,7 +61,7 @@ namespace Phi
             float averageFPS = 0;
             std::vector<float> updateSamples;
             std::vector<float> renderSamples;
-            static const int numSamples = 100;
+            static const int numSamples = 240;
 
             // Input helpers
             bool IsKeyDown(int key) const;

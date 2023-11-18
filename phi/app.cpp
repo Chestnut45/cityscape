@@ -108,16 +108,17 @@ namespace Phi
             lastTime = currentTime;
 
             // Calculate FPS
+            static const float updateRate = 0.2f;
             static float timeAccum = 0;
             static float frameCount = 0;
             timeAccum += elapsedTime;
             frameCount++;
-            if (timeAccum >= 0.2)
+            while (timeAccum >= updateRate)
             {
                 // 5 updates / second
                 averageFPS = frameCount / timeAccum;
                 frameCount = 0;
-                timeAccum = 0;
+                timeAccum -= updateRate;
             }
             
             // Update program lifetime
@@ -140,10 +141,17 @@ namespace Phi
             }
 
             // Update samples
-            updateSamples.push_back(lastUpdate * 1000);
-            renderSamples.push_back(lastRender * 1000);
-            while (updateSamples.size() > numSamples) updateSamples.erase(updateSamples.begin());
-            while (renderSamples.size() > numSamples) renderSamples.erase(renderSamples.begin());
+            static const float sampleRate = 1.0f / 240.0f;
+            static float sampleAccum = 0;
+            sampleAccum += elapsedTime;
+            while (sampleAccum >= sampleRate)
+            {
+                updateSamples.push_back(lastUpdate * 1000);
+                renderSamples.push_back(lastRender * 1000);
+                while (updateSamples.size() > numSamples) updateSamples.erase(updateSamples.begin());
+                while (renderSamples.size() > numSamples) renderSamples.erase(renderSamples.begin());
+                sampleAccum -= sampleRate;
+            }
 
             // Reset mouse scroll
             mouseScroll = glm::vec2(0.0f, 0.0f);

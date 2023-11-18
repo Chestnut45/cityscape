@@ -31,7 +31,6 @@ namespace Phi
     {
         glViewport(0, 0, width, height);
         App* pApp = (App*)glfwGetWindowUserPointer(window);
-
         pApp->wWidth = width;
         pApp->wHeight = height;
         pApp->windowResized = true;

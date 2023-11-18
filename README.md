@@ -16,13 +16,17 @@ Mouse Scroll: Zoom
 
 ## Project Structure:
 
-### Components (src/components):
+### data:
 
-Components are anything that can be attached to an entity and simulated. Typically they manage resources and provide an interface to their data.
+All data files for the project; shaders, textures, etc.
 
-### Phi (src/phi):
+### src:
 
-Phi is the micro-engine I've put together for this assignment. I wrote every line, save for the App class, which is basically just an adlib of the W_App class with support for other OpenGL context versions. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, shaders, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera.
+All of the project source, including the main.cpp entrypoint and all cityscape files.
+
+### phi:
+
+Phi is the micro-engine I've put together for this assignment. I wrote every line, save for the App class, which is basically just an adlib of the W_App class from wolf, but with support for other OpenGL context versions and some basic performanc monitoring. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, shaders, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera.
 
 ## Extras Chosen:
 

@@ -1,7 +1,7 @@
 #include "sky.hpp"
 
 // Vertex layout: (x, y, z) position only
-static const VertexPos SKYBOX_VERTICES[] =
+static const Phi::VertexPos SKYBOX_VERTICES[] =
 {
     {-1.0f,  1.0f, -1.0f},
     {-1.0f, -1.0f, -1.0f},
@@ -67,7 +67,7 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath)
         nightSkyboxPath + "/back.png"
     }),
 
-    lightUBO(BufferType::Uniform, sizeof(DirectionalLight) * 2 + sizeof(GLfloat))
+    lightUBO(Phi::BufferType::Uniform, sizeof(DirectionalLight) * 2 + sizeof(GLfloat))
 {
     // Bind UBO to default light binding point
     lightUBO.BindBase(GL_UNIFORM_BUFFER, 2);
@@ -76,9 +76,9 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath)
     if (refCount == 0)
     {
         // Create VAO / VBO / Shader for skybox
-        skyboxVBO = new GPUBuffer(BufferType::StaticVertex, sizeof(SKYBOX_VERTICES), SKYBOX_VERTICES);
-        skyboxVAO = new VertexAttributes(VertexFormat::POS, skyboxVBO);
-        skyboxShader = new Shader();
+        skyboxVBO = new Phi::GPUBuffer(Phi::BufferType::StaticVertex, sizeof(SKYBOX_VERTICES), SKYBOX_VERTICES);
+        skyboxVAO = new Phi::VertexAttributes(Phi::VertexFormat::POS, skyboxVBO);
+        skyboxShader = new Phi::Shader();
         skyboxShader->LoadShaderSource(GL_VERTEX_SHADER, "data/skybox.vs");
         skyboxShader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/skybox.fs");
         skyboxShader->Link();
@@ -89,10 +89,10 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath)
         skyboxShader->BindUniformBlock("GlobalLightBlock", 2);
 
         // Create resources for rendering sun and moon
-        sphereVBO = new GPUBuffer(BufferType::StaticVertex, sizeof(Icosphere::ICOSPHERE_VERTICES), Icosphere::ICOSPHERE_VERTICES);
-        sphereEBO = new GPUBuffer(BufferType::StaticIndex, sizeof(Icosphere::ICOSPHERE_INDICES), Icosphere::ICOSPHERE_INDICES);
-        sphereVAO = new VertexAttributes(VertexFormat::POS, sphereVBO, sphereEBO);
-        celestialBodyShader = new Shader();
+        sphereVBO = new Phi::GPUBuffer(Phi::BufferType::StaticVertex, sizeof(Phi::Icosphere::ICOSPHERE_VERTICES), Phi::Icosphere::ICOSPHERE_VERTICES);
+        sphereEBO = new Phi::GPUBuffer(Phi::BufferType::StaticIndex, sizeof(Phi::Icosphere::ICOSPHERE_INDICES), Phi::Icosphere::ICOSPHERE_INDICES);
+        sphereVAO = new Phi::VertexAttributes(Phi::VertexFormat::POS, sphereVBO, sphereEBO);
+        celestialBodyShader = new Phi::Shader();
         celestialBodyShader->LoadShaderSource(GL_VERTEX_SHADER, "data/celestialBody.vs");
         celestialBodyShader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/celestialBody.fs");
         celestialBodyShader->Link();
@@ -133,10 +133,10 @@ void Sky::Update()
     offsetTime = currentTime + (dayCycle / 2);
 
     // Perform expensive trig calculations once
-    float st = std::sin(TAU * currentTime / dayCycle);
-    float ct = std::cos(TAU * currentTime / dayCycle);
-    float so = std::sin(TAU * offsetTime / dayCycle);
-    float co = std::cos(TAU * offsetTime / dayCycle);
+    float st = std::sin(Phi::TAU * currentTime / dayCycle);
+    float ct = std::cos(Phi::TAU * currentTime / dayCycle);
+    float so = std::sin(Phi::TAU * offsetTime / dayCycle);
+    float co = std::cos(Phi::TAU * offsetTime / dayCycle);
     
     // Calculate normalized TOD (t for lerping between day / night skyboxes)
     skyboxShader->Use();

@@ -10,44 +10,49 @@
 
 #include <GL/glew.h> // OpenGL types / functions
 
-// Shader management class
-class Shader
+namespace Phi
 {
-    public:
-        Shader();
-        ~Shader();
+    // Shader management class
+    class Shader
+    {
+        public:
 
-        // Loading / compiling
-        bool LoadShaderSource(GLenum stage, const std::string& sourcePath);
-        bool Link() const;
+            Shader();
+            ~Shader();
 
-        // Delete copy constructor/assignment
-        Shader(const Shader&) = delete;
-        Shader& operator=(const Shader&) = delete;
+            // Loading / compiling
+            bool LoadShaderSource(GLenum stage, const std::string& sourcePath);
+            bool Link() const;
 
-        // Delete move constructor/assignment
-        Shader(Shader&& other) = delete;
-        void operator=(Shader&& other) = delete;
+            // Delete copy constructor/assignment
+            Shader(const Shader&) = delete;
+            Shader& operator=(const Shader&) = delete;
 
-        // Set as the active program
-        void Use() const;
+            // Delete move constructor/assignment
+            Shader(Shader&& other) = delete;
+            void operator=(Shader&& other) = delete;
 
-        // Uniform / binding manipulation
-        // NOTE: All calls to SetUniform() are only valid following a call to Use()!
-        void BindUniformBlock(const std::string& blockName, GLuint bindingPoint);
-        void SetUniform(const std::string& name, int value);
-        void SetUniform(const std::string& name, float value);
-        void SetUniform(const std::string& name, const glm::vec3& value);
-        void SetUniform(const std::string& name, const glm::vec4& value);
+            // Set as the active program
+            void Use() const;
 
-        // Accessors
-        inline GLuint GetProgramID() const { return programID; };
-    
-    // Implementation
-    private:
-        // Identifiers
-        GLuint programID;
+            // Uniform / binding manipulation
+            // NOTE: All calls to SetUniform() are only valid following a call to Use()!
+            void BindUniformBlock(const std::string& blockName, GLuint bindingPoint);
+            void SetUniform(const std::string& name, int value);
+            void SetUniform(const std::string& name, float value);
+            void SetUniform(const std::string& name, const glm::vec3& value);
+            void SetUniform(const std::string& name, const glm::vec4& value);
 
-        // IDs of individual shaders
-        std::vector<GLuint> shaders;
-};
+            // Accessors
+            inline GLuint GetProgramID() const { return programID; };
+        
+        // Implementation
+        private:
+            
+            // Identifiers
+            GLuint programID;
+
+            // IDs of individual shaders
+            std::vector<GLuint> shaders;
+    };
+}

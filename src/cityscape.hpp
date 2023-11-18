@@ -13,11 +13,7 @@
 #include <entt.hpp>
 
 // Phi engine components
-#include <phi/app.hpp>
-#include <phi/camera.hpp>
-#include <phi/framebuffer.hpp>
-#include <phi/shader.hpp>
-#include <phi/texture2d.hpp>
+#include <phi/phi.hpp>
 
 // Cityscape components
 #include "building.hpp"
@@ -28,6 +24,7 @@ class Cityscape: public Phi::App
 {
     // Interface
     public:
+
         Cityscape();
         ~Cityscape();
 
@@ -42,13 +39,14 @@ class Cityscape: public Phi::App
 
     // Data / implementation
     private:
+
         // Single instance objects
-        Camera camera;
+        Phi::Camera camera;
         Sky sky;
 
         // Lighting pass objects
         GLuint dummyVAO; // When using attributeless rendering, a non-zero VAO must still be bound
-        Shader globalLightShader;
+        Phi::Shader globalLightShader;
 
         // Registry of all active entities
         entt::registry registry;
@@ -91,11 +89,11 @@ class Cityscape: public Phi::App
         static inline std::uniform_real_distribution<float> colorDist{0.0f, 1.0f};
 
         // Geometry buffer + textures for deferred rendering
-        FrameBuffer* gBuffer = nullptr;
-        Texture2D* gPositionTex = nullptr;
-        Texture2D* gNormalTex = nullptr;
-        Texture2D* gColorSpecTex = nullptr;
-        Texture2D* gDepthStencilTex = nullptr;
+        Phi::FrameBuffer* gBuffer = nullptr;
+        Phi::Texture2D* gPositionTex = nullptr;
+        Phi::Texture2D* gNormalTex = nullptr;
+        Phi::Texture2D* gColorSpecTex = nullptr;
+        Phi::Texture2D* gDepthStencilTex = nullptr;
 
         // Framebuffer update / regen methods
         void RecreateFBO();

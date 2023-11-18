@@ -3,7 +3,7 @@
 static const int TILE_SIZE = 16;
 
 // Static ground tile vertex data (pos, normal, uv)
-static const VertexPosNormUv GROUND_VERTICES[] =
+static const Phi::VertexPosNormUv GROUND_VERTICES[] =
 {
     {0.0f,              0.0f, 0.0f,                 0.0f, 1.0f, 0.0f,   0.0f, 1.0f},
     {(float)TILE_SIZE,  0.0f, 0.0f,                 0.0f, 1.0f, 0.0f,   1.0f, 1.0f},
@@ -24,16 +24,16 @@ GroundTile::GroundTile(const glm::ivec2& id) : position(id.x * TILE_SIZE, 0, id.
     if (refCount == 0)
     {
         // Initialize static resources
-        texture = new Texture2D("data/cityBlockGround.png", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
-        vbo = new GPUBuffer(BufferType::StaticVertex, sizeof(GROUND_VERTICES), GROUND_VERTICES);
-        ebo = new GPUBuffer(BufferType::StaticIndex, sizeof(GROUND_INDICES), GROUND_INDICES);
-        vao = new VertexAttributes(VertexFormat::POS_NORM_UV, vbo, ebo);
+        texture = new Phi::Texture2D("data/cityBlockGround.png", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
+        vbo = new Phi::GPUBuffer(Phi::BufferType::StaticVertex, sizeof(GROUND_VERTICES), GROUND_VERTICES);
+        ebo = new Phi::GPUBuffer(Phi::BufferType::StaticIndex, sizeof(GROUND_INDICES), GROUND_INDICES);
+        vao = new Phi::VertexAttributes(Phi::VertexFormat::POS_NORM_UV, vbo, ebo);
 
-        instanceUBO = new GPUBuffer(BufferType::Uniform, sizeof(glm::vec4) * MAX_INSTANCES);
+        instanceUBO = new Phi::GPUBuffer(Phi::BufferType::Uniform, sizeof(glm::vec4) * MAX_INSTANCES);
 
         // Load the default shader
         // TODO: Shader should be passed in... but how for static resource?
-        shader = new Shader();
+        shader = new Phi::Shader();
         shader->LoadShaderSource(GL_VERTEX_SHADER, "data/groundTile.vs");
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/groundTile.fs");
 

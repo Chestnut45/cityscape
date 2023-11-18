@@ -6,37 +6,42 @@
 
 #include "texture2d.hpp"
 
-// RAII Wrapper for an FBO
-class FrameBuffer
+namespace Phi
 {
-    // Interface
-    public:
-        FrameBuffer();
-        ~FrameBuffer();
+    // RAII Wrapper for an FBO
+    class FrameBuffer
+    {
+        // Interface
+        public:
 
-        // Delete copy constructor/assignment
-        FrameBuffer(const FrameBuffer&) = delete;
-        FrameBuffer& operator=(const FrameBuffer&) = delete;
+            FrameBuffer();
+            ~FrameBuffer();
 
-        // Delete move constructor/assignment
-        FrameBuffer(FrameBuffer&& other) = delete;
-        void operator=(FrameBuffer&& other) = delete;
+            // Delete copy constructor/assignment
+            FrameBuffer(const FrameBuffer&) = delete;
+            FrameBuffer& operator=(const FrameBuffer&) = delete;
 
-        // Attaches a texture to the given attachment point
-        void AttachTexture(const Texture2D* const texture, GLenum attachment);
+            // Delete move constructor/assignment
+            FrameBuffer(FrameBuffer&& other) = delete;
+            void operator=(FrameBuffer&& other) = delete;
 
-        // Bind the framebuffer (defaults to both read and draw)
-        void Bind(GLenum target = GL_FRAMEBUFFER) const;
+            // Attaches a texture to the given attachment point
+            void AttachTexture(const Texture2D* const texture, GLenum attachment);
 
-        // Checks if the framebuffer is complete
-        bool CheckCompleteness() const;
+            // Bind the framebuffer (defaults to both read and draw)
+            void Bind(GLenum target = GL_FRAMEBUFFER) const;
 
-    // Data / implementation
-    private:
-        // OpenGL objects
-        GLuint fbo;
+            // Checks if the framebuffer is complete
+            bool CheckCompleteness() const;
 
-        // State
-        int width = 0;
-        int height = 0;
-};
+        // Data / implementation
+        private:
+        
+            // OpenGL objects
+            GLuint fbo;
+
+            // State
+            int width = 0;
+            int height = 0;
+    };
+}

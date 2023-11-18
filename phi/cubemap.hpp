@@ -7,26 +7,31 @@
 #include <GL/glew.h> // OpenGL types / functions
 #include <stb_image.h>
 
-// Cubemap data
-class Cubemap
+namespace Phi
 {
-    // Interface
-    public:
-        Cubemap(const std::vector<std::string>& faces);
-        ~Cubemap();
+    // Cubemap data
+    class Cubemap
+    {
+        // Interface
+        public:
 
-        // Delete copy constructor/assignment
-        Cubemap(const Cubemap&) = delete;
-        Cubemap& operator=(const Cubemap&) = delete;
+            Cubemap(const std::vector<std::string>& faces);
+            ~Cubemap();
 
-        // Delete move constructor/assignment
-        Cubemap(Cubemap&& other) = delete;
-        void operator=(Cubemap&& other) = delete;
+            // Delete copy constructor/assignment
+            Cubemap(const Cubemap&) = delete;
+            Cubemap& operator=(const Cubemap&) = delete;
 
-        // Bind this cubemap's texture to GL_TEXTURE_CUBE_MAP on a given texture unit
-        void Bind(int texUnit = 0) const;
-    
-    private:
-        // OpenGL objects
-        GLuint textureID;
-};
+            // Delete move constructor/assignment
+            Cubemap(Cubemap&& other) = delete;
+            void operator=(Cubemap&& other) = delete;
+
+            // Bind this cubemap's texture to GL_TEXTURE_CUBE_MAP on a given texture unit
+            void Bind(int texUnit = 0) const;
+        
+        private:
+        
+            // OpenGL objects
+            GLuint textureID;
+    };
+}

@@ -6,12 +6,12 @@ Building::Building(const glm::ivec3 &pos, int stories, int blocks, int variant, 
     // Initialize static resources if first instance
     if (refCount == 0)
     {
-        textureAtlas = new Texture2D("data/buildingAtlas.png", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
-        vbo = new GPUBuffer(BufferType::DynamicVertex, sizeof(VertexPosNormUv) * MAX_VERTICES);
-        ebo = new GPUBuffer(BufferType::DynamicIndex, sizeof(GLuint) * MAX_INDICES);
-        vao = new VertexAttributes(VertexFormat::POS_NORM_UV, vbo, ebo);
+        textureAtlas = new Phi::Texture2D("data/buildingAtlas.png", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
+        vbo = new Phi::GPUBuffer(Phi::BufferType::DynamicVertex, sizeof(Phi::VertexPosNormUv) * MAX_VERTICES);
+        ebo = new Phi::GPUBuffer(Phi::BufferType::DynamicIndex, sizeof(GLuint) * MAX_INDICES);
+        vao = new Phi::VertexAttributes(Phi::VertexFormat::POS_NORM_UV, vbo, ebo);
 
-        shader = new Shader();
+        shader = new Phi::Shader();
         shader->LoadShaderSource(GL_VERTEX_SHADER, "data/building.vs");
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/building.fs");
 
@@ -107,7 +107,7 @@ Building::Building(const glm::ivec3 &pos, int stories, int blocks, int variant, 
     }
 
     // Store final size of each local buffer
-    vertBytes = vertices.size() * sizeof(VertexPosNormUv);
+    vertBytes = vertices.size() * sizeof(Phi::VertexPosNormUv);
     indBytes = indices.size() * sizeof(GLuint);
 
     // Reserve proper space for offsets while rendering

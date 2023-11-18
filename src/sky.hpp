@@ -3,11 +3,9 @@
 #include <vector>
 #include <string>
 
+#include <phi/phi.hpp>
+
 #include "lights.hpp"
-#include <phi/cubemap.hpp>
-#include <phi/shader.hpp>
-#include <phi/gpubuffer.hpp>
-#include <phi/vertexattributes.hpp>
 
 // Centralize texture unit bindings so we don't have a bunch of magic numbers everywhere
 enum class SkyTextureUnit : int
@@ -52,11 +50,11 @@ class Sky
     private:
         // Instance resources
         // Skybox textures
-        Cubemap dayBox;
-        Cubemap nightBox;
+        Phi::Cubemap dayBox;
+        Phi::Cubemap nightBox;
 
         // Global light data
-        GPUBuffer lightUBO;
+        Phi::GPUBuffer lightUBO;
         DirectionalLight sun;
         DirectionalLight moon;
         float ambient = 0.0f;
@@ -68,14 +66,14 @@ class Sky
         float moonlightInfluence = 0.32f;
 
         // Static internal resources
-        static inline GPUBuffer* skyboxVBO = nullptr;
-        static inline VertexAttributes* skyboxVAO = nullptr;
-        static inline Shader* skyboxShader = nullptr;
+        static inline Phi::GPUBuffer* skyboxVBO = nullptr;
+        static inline Phi::VertexAttributes* skyboxVAO = nullptr;
+        static inline Phi::Shader* skyboxShader = nullptr;
 
-        static inline GPUBuffer* sphereVBO = nullptr;
-        static inline GPUBuffer* sphereEBO = nullptr;
-        static inline VertexAttributes* sphereVAO = nullptr;
-        static inline Shader* celestialBodyShader = nullptr;
+        static inline Phi::GPUBuffer* sphereVBO = nullptr;
+        static inline Phi::GPUBuffer* sphereEBO = nullptr;
+        static inline Phi::VertexAttributes* sphereVAO = nullptr;
+        static inline Phi::Shader* celestialBodyShader = nullptr;
 
         // Reference counting for static resources
         static inline int refCount = 0;

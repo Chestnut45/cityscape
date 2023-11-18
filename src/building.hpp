@@ -6,11 +6,7 @@
 
 #include <glm/glm.hpp>
 
-#include <phi/gpubuffer.hpp>
-#include <phi/shader.hpp>
-#include <phi/texture2d.hpp>
-#include <phi/vertex.hpp>
-#include <phi/vertexattributes.hpp>
+#include <phi/phi.hpp>
 
 class Building
 {
@@ -72,7 +68,7 @@ class Building
     // Data / implementation
     private:
         // Instance vertex / index data
-        std::vector<VertexPosNormUv> vertices;
+        std::vector<Phi::VertexPosNormUv> vertices;
         std::vector<GLuint> indices;
 
         // Offset indices, used for batching purposes
@@ -90,11 +86,11 @@ class Building
         static inline glm::vec2 tileSizeNormalized;
 
         // Static resources
-        static inline Texture2D* textureAtlas = nullptr;
-        static inline GPUBuffer* vbo = nullptr;
-        static inline GPUBuffer* ebo = nullptr;
-        static inline VertexAttributes* vao = nullptr;
-        static inline Shader* shader = nullptr;
+        static inline Phi::Texture2D* textureAtlas = nullptr;
+        static inline Phi::GPUBuffer* vbo = nullptr;
+        static inline Phi::GPUBuffer* ebo = nullptr;
+        static inline Phi::VertexAttributes* vao = nullptr;
+        static inline Phi::Shader* shader = nullptr;
 
         // Reference counting for static resources
         static inline int refCount = 0;

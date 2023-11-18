@@ -20,11 +20,11 @@ PointLight::PointLight(const glm::vec4& pos, const glm::vec4& col) : position(po
     if (refCount == 0)
     {
         // Vertex data
-        vbo = new GPUBuffer(BufferType::StaticVertex, sizeof(Icosphere::ICOSPHERE_VERTICES), Icosphere::ICOSPHERE_VERTICES);
-        ebo = new GPUBuffer(BufferType::StaticIndex, sizeof(Icosphere::ICOSPHERE_INDICES), Icosphere::ICOSPHERE_INDICES);
-        vao = new VertexAttributes(VertexFormat::POS, vbo, ebo);
+        vbo = new Phi::GPUBuffer(Phi::BufferType::StaticVertex, sizeof(Phi::Icosphere::ICOSPHERE_VERTICES), Phi::Icosphere::ICOSPHERE_VERTICES);
+        ebo = new Phi::GPUBuffer(Phi::BufferType::StaticIndex, sizeof(Phi::Icosphere::ICOSPHERE_INDICES), Phi::Icosphere::ICOSPHERE_INDICES);
+        vao = new Phi::VertexAttributes(Phi::VertexFormat::POS, vbo, ebo);
 
-        shader = new Shader();
+        shader = new Phi::Shader();
         shader->LoadShaderSource(GL_VERTEX_SHADER, "data/pointLight.vs");
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/pointLight.fs");
         shader->Link();
@@ -37,7 +37,7 @@ PointLight::PointLight(const glm::vec4& pos, const glm::vec4& col) : position(po
 
         // Instance buffer data
         // 512 * 2 * sizeof(glm::vec4) = 16,384 = minimum UBO limit required by OpenGL
-        instanceUBO = new GPUBuffer(BufferType::Uniform, sizeof(glm::vec4) * 2 * MAX_INSTANCES);
+        instanceUBO = new Phi::GPUBuffer(Phi::BufferType::Uniform, sizeof(glm::vec4) * 2 * MAX_INSTANCES);
     }
 
     refCount++;

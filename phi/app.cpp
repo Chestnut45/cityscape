@@ -36,7 +36,7 @@ namespace Phi
         pApp->windowResized = true;
     }
 
-    App::App(const std::string& name, int glMajVer, int glMinVer) : name(name)
+    App::App(const std::string& name, int glMajVer, int glMinVer) : name(name), wWidth(defaultWidth), wHeight(defaultHeight)
     {
         // Initialize GLFW
         if (!glfwInit()) FatalError("Failed to initialize GLFW");
@@ -57,9 +57,7 @@ namespace Phi
         glfwSetScrollCallback(pWindow, MouseScrollCallback);
         glfwSetWindowSizeCallback(pWindow, WindowResizeCallback);
 
-        wWidth = defaultWidth;
-        wHeight = defaultHeight;
-
+        // Set user pointer and make context current
         glfwSetWindowUserPointer(pWindow, this);
         glfwMakeContextCurrent(pWindow);
 
@@ -141,7 +139,7 @@ namespace Phi
             }
 
             // Update samples
-            static const float sampleRate = 1.0f / 240.0f;
+            static const float sampleRate = 1.0f / numSamples;
             static float sampleAccum = 0;
             sampleAccum += elapsedTime;
             while (sampleAccum >= sampleRate)

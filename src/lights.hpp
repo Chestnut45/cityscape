@@ -2,11 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include <phi/gpubuffer.hpp>
-#include <phi/vertexattributes.hpp>
-#include <phi/vertex.hpp>
-#include <phi/shader.hpp>
-#include <phi/geometry.hpp>
+#include <phi/phi.hpp>
 
 class DirectionalLight
 {
@@ -91,12 +87,12 @@ class PointLight
         static inline int drawCount = 0;
 
         // Static resources
-        static inline GPUBuffer* vbo = nullptr;
-        static inline GPUBuffer* ebo = nullptr;
-        static inline VertexAttributes* vao = nullptr;
+        static inline Phi::GPUBuffer* vbo = nullptr;
+        static inline Phi::GPUBuffer* ebo = nullptr;
+        static inline Phi::VertexAttributes* vao = nullptr;
 
-        static inline GPUBuffer* instanceUBO = nullptr;
-        static inline Shader* shader = nullptr;
+        static inline Phi::GPUBuffer* instanceUBO = nullptr;
+        static inline Phi::Shader* shader = nullptr;
 
         // Reference counting for static resources
         static inline int refCount = 0;

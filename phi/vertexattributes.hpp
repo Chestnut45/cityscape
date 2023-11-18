@@ -7,43 +7,48 @@
 #include "gpubuffer.hpp"
 #include "vertex.hpp"
 
-// RAII VAO wrapper with automagical constructor for internal vertex types
-class VertexAttributes
+namespace Phi
 {
-    // Interface
-    public:
-        VertexAttributes();
-        VertexAttributes(VertexFormat format, const GPUBuffer* const vbo, const GPUBuffer* const ebo = nullptr);
-        ~VertexAttributes();
+    // RAII VAO wrapper with automagical constructor for internal vertex types
+    class VertexAttributes
+    {
+        // Interface
+        public:
 
-        // Delete copy constructor/assignment
-        VertexAttributes(const VertexAttributes&) = delete;
-        VertexAttributes& operator=(const VertexAttributes&) = delete;
+            VertexAttributes();
+            VertexAttributes(VertexFormat format, const GPUBuffer* const vbo, const GPUBuffer* const ebo = nullptr);
+            ~VertexAttributes();
 
-        // Delete move constructor/assignment
-        VertexAttributes(VertexAttributes&& other) = delete;
-        void operator=(VertexAttributes&& other) = delete;
+            // Delete copy constructor/assignment
+            VertexAttributes(const VertexAttributes&) = delete;
+            VertexAttributes& operator=(const VertexAttributes&) = delete;
 
-        // Sets the stride for all subsequent calls to Add()
-        inline void SetStride(GLuint stride) { this->stride = stride; };
+            // Delete move constructor/assignment
+            VertexAttributes(VertexAttributes&& other) = delete;
+            void operator=(VertexAttributes&& other) = delete;
 
-        // Adds an attribute and associates the currently bound buffer with that attribute
-        // NOTE: This object must be bound before any calls to Add(), else they are invalid (undefined behaviour)
-        void Add(GLuint numComponents, GLenum type);
+            // Sets the stride for all subsequent calls to Add()
+            inline void SetStride(GLuint stride) { this->stride = stride; };
 
-        // Binding methods
-        void Bind() const;
+            // Adds an attribute and associates the currently bound buffer with that attribute
+            // NOTE: This object must be bound before any calls to Add(), else they are invalid (undefined behaviour)
+            void Add(GLuint numComponents, GLenum type);
 
-    // Data / implementation
-    private:
-        // OpenGL objects
-        GLuint vao;
+            // Binding methods
+            void Bind() const;
 
-        // Counters
-        GLuint attribCount = 0;
-        GLsizeiptr currentOffset = 0;
-        GLuint stride = 0;
+        // Data / implementation
+        private:
+        
+            // OpenGL objects
+            GLuint vao;
 
-        // Info
-        bool useIndices = false;
-};
+            // Counters
+            GLuint attribCount = 0;
+            GLsizeiptr currentOffset = 0;
+            GLuint stride = 0;
+
+            // Info
+            bool useIndices = false;
+    };
+}

@@ -86,16 +86,16 @@ namespace Phi
 
     App::~App()
     {
-        // De-init GLFW
-        glfwDestroyWindow(pWindow);
-        glfwTerminate();
-        std::cout << "GLFW terminated successfully" << std::endl;
-
         // Shutdown ImGui
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
         std::cout << "ImGui shutdown successfully" << std::endl;
+
+        // De-init GLFW
+        glfwDestroyWindow(pWindow);
+        glfwTerminate();
+        std::cout << "GLFW terminated successfully" << std::endl;
     }
 
     void App::Run()

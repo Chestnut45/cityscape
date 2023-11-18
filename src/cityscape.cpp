@@ -66,7 +66,7 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), camera(), sky("data/skyboxDay",
 // Cleanup
 Cityscape::~Cityscape()
 {
-	std::cout << "Destroying Cityscape..." << std::endl;
+	std::cout << "Destroying Cityscape" << std::endl;
 
     // Delete gBuffer + textures
     delete gBuffer;

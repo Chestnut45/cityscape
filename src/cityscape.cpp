@@ -269,6 +269,8 @@ void Cityscape::Render()
         if (ImGui::Checkbox("Vsync", &vsync)) glfwSwapInterval(vsync);
         ImGui::NewLine();
 
+        // NOTE: This makes a bump appear in rendering time graph, 
+        // since the generation happens during the render pass
         if (ImGui::Button("Regenerate")) Regenerate();
 
         ImGui::End();

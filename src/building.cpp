@@ -138,11 +138,11 @@ void Building::Draw()
         FlushDrawCalls();
     }
 
-    // Write vertex data
-    vbo->Write(vertices.data(), vertBytes);
-
     // Recalculate offset indices
     std::transform(indices.cbegin(), indices.cend(), offsetIndices.begin(), [](GLuint original) { return original + vertexCount; });
+
+    // Write vertex data
+    vbo->Write(vertices.data(), vertBytes);
 
     // Write offset index data
     ebo->Write(offsetIndices.data(), indBytes);

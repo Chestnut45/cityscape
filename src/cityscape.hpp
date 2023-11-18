@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <unordered_map>
-#include <queue>
+#include <deque>
 #include <random>
 
 // Required for hashing glm vectors for use as keys in a std::unordered_map
@@ -11,9 +11,6 @@
 
 // EnTT: https://github.com/skypjack/entt
 #include <entt.hpp>
-
-// Dear ImGui: https://github.com/ocornut/imgui
-#include <imgui/imgui.h>
 
 // Phi engine components
 #include <phi/app.hpp>
@@ -93,7 +90,7 @@ class Cityscape: public Phi::App
         static inline std::uniform_int_distribution<int> boolDist{0, 1};
         static inline std::uniform_real_distribution<float> colorDist{0.0f, 1.0f};
 
-        // Geometry buffer + textures for deferred shading
+        // Geometry buffer + textures for deferred rendering
         FrameBuffer* gBuffer = nullptr;
         Texture2D* gPositionTex = nullptr;
         Texture2D* gNormalTex = nullptr;

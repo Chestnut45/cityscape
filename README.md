@@ -26,7 +26,7 @@ All of the project source, including the main.cpp entrypoint and all cityscape f
 
 ### phi:
 
-Phi is the micro-engine I've put together for this assignment. I wrote every line, save for the App class, which is basically just an adlib of the W_App class from wolf, but with support for other OpenGL context versions and some basic performance monitoring. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, shaders, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera.
+Phi is the micro-engine I've put together for this assignment. I wrote every line, except the App class, which is basically just an adlib of the W_App class from wolf, but with support for other OpenGL context versions and some basic performance monitoring. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, shaders, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera.
 
 ## Extras Chosen:
 
@@ -36,7 +36,11 @@ Roads are just painted onto each ground tile texture. Nothing crazy.
 
 ### Lighting:
 
-Traditional deferred shading with light volume proxy geometry is used due to the large number of lights in the scene. I considered implementing tiled deferred or clustered deferred shading to remove all of the unnecessary extra gBuffer reads per fragment, but it proved too difficult in the timeframe available.
+Traditional deferred rendering is used due to the large number of lights in the scene.
+
+Light volume proxy geometry is used to only generate fragments for pixels that will actually be affected by each light.
+
+I considered implementing tiled deferred or clustered deferred shading to remove all of the unnecessary extra gBuffer reads per fragment, but it proved too difficult in the timeframe available.
 
 There are 2 main directional lights (sun + moon), and ~400 point lights (at night, when the streetlights are on).
 

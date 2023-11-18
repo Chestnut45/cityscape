@@ -202,14 +202,14 @@ void Cityscape::Render()
     glDepthFunc(GL_ALWAYS);
 
     // Draw each point light
-    static int lightCount;
-    lightCount = 0;
+    static int lightDrawCount;
+    lightDrawCount = 0;
     for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
     {
         if (pointLight.IsOn())
         {
             pointLight.Draw();
-            lightCount++;
+            lightDrawCount++;
         }
     }
     PointLight::FlushDrawCalls();
@@ -246,7 +246,7 @@ void Cityscape::Render()
 
         ImGui::Text("Simulation:");
         ImGui::Text("Buildings: %d", buildingCount);
-        ImGui::Text("Lights: %d", lightCount);
+        ImGui::Text("Lights: %d", lightDrawCount);
         ImGui::Checkbox("Keep GUI Open", &keepGUIOpen);
         ImGui::Checkbox("Infinite Mode", &infinite);
         ImGui::Checkbox("Party Mode", &partyMode);

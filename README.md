@@ -22,7 +22,7 @@ Components are anything that can be attached to an entity and simulated. Typical
 
 ### Phi (src/phi):
 
-Phi is the micro-engine I've put together for this assignment. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, shaders, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera.
+Phi is the micro-engine I've put together for this assignment. I wrote every line, save for the App class, which is basically just an adlib of the W_App class with support for other OpenGL context versions. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, shaders, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera.
 
 ## Extras Chosen:
 

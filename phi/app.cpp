@@ -123,6 +123,9 @@ namespace Phi
             
             // Update program lifetime
             programLifetime += elapsedTime;
+            
+            // Poll for inputs
+            glfwPollEvents();
 
             // Ensure framebuffer has non-zero size
             glfwGetFramebufferSize(pWindow, &wWidth, &wHeight);
@@ -146,7 +149,6 @@ namespace Phi
             // Reset mouse scroll
             mouseScroll = glm::vec2(0.0f, 0.0f);
             glfwSwapBuffers(pWindow);
-            glfwPollEvents();
         }
     }
 

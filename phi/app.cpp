@@ -74,11 +74,28 @@ namespace Phi
         
         // Output current OpenGL context version
         std::cout << "OpenGL Context: " << glGetString(GL_VERSION) << std::endl;
+
+        // Setup Dear ImGui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+
+        // Setup Dear ImGui Platform/Renderer backends
+        ImGui_ImplGlfw_InitForOpenGL(GetWindow(), true);
+        ImGui_ImplOpenGL3_Init();
     }
 
     App::~App()
     {
-        
+        // De-init GLFW
+        glfwDestroyWindow(pWindow);
+        glfwTerminate();
+        std::cout << "GLFW terminated successfully" << std::endl;
+
+        // Shutdown ImGui
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+        std::cout << "ImGui shutdown successfully" << std::endl;
     }
 
     void App::Run()
@@ -144,7 +161,7 @@ namespace Phi
     {
         double xpos, ypos;
         glfwGetCursorPos(pWindow, &xpos, &ypos);
-        return glm::vec2((float)xpos,(float)ypos);
+        return glm::vec2((float)xpos, (float)ypos);
     }
 
     void App::InternalUpdate(float delta)

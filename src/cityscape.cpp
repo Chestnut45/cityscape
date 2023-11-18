@@ -29,14 +29,6 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), camera(), sky("data/skyboxDay",
     globalLightShader.BindUniformBlock("CameraBlock", 0);
     globalLightShader.BindUniformBlock("GlobalLightBlock", 2);
 
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-
-    // Setup Dear ImGui Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(GetWindow(), true);
-    ImGui_ImplOpenGL3_Init();
-
     // Generate placeholder empty VAO for attributeless rendering
     // This is really only used for drawing a fullscreen triangle generated
     // by a vertex shader for some post-processing effects since it saves
@@ -52,22 +44,20 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), camera(), sky("data/skyboxDay",
 
     // Initialize mouse input
     glfwSetInputMode(GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    prevMousePos = GetMousePos();
     if (glfwRawMouseMotionSupported())
     {
         glfwSetInputMode(GetWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
         std::cout << "Raw mouse motion enabled" << std::endl;
     }
-    prevMousePos = GetMousePos();
 	
     // Success msg
-    std::cout << "Successfully initialized Cityscape" << std::endl;
+    std::cout << "Cityscape initialized successfully" << std::endl;
 }
 
 // Cleanup
 Cityscape::~Cityscape()
 {
-	std::cout << "Destroying Cityscape" << std::endl;
-
     // Delete gBuffer + textures
     delete gBuffer;
     delete gPositionTex;
@@ -75,17 +65,11 @@ Cityscape::~Cityscape()
     delete gColorSpecTex;
     delete gDepthStencilTex;
 
-    // Shutdown ImGui
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+    std::cout << "Cityscape shutdown successfully" << std::endl;
 }
 
 void Cityscape::Update(float delta)
 {
-    // Keep track of total elapsed time
-    programLifetime += delta;
-
     // Recreate the Geometry Buffer if the app's window was resized
     if (windowResized)
     {
@@ -252,7 +236,7 @@ void Cityscape::Render()
         ImGui::Checkbox("Party Mode", &partyMode);
         ImGui::NewLine();
 
-        ImGui::Text("Timing:");
+        ImGui::Text("Sky:");
         if (ImGui::SliderFloat("Day Cycle", &sky.dayCycle, 1.0f, 120.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
         if (ImGui::SliderFloat("Time", &sky.currentTime, 0.0f, sky.dayCycle, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
         ImGui::Checkbox("Time Playback", &timeAdvance);

@@ -10,12 +10,10 @@
 #include <glm/gtx/hash.hpp>
 
 // EnTT: https://github.com/skypjack/entt
-#include "../thirdparty/entt.hpp"
+#include <entt.hpp>
 
 // Dear ImGui: https://github.com/ocornut/imgui
-#include "../thirdparty/imgui/imgui.h"
-#include "../thirdparty/imgui/imgui_impl_glfw.h"
-#include "../thirdparty/imgui/imgui_impl_opengl3.h"
+#include <imgui/imgui.h>
 
 // Phi engine components
 #include <phi/app.hpp>

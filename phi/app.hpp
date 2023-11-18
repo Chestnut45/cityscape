@@ -15,6 +15,8 @@
 #endif
 
 #include <glm/glm.hpp>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
 
 namespace Phi
 {

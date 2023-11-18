@@ -164,9 +164,12 @@ void Cityscape::Render()
     GroundTile::FlushDrawCalls();
 
     // Then draw all buildings to the gBuffer
+    static int buildingCount;
+    buildingCount = 0;
     for(auto &&[entity, building]: registry.view<Building>().each())
     {
         building.Draw();
+        buildingCount++;
     }
     Building::FlushDrawCalls();
 
@@ -199,9 +202,15 @@ void Cityscape::Render()
     glDepthFunc(GL_ALWAYS);
 
     // Draw each point light
+    static int lightCount;
+    lightCount = 0;
     for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
     {
-        if (pointLight.IsOn()) pointLight.Draw();
+        if (pointLight.IsOn())
+        {
+            pointLight.Draw();
+            lightCount++;
+        }
     }
     PointLight::FlushDrawCalls();
 
@@ -235,16 +244,18 @@ void Cityscape::Render()
         ImGui::Text("%.2fms", lastRender * 1000);
         ImGui::NewLine();
 
+        ImGui::Text("Simulation:");
+        ImGui::Text("Buildings: %d", buildingCount);
+        ImGui::Text("Lights: %d", lightCount);
+        ImGui::Checkbox("Keep GUI Open", &keepGUIOpen);
+        ImGui::Checkbox("Infinite Mode", &infinite);
+        ImGui::Checkbox("Party Mode", &partyMode);
+        ImGui::NewLine();
+
         ImGui::Text("Timing:");
         if (ImGui::SliderFloat("Day Cycle", &sky.dayCycle, 1.0f, 120.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
         if (ImGui::SliderFloat("Time", &sky.currentTime, 0.0f, sky.dayCycle, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
         ImGui::Checkbox("Time Playback", &timeAdvance);
-        ImGui::NewLine();
-
-        ImGui::Text("Simulation:");
-        ImGui::Checkbox("Keep GUI Open", &keepGUIOpen);
-        ImGui::Checkbox("Infinite Mode", &infinite);
-        ImGui::Checkbox("Party Mode", &partyMode);
         ImGui::NewLine();
 
         ImGui::Text("Graphics Settings:");

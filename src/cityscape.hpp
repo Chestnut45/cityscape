@@ -78,6 +78,7 @@ class Cityscape: public Phi::App
         // Timing
         bool paused = false;
         bool timeAdvance = true;
+        float lightTimer = 0.2f;
 
         // Internal methods for simulation / generation
         void Regenerate();

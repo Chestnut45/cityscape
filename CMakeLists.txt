@@ -58,6 +58,7 @@ add_definitions(-DASSIMP_BUILD_NO_X_IMPORTER
                 -DASSIMP_BUILD_NO_STEP_IMPORTER
                 -DASSIMP_BUILD_NO_BLEND_IMPORTER)
 
+# Add cmake project folders
 add_subdirectory(thirdparty/glfw)
 add_subdirectory(thirdparty/glm)
 add_subdirectory(thirdparty/assimp)
@@ -65,12 +66,12 @@ add_subdirectory(thirdparty/glew/build/cmake)
 
 # Add all project-wide includes
 include_directories(
-    thirdparty/glfw/include 
-    thirdparty/glm 
-    thirdparty/glew/include 
-    thirdparty/assimp/include 
-    thirdparty 
-    ${CMAKE_SOURCE_DIR} 
+    thirdparty/glfw/include
+    thirdparty/glm
+    thirdparty/glew/include
+    thirdparty/assimp/include
+    thirdparty
+    ${CMAKE_SOURCE_DIR}
     ${OPENGL_INCLUDE_DIRS})
 
 file(GLOB_RECURSE SOURCE_FILES 
@@ -92,7 +93,8 @@ set(IMGUI_PATH  ${CMAKE_SOURCE_DIR}/thirdparty/imgui/)
 file(GLOB IMGUI_SOURCES ${IMGUI_PATH}/*.cpp)
 add_library(ImGui STATIC ${IMGUI_SOURCES})
 
-add_executable(cityscape 
+add_executable(
+    cityscape 
     ${PHI_SOURCE}
     ${PHI_HEADERS}
     ${IMGUI_SOURCES}

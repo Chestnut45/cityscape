@@ -90,6 +90,19 @@ namespace Phi
             double currentTime = glfwGetTime();
             float elapsedTime = (float)(currentTime - lastTime);
             lastTime = currentTime;
+
+            // Calculate FPS
+            static float timeAccum = 0;
+            static float frameCount = 0;
+            timeAccum += elapsedTime;
+            frameCount++;
+            if (timeAccum >= 0.2)
+            {
+                // 5 updates / second
+                averageFPS = frameCount / timeAccum;
+                frameCount = 0;
+                timeAccum = 0;
+            }
             
             // Update program lifetime
             programLifetime += elapsedTime;
@@ -98,9 +111,20 @@ namespace Phi
             glfwGetFramebufferSize(pWindow, &wWidth, &wHeight);
             if (wWidth != 0 && wHeight != 0)
             {
+                // Update and measure time
                 InternalUpdate(elapsedTime);
+                lastUpdate = (glfwGetTime() - currentTime);
+                
+                // Render and measure time
                 Render();
+                lastRender = (glfwGetTime() - lastUpdate - currentTime);
             }
+
+            // Update samples
+            updateSamples.push_back(lastUpdate * 1000);
+            renderSamples.push_back(lastRender * 1000);
+            while (updateSamples.size() > numSamples) updateSamples.erase(updateSamples.begin());
+            while (renderSamples.size() > numSamples) renderSamples.erase(renderSamples.begin());
 
             // Reset mouse scroll
             mouseScroll = glm::vec2(0.0f, 0.0f);

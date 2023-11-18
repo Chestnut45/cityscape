@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #define GLEW_NO_GLU
 #include <GL/glew.h>
@@ -52,6 +53,10 @@ namespace Phi
             float programLifetime = 0;
             float lastUpdate = 0;
             float lastRender = 0;
+            float averageFPS = 0;
+            std::vector<float> updateSamples;
+            std::vector<float> renderSamples;
+            static const int numSamples = 100;
 
             // Input helpers
             bool IsKeyDown(int key) const;

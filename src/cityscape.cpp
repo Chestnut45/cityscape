@@ -114,9 +114,15 @@ void Cityscape::Update(float delta)
     // Party Mode: Change the color of every loaded light 5 times per second
     if (partyMode)
     {
-        for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
+        static float lightTimeAccum = 0;
+        lightTimeAccum += delta;
+        if (lightTimeAccum >= lightTimer)
         {
-            if (abs(fmod(programLifetime, 0.2f)) < 0.02f) pointLight.SetColor({colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+            for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
+            {
+                pointLight.SetColor({colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+            }
+            lightTimeAccum = 0.0f;
         }
     }
 
@@ -220,7 +226,13 @@ void Cityscape::Render()
         ImGui::Begin("Cityscape");
 
         ImGui::Text("Performance:");
-        
+        ImGui::Text("FPS: %.0f", averageFPS);
+        ImGui::PlotLines("Update:", updateSamples.data(), updateSamples.size(), 0, (const char*)nullptr, 0.0f, 16.6f, {128.0f, 32.0f});
+        ImGui::SameLine();
+        ImGui::Text("%.2fms", lastUpdate * 1000);
+        ImGui::PlotLines("Render:", renderSamples.data(), renderSamples.size(), 0, (const char*)nullptr, 0.0f, 16.6f, {128.0f, 32.0f});
+        ImGui::SameLine();
+        ImGui::Text("%.2fms", lastRender * 1000);
         ImGui::NewLine();
 
         ImGui::Text("Timing:");

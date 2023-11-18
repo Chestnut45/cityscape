@@ -7,13 +7,6 @@
 
 #include "lights.hpp"
 
-// Centralize texture unit bindings so we don't have a bunch of magic numbers everywhere
-enum class SkyTextureUnit : int
-{
-    Day = 0,
-    Night = 1
-};
-
 // Sky component, handles 2 cubemaps representing day and night skyboxes
 class Sky
 {

@@ -1,4 +1,4 @@
-#version 150
+#version 440
 
 // Light structure
 struct DirectionalLight
@@ -9,7 +9,7 @@ struct DirectionalLight
 };
 
 // Lighting uniform block
-layout(std140) uniform GlobalLightBlock
+layout(std140, binding = 2) uniform GlobalLightBlock
 {
     DirectionalLight sun;
     DirectionalLight moon;
@@ -20,8 +20,8 @@ layout(std140) uniform GlobalLightBlock
 uniform float time;
 
 // Skybox texture samplers
-uniform samplerCube dayCube;
-uniform samplerCube nightCube;
+layout(binding = 0) uniform samplerCube dayCube;
+layout(binding = 1) uniform samplerCube nightCube;
 
 // Direction vector
 in vec3 texCoords;

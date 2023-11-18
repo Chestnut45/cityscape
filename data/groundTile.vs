@@ -1,9 +1,9 @@
-#version 150
+#version 440
 
 const uint MAX_INSTANCES = 128u;
 
 // Camera uniform block
-layout(std140) uniform CameraBlock
+layout(std140, binding = 0) uniform CameraBlock
 {
     mat4 viewProj;
     vec4 cameraPos;
@@ -11,7 +11,7 @@ layout(std140) uniform CameraBlock
 };
 
 // Instance uniform block
-layout(std140) uniform InstanceBlock
+layout(std140, binding = 1) uniform InstanceBlock
 {
     vec4 instancePos[MAX_INSTANCES];
 };
@@ -22,9 +22,9 @@ in vec3 vNorm;
 in vec2 vUV;
 
 // Fragment outputs
-out vec3 fragPos;
-out vec3 normal;
-out vec2 texCoords;
+layout(location = 0) out vec3 fragPos;
+layout(location = 1) out vec3 normal;
+layout(location = 2) out vec2 texCoords;
 
 void main()
 {

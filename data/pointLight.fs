@@ -1,7 +1,7 @@
-#version 150
+#version 440
 
 // Camera uniform block
-layout(std140) uniform CameraBlock
+layout(std140, binding = 0) uniform CameraBlock
 {
     mat4 viewProj;
     vec4 cameraPos;
@@ -9,13 +9,13 @@ layout(std140) uniform CameraBlock
 };
 
 // Geometry buffer textures
-uniform sampler2D gPos;
-uniform sampler2D gNorm;
-uniform sampler2D gColorSpec;
+layout(binding = 0) uniform sampler2D gPos;
+layout(binding = 1) uniform sampler2D gNorm;
+layout(binding = 2) uniform sampler2D gColorSpec;
 
 // Vertex inputs
-flat in vec4 lightPos;
-flat in vec4 lightColor;
+layout(location = 0) flat in vec4 lightPos;
+layout(location = 1) flat in vec4 lightColor;
 
 // Final color
 out vec4 outColor;

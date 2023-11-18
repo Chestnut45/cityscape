@@ -32,25 +32,10 @@ GroundTile::GroundTile(const glm::ivec2& id) : position(id.x * TILE_SIZE, 0, id.
         instanceUBO = new Phi::GPUBuffer(Phi::BufferType::Uniform, sizeof(glm::vec4) * MAX_INSTANCES);
 
         // Load the default shader
-        // TODO: Shader should be passed in... but how for static resource?
         shader = new Phi::Shader();
         shader->LoadShaderSource(GL_VERTEX_SHADER, "data/groundTile.vs");
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/groundTile.fs");
-
-        // Set gBuffer fragment output locations
-        // If we don't assign an explicit location, OpenGL will automatically assign each
-        // output to a fragment color, but it is unreliable. Most implementations will assign
-        // based on the order they are declared in the shader, but some AMD implementations,
-        // for instance, will sort the outputs by name before assigning them to fragment colors.
-        glBindFragDataLocation(shader->GetProgramID(), 0, "gPos");
-        glBindFragDataLocation(shader->GetProgramID(), 1, "gNorm");
-        glBindFragDataLocation(shader->GetProgramID(), 2, "gColorSpec");
-        
         shader->Link();
-        shader->Use();
-        shader->BindUniformBlock("InstanceBlock", 1);
-        shader->BindUniformBlock("CameraBlock", 0);
-        shader->SetUniform("tex", 0);
     }
 
     refCount++;

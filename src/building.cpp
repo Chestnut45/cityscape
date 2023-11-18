@@ -14,20 +14,7 @@ Building::Building(const glm::ivec3 &pos, int stories, int blocks, int variant, 
         shader = new Phi::Shader();
         shader->LoadShaderSource(GL_VERTEX_SHADER, "data/building.vs");
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/building.fs");
-
-        // Set gBuffer fragment output locations
-        // If we don't assign an explicit location, OpenGL will automatically assign each
-        // output to a fragment color, but it is unreliable. Most implementations will assign
-        // based on the order they are declared in the shader, but some AMD implementations,
-        // for instance, will sort the outputs by name before assigning them to fragment colors.
-        glBindFragDataLocation(shader->GetProgramID(), 0, "gPos");
-        glBindFragDataLocation(shader->GetProgramID(), 1, "gNorm");
-        glBindFragDataLocation(shader->GetProgramID(), 2, "gColorSpec");
-        
         shader->Link();
-        shader->Use();
-        shader->BindUniformBlock("CameraBlock", 0);
-        shader->SetUniform("buildingAtlas", 0);
 
         // Calculate normalized tile size for atlas offsets
         float w = textureAtlas->GetWidth();

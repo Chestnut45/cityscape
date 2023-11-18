@@ -1,4 +1,4 @@
-#version 150
+#version 440
 
 const int MAX_INSTANCES = 128;
 
@@ -9,7 +9,7 @@ struct PointLight
 };
 
 // Camera uniform block
-layout(std140) uniform CameraBlock
+layout(std140, binding = 0) uniform CameraBlock
 {
     mat4 viewProj;
     vec4 cameraPos;
@@ -17,7 +17,7 @@ layout(std140) uniform CameraBlock
 };
 
 // Instance uniform block
-layout(std140) uniform InstanceBlock
+layout(std140, binding = 1) uniform InstanceBlock
 {
     PointLight lights[MAX_INSTANCES];
 };
@@ -25,8 +25,8 @@ layout(std140) uniform InstanceBlock
 // Vertex data
 in vec3 vPos;
 
-flat out vec4 lightPos;
-flat out vec4 lightColor;
+layout(location = 0) flat out vec4 lightPos;
+layout(location = 1) flat out vec4 lightColor;
 
 void main()
 {

@@ -28,12 +28,6 @@ PointLight::PointLight(const glm::vec4& pos, const glm::vec4& col) : position(po
         shader->LoadShaderSource(GL_VERTEX_SHADER, "data/pointLight.vs");
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/pointLight.fs");
         shader->Link();
-        shader->Use();
-        shader->BindUniformBlock("CameraBlock", 0);
-        shader->BindUniformBlock("InstanceBlock", 1);
-        shader->SetUniform("gPos", 0);
-        shader->SetUniform("gNorm", 1);
-        shader->SetUniform("gColorSpec", 2);
 
         // Instance buffer data
         // 512 * 2 * sizeof(glm::vec4) = 16,384 = minimum UBO limit required by OpenGL

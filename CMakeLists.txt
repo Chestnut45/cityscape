@@ -66,22 +66,24 @@ add_subdirectory(thirdparty/glew/build/cmake)
 
 # Add all project-wide includes
 include_directories(
+    ${CMAKE_SOURCE_DIR}
+    thirdparty
     thirdparty/glfw/include
     thirdparty/glm
     thirdparty/glew/include
     thirdparty/assimp/include
-    thirdparty
-    ${CMAKE_SOURCE_DIR}
     ${OPENGL_INCLUDE_DIRS})
 
+# Glob all source / headers for project
 file(GLOB_RECURSE SOURCE_FILES 
 	${CMAKE_SOURCE_DIR}/src/*.c
 	${CMAKE_SOURCE_DIR}/src/*.cpp)
-	
+
 file(GLOB_RECURSE HEADER_FILES 
 	${CMAKE_SOURCE_DIR}/src/*.h
     ${CMAKE_SOURCE_DIR}/src/*.hpp)
 
+# Glob all source / headers for Phi
 file(GLOB_RECURSE PHI_SOURCE
     ${CMAKE_SOURCE_DIR}/phi/*.cpp)
 
@@ -93,6 +95,7 @@ set(IMGUI_PATH  ${CMAKE_SOURCE_DIR}/thirdparty/imgui/)
 file(GLOB IMGUI_SOURCES ${IMGUI_PATH}/*.cpp)
 add_library(ImGui STATIC ${IMGUI_SOURCES})
 
+# Final executable
 add_executable(
     cityscape 
     ${PHI_SOURCE}

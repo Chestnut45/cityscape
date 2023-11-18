@@ -106,17 +106,15 @@ namespace Phi
             lastTime = currentTime;
 
             // Calculate FPS
-            static const float updateRate = 0.2f;
             static float timeAccum = 0;
-            static float frameCount = 0;
             timeAccum += elapsedTime;
             frameCount++;
-            while (timeAccum >= updateRate)
+            while (timeAccum >= fpsUpdateRate)
             {
                 // 5 updates / second
                 averageFPS = frameCount / timeAccum;
                 frameCount = 0;
-                timeAccum -= updateRate;
+                timeAccum -= fpsUpdateRate;
             }
             
             // Update program lifetime
@@ -129,6 +127,12 @@ namespace Phi
             glfwGetFramebufferSize(pWindow, &wWidth, &wHeight);
             if (wWidth != 0 && wHeight != 0)
             {
+                // Init ImGui frame
+                // NOTE: Done here so we can use ImGUI in either Update() or Render()
+                ImGui_ImplOpenGL3_NewFrame();
+                ImGui_ImplGlfw_NewFrame();
+                ImGui::NewFrame();
+
                 // Update and measure time
                 InternalUpdate(elapsedTime);
                 lastUpdate = (glfwGetTime() - currentTime);
@@ -136,10 +140,13 @@ namespace Phi
                 // Render and measure time
                 Render();
                 lastRender = (glfwGetTime() - lastUpdate - currentTime);
+
+                // Finish ImGui rendering
+                ImGui::Render();
+                ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             }
 
             // Update samples
-            static const float sampleRate = 1.0f / numSamples;
             static float sampleAccum = 0;
             sampleAccum += elapsedTime;
             while (sampleAccum >= sampleRate)

@@ -1,4 +1,4 @@
-#version 150
+#version 440
 
 // Output texture coordinates
 out vec2 texCoords;

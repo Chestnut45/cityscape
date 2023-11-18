@@ -22,12 +22,6 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), camera(), sky("data/skyboxDay",
     globalLightShader.LoadShaderSource(GL_VERTEX_SHADER, "data/globalLightPass.vs");
     globalLightShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/globalLightPass.fs");
     globalLightShader.Link();
-    globalLightShader.Use();
-    globalLightShader.SetUniform("gPos", 0);
-    globalLightShader.SetUniform("gNorm", 1);
-    globalLightShader.SetUniform("gColorSpec", 2);
-    globalLightShader.BindUniformBlock("CameraBlock", 0);
-    globalLightShader.BindUniformBlock("GlobalLightBlock", 2);
 
     // Generate placeholder empty VAO for attributeless rendering
     // This is really only used for drawing a fullscreen triangle generated
@@ -127,6 +121,69 @@ void Cityscape::Update(float delta)
             if (pointLight.IsOn()) pointLight.TurnOff();
         }
     }
+
+    // Render ImGui window
+    if (paused || keepGUIOpen)
+    {
+        // Main window
+        ImGui::Begin("Cityscape");
+        
+        // Performance monitoring
+        ImGui::Text("Performance:");
+        ImGui::Text("FPS: %.0f", averageFPS);
+        ImGui::PlotLines("Update:", updateSamples.data(), updateSamples.size(), 0, (const char*)nullptr, 0.0f, 16.6f, {128.0f, 32.0f});
+        ImGui::SameLine();
+        ImGui::Text("%.2fms", lastUpdate * 1000);
+        ImGui::PlotLines("Render:", renderSamples.data(), renderSamples.size(), 0, (const char*)nullptr, 0.0f, 16.6f, {128.0f, 32.0f});
+        ImGui::SameLine();
+        ImGui::Text("%.2fms", lastRender * 1000);
+        ImGui::NewLine();
+
+        // Options / statistics
+        ImGui::Text("Simulation:");
+        ImGui::Text("Buildings: %d", buildingDrawCount);
+        ImGui::Text("Lights: %d", lightDrawCount);
+        ImGui::Checkbox("Keep GUI Open", &keepGUIOpen);
+        ImGui::Checkbox("Infinite Mode", &infinite);
+        ImGui::Checkbox("Party Mode", &partyMode);
+        ImGui::NewLine();
+
+        // Sky / timing
+        ImGui::Text("Sky:");
+        if (ImGui::SliderFloat("Day Cycle", &sky.dayCycle, 1.0f, 120.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
+        if (ImGui::SliderFloat("Time", &sky.currentTime, 0.0f, sky.dayCycle, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
+        ImGui::Checkbox("Time Playback", &timeAdvance);
+        ImGui::NewLine();
+
+        // Graphics settings
+        ImGui::Text("Graphics Settings:");
+        if (ImGui::Checkbox("Fullscreen", &fullscreen))
+        {
+            GLFWwindow* window = GetWindow();
+            if (fullscreen)
+            {
+                // Get primary monitor and enable fullscreen
+                GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+                const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+                glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+            }
+            else
+            {
+                // Get window monitor and revert to windowed mode
+                GLFWmonitor* monitor = glfwGetWindowMonitor(window);
+                const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+                glfwSetWindowMonitor(window, NULL, (mode->width - defaultWidth) / 2, (mode->height - defaultHeight) / 2, defaultWidth, defaultHeight, 0);
+            }
+        }
+        if (ImGui::Checkbox("Vsync", &vsync)) glfwSwapInterval(vsync);
+        ImGui::NewLine();
+
+        // Generation button
+        if (ImGui::Button("Regenerate")) Regenerate();
+
+        // End main window
+        ImGui::End();
+    }
 }
 
 void Cityscape::Render()
@@ -148,12 +205,11 @@ void Cityscape::Render()
     GroundTile::FlushDrawCalls();
 
     // Then draw all buildings to the gBuffer
-    static int buildingCount;
-    buildingCount = 0;
+    buildingDrawCount = 0;
     for(auto &&[entity, building]: registry.view<Building>().each())
     {
         building.Draw();
-        buildingCount++;
+        buildingDrawCount++;
     }
     Building::FlushDrawCalls();
 
@@ -186,7 +242,6 @@ void Cityscape::Render()
     glDepthFunc(GL_ALWAYS);
 
     // Draw each point light
-    static int lightDrawCount;
     lightDrawCount = 0;
     for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
     {
@@ -206,74 +261,6 @@ void Cityscape::Render()
 
     // Re-enable writing into the depth buffer after all lights have been drawn
     glDepthMask(GL_TRUE);
-
-    // Render ImGui window on top of everything else
-    if (paused || keepGUIOpen)
-    {
-        // Init ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        // Main window
-        ImGui::Begin("Cityscape");
-
-        ImGui::Text("Performance:");
-        ImGui::Text("FPS: %.0f", averageFPS);
-        ImGui::PlotLines("Update:", updateSamples.data(), updateSamples.size(), 0, (const char*)nullptr, 0.0f, 16.6f, {128.0f, 32.0f});
-        ImGui::SameLine();
-        ImGui::Text("%.2fms", lastUpdate * 1000);
-        ImGui::PlotLines("Render:", renderSamples.data(), renderSamples.size(), 0, (const char*)nullptr, 0.0f, 16.6f, {128.0f, 32.0f});
-        ImGui::SameLine();
-        ImGui::Text("%.2fms", lastRender * 1000);
-        ImGui::NewLine();
-
-        ImGui::Text("Simulation:");
-        ImGui::Text("Buildings: %d", buildingCount);
-        ImGui::Text("Lights: %d", lightDrawCount);
-        ImGui::Checkbox("Keep GUI Open", &keepGUIOpen);
-        ImGui::Checkbox("Infinite Mode", &infinite);
-        ImGui::Checkbox("Party Mode", &partyMode);
-        ImGui::NewLine();
-
-        ImGui::Text("Sky:");
-        if (ImGui::SliderFloat("Day Cycle", &sky.dayCycle, 1.0f, 120.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
-        if (ImGui::SliderFloat("Time", &sky.currentTime, 0.0f, sky.dayCycle, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
-        ImGui::Checkbox("Time Playback", &timeAdvance);
-        ImGui::NewLine();
-
-        ImGui::Text("Graphics Settings:");
-        if (ImGui::Checkbox("Fullscreen", &fullscreen))
-        {
-            GLFWwindow* window = GetWindow();
-            if (fullscreen)
-            {
-                // Get primary monitor and enable fullscreen
-                GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-                const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-                glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-            }
-            else
-            {
-                // Get window monitor and revert to windowed mode
-                GLFWmonitor* monitor = glfwGetWindowMonitor(window);
-                const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-                glfwSetWindowMonitor(window, NULL, (mode->width - defaultWidth) / 2, (mode->height - defaultHeight) / 2, defaultWidth, defaultHeight, 0);
-            }
-        }
-        if (ImGui::Checkbox("Vsync", &vsync)) glfwSwapInterval(vsync);
-        ImGui::NewLine();
-
-        // NOTE: This makes a bump appear in rendering time graph, 
-        // since the generation happens during the render pass
-        if (ImGui::Button("Regenerate")) Regenerate();
-
-        ImGui::End();
-
-        // Finish ImGui rendering
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    }
 }
 
 // Handles all input for this demo

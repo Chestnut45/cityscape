@@ -59,9 +59,12 @@ namespace Phi
             float lastUpdate = 0;
             float lastRender = 0;
             float averageFPS = 0;
+            int frameCount = 0;
             std::vector<float> updateSamples;
             std::vector<float> renderSamples;
             static const int numSamples = 240;
+            static inline float sampleRate = 1.0f / numSamples;
+            static inline float fpsUpdateRate = 1.0f / 5.0f;
 
             // Input helpers
             bool IsKeyDown(int key) const;

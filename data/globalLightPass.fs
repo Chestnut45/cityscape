@@ -1,4 +1,4 @@
-#version 150
+#version 440
 
 const int MAX_LIGHTS = 450;
 
@@ -11,7 +11,7 @@ struct DirectionalLight
 };
 
 // Camera uniform block
-layout(std140) uniform CameraBlock
+layout(std140, binding = 0) uniform CameraBlock
 {
     mat4 viewProj;
     vec4 cameraPos;
@@ -19,7 +19,7 @@ layout(std140) uniform CameraBlock
 };
 
 // Lighting uniform block
-layout(std140) uniform GlobalLightBlock
+layout(std140, binding = 2) uniform GlobalLightBlock
 {
     DirectionalLight sun;
     DirectionalLight moon;
@@ -27,9 +27,9 @@ layout(std140) uniform GlobalLightBlock
 };
 
 // Geometry buffer textures
-uniform sampler2D gPos;
-uniform sampler2D gNorm;
-uniform sampler2D gColorSpec;
+layout(binding = 0) uniform sampler2D gPos;
+layout(binding = 1) uniform sampler2D gNorm;
+layout(binding = 2) uniform sampler2D gColorSpec;
 
 // Texture coordinates
 in vec2 texCoords;

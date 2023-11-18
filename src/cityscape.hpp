@@ -40,13 +40,13 @@ class Cityscape: public Phi::App
     // Data / implementation
     private:
 
-        // Single instance objects
+        // Components
         Phi::Camera camera;
         Sky sky;
 
         // Lighting pass objects
-        GLuint dummyVAO; // When using attributeless rendering, a non-zero VAO must still be bound
         Phi::Shader globalLightShader;
+        GLuint dummyVAO; // When using attributeless rendering, a non-zero VAO must still be bound
 
         // Registry of all active entities
         entt::registry registry;
@@ -74,6 +74,10 @@ class Cityscape: public Phi::App
         bool paused = false;
         bool timeAdvance = true;
         float lightTimer = 0.2f;
+
+        // Internal statistics
+        int buildingDrawCount = 0;
+        int lightDrawCount = 0;
 
         // Internal methods for simulation / generation
         void Regenerate();

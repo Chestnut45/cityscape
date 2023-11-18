@@ -1,7 +1,7 @@
-#version 150
+#version 440
 
 // Camera uniform block
-layout(std140) uniform CameraBlock
+layout(std140, binding = 0) uniform CameraBlock
 {
     mat4 viewProj;
     vec4 cameraPos;

@@ -67,7 +67,7 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath)
         nightSkyboxPath + "/back.png"
     }),
 
-    lightUBO(Phi::BufferType::Uniform, sizeof(DirectionalLight) * 2 + sizeof(GLfloat))
+    lightUBO(Phi::BufferType::Uniform, sizeof(DirectionalLight) * 2 + sizeof(GLfloat) * 2)
 {
     // Bind UBO to default light binding point
     lightUBO.BindBase(GL_UNIFORM_BUFFER, 2);
@@ -82,11 +82,6 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath)
         skyboxShader->LoadShaderSource(GL_VERTEX_SHADER, "data/skybox.vs");
         skyboxShader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/skybox.fs");
         skyboxShader->Link();
-        skyboxShader->Use();
-        skyboxShader->SetUniform("dayCube", (int)SkyTextureUnit::Day);
-        skyboxShader->SetUniform("nightCube", (int)SkyTextureUnit::Night);
-        skyboxShader->BindUniformBlock("CameraBlock", 0);
-        skyboxShader->BindUniformBlock("GlobalLightBlock", 2);
 
         // Create resources for rendering sun and moon
         sphereVBO = new Phi::GPUBuffer(Phi::BufferType::StaticVertex, sizeof(Phi::Icosphere::ICOSPHERE_VERTICES), Phi::Icosphere::ICOSPHERE_VERTICES);
@@ -96,8 +91,6 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath)
         celestialBodyShader->LoadShaderSource(GL_VERTEX_SHADER, "data/celestialBody.vs");
         celestialBodyShader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/celestialBody.fs");
         celestialBodyShader->Link();
-        celestialBodyShader->Use();
-        celestialBodyShader->BindUniformBlock("CameraBlock", 0);
     }
 
     refCount++;
@@ -176,8 +169,8 @@ void Sky::Draw()
     skyboxVAO->Bind();
 
     // Bind day / night cubemaps to texture units
-    dayBox.Bind((int)SkyTextureUnit::Day);
-    nightBox.Bind((int)SkyTextureUnit::Night);
+    dayBox.Bind(0);
+    nightBox.Bind(1);
 
     // Change depth function so max distance still renders
     glDepthFunc(GL_LEQUAL);

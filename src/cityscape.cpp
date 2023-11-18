@@ -95,7 +95,7 @@ void Cityscape::Update(float delta)
         sky.Update();
     }
 
-    // Party Mode: Change the color of every loaded light 5 times per second
+    // Party Mode: Change the color of every loaded light at the rate determined by lightTimer
     if (partyMode)
     {
         static float lightTimeAccum = 0;

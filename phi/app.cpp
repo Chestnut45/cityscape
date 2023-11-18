@@ -65,7 +65,7 @@ namespace Phi
         glfwMakeContextCurrent(pWindow);
 
         // Vsync
-        glfwSwapInterval(1);
+        glfwSwapInterval(0);
 
         // Initialize GLEW
         GLenum err = glewInit();

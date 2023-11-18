@@ -74,6 +74,8 @@ class Cityscape: public Phi::App
         bool infinite = false;
         bool partyMode = false;
         bool fullscreen = false;
+        bool vsync = false;
+        bool keepGUIOpen = false;
 
         // Timing
         bool paused = false;

@@ -215,7 +215,7 @@ void Cityscape::Render()
     glDepthMask(GL_TRUE);
 
     // Render ImGui window on top of everything else
-    if (paused)
+    if (paused || keepGUIOpen)
     {
         // Init ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -242,6 +242,7 @@ void Cityscape::Render()
         ImGui::NewLine();
 
         ImGui::Text("Simulation:");
+        ImGui::Checkbox("Keep GUI Open", &keepGUIOpen);
         ImGui::Checkbox("Infinite Mode", &infinite);
         ImGui::Checkbox("Party Mode", &partyMode);
         ImGui::NewLine();
@@ -265,6 +266,7 @@ void Cityscape::Render()
                 glfwSetWindowMonitor(window, NULL, (mode->width - defaultWidth) / 2, (mode->height - defaultHeight) / 2, defaultWidth, defaultHeight, 0);
             }
         }
+        if (ImGui::Checkbox("Vsync", &vsync)) glfwSwapInterval(vsync);
         ImGui::NewLine();
 
         if (ImGui::Button("Regenerate")) Regenerate();

@@ -2,65 +2,56 @@
 
 namespace Phi
 {
-    GPUBuffer::GPUBuffer(BufferType type, GLuint size, const void* const data) : size(size)
+    GPUBuffer::GPUBuffer(BufferType type, GLuint size, const void* const data) : size(size), type(type)
     {
-        // Initialize internal buffer
-        this->data = new unsigned char[size];
-        this->type = type;
+        glGenBuffers(1, &id);
 
-        // Initialize buffer object
-        glGenBuffers(1, &bufferID);
+        GLbitfield mapFlags = 0;
+
+        // OLD
+        pData = new unsigned char[size];
+        pCurrent = pData;
         
         // Create the data store with glBufferData so it can be resized / orphaned
         switch (type)
         {
             case BufferType::DynamicVertex:
 
-                defaultTarget = GL_ARRAY_BUFFER;
-
-                glBindBuffer(defaultTarget, bufferID);
-                glBufferData(defaultTarget, size, data, GL_DYNAMIC_DRAW);
-                glBindBuffer(defaultTarget, 0);
+                glBindBuffer(GL_ARRAY_BUFFER, id);
+                glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
 
                 break;
             
             case BufferType::StaticVertex:
 
-                defaultTarget = GL_ARRAY_BUFFER;
-
-                glBindBuffer(defaultTarget, bufferID);
-                glBufferData(defaultTarget, size, data, GL_STATIC_DRAW);
-                glBindBuffer(defaultTarget, 0);
+                glBindBuffer(GL_ARRAY_BUFFER, id);
+                glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
 
                 break;
             
             case BufferType::DynamicIndex:
 
-                defaultTarget = GL_ELEMENT_ARRAY_BUFFER;
-
-                glBindBuffer(defaultTarget, bufferID);
-                glBufferData(defaultTarget, size, data, GL_DYNAMIC_DRAW);
-                glBindBuffer(defaultTarget, 0);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
                 break;
             
             case BufferType::StaticIndex:
 
-                defaultTarget = GL_ELEMENT_ARRAY_BUFFER;
-
-                glBindBuffer(defaultTarget, bufferID);
-                glBufferData(defaultTarget, size, data, GL_STATIC_DRAW);
-                glBindBuffer(defaultTarget, 0);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
                 break;
 
             case BufferType::Uniform:
 
-                defaultTarget = GL_UNIFORM_BUFFER;
-
-                glBindBuffer(defaultTarget, bufferID);
-                glBufferData(defaultTarget, size, data, GL_DYNAMIC_DRAW);
-                glBindBuffer(defaultTarget, 0);
+                glBindBuffer(GL_UNIFORM_BUFFER, id);
+                glBufferData(GL_UNIFORM_BUFFER, size, data, GL_DYNAMIC_DRAW);
+                glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
                 break;
         }
@@ -69,25 +60,24 @@ namespace Phi
     GPUBuffer::~GPUBuffer()
     {
         // Free internal buffer
-        delete[] data;
+        delete[] pData;
 
         // Delete OpenGL buffer object
-        glDeleteBuffers(1, &bufferID);
+        glDeleteBuffers(1, &id);
     }
 
     bool GPUBuffer::Write(int value)
     {
         // Ensure buffer has space for write
-        if (!CanWrite(sizeof(int)))
+        if (!CanWrite(sizeof(GLint)))
         {
             std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
             return false;
         }
 
-        // Grab a float pointer at the current offset
-        GLint* pData = (GLint*)(data + currentByteOffset);
-        *(pData) = value;
-        currentByteOffset += sizeof(int);
+        *(GLint*)pCurrent = (GLint)value;
+
+        pCurrent += sizeof(GLint);
 
         return true;
     }
@@ -95,16 +85,15 @@ namespace Phi
     bool GPUBuffer::Write(float value)
     {
         // Ensure buffer has space for write
-        if (!CanWrite(sizeof(float)))
+        if (!CanWrite(sizeof(GLfloat)))
         {
             std::cout << "ERROR: Buffer write failed @" << this << ", would have overflowed" << std::endl;
             return false;
         }
 
-        // Grab a float pointer at the current offset
-        GLfloat* pData = (GLfloat*)(data + currentByteOffset);
-        *(pData) = value;
-        currentByteOffset += sizeof(float);
+        *(GLfloat*)pCurrent = (GLfloat)value;
+
+        pCurrent += sizeof(GLfloat);
 
         return true;
     }
@@ -118,14 +107,10 @@ namespace Phi
             return false;
         }
 
-        // Grab a float pointer at the current offset
-        GLfloat* pData = (GLfloat*)(data + currentByteOffset);
+        *(GLfloat*)pCurrent = value.x;
+        *(GLfloat*)(pCurrent + sizeof(GLfloat)) = value.y;
 
-        // Write all components
-        *(pData) = value.x;
-        *(pData + 1) = value.y;
-
-        currentByteOffset += sizeof(glm::vec2);
+        pCurrent += sizeof(glm::vec2);
 
         return true;
     }
@@ -139,15 +124,11 @@ namespace Phi
             return false;
         }
 
-        // Grab a float pointer at the current offset
-        GLfloat* pData = (GLfloat*)(data + currentByteOffset);
+        *(GLfloat*)pCurrent = value.x;
+        *(GLfloat*)(pCurrent + sizeof(GLfloat)) = value.y;
+        *(GLfloat*)(pCurrent + sizeof(GLfloat) * 2) = value.z;
 
-        // Write all components
-        *(pData) = value.x;
-        *(pData + 1) = value.y;
-        *(pData + 2) = value.z;
-
-        currentByteOffset += sizeof(glm::vec3);
+        pCurrent += sizeof(glm::vec3);
 
         return true;
     }
@@ -161,16 +142,12 @@ namespace Phi
             return false;
         }
 
-        // Grab a float pointer at the current offset
-        GLfloat* pData = (GLfloat*)(data + currentByteOffset);
+        *(GLfloat*)pCurrent = value.x;
+        *(GLfloat*)(pCurrent + sizeof(GLfloat)) = value.y;
+        *(GLfloat*)(pCurrent + sizeof(GLfloat) * 2) = value.z;
+        *(GLfloat*)(pCurrent + sizeof(GLfloat) * 3) = value.w;
 
-        // Write all components
-        *(pData) = value.x;
-        *(pData + 1) = value.y;
-        *(pData + 2) = value.z;
-        *(pData + 3) = value.w;
-
-        currentByteOffset += sizeof(glm::vec4);
+        pCurrent += sizeof(glm::vec4);
 
         return true;
     }
@@ -184,19 +161,16 @@ namespace Phi
             return false;
         }
 
-        // Grab a float pointer at the current offset
-        GLfloat* pData = (GLfloat*)(data + currentByteOffset);
-
         // And a pointer to the matrix data
         const GLfloat* const pSource = (const GLfloat* const)glm::value_ptr(value);
         
         // Write each value of the matrix
         for (int i = 0; i < 16; i++)
         {
-            *(pData + i) = *(pSource + i);
+            *(GLfloat*)(pCurrent + i * sizeof(GLfloat)) = *(pSource + i);
         }
 
-        currentByteOffset += sizeof(glm::mat4);
+        pCurrent += sizeof(glm::mat4);
 
         return true;
     }
@@ -211,22 +185,21 @@ namespace Phi
         }
 
         // Copy the data into the buffer
-        memcpy((void*)(this->data + currentByteOffset), data, size);
+        memcpy(pCurrent, data, size);
 
-        // Increase byte offset accordingly
-        currentByteOffset += size;
+        pCurrent += size;
 
         return true;
     }
 
     void GPUBuffer::Flush(bool resetOffset)
     {
-        glBindBuffer(defaultTarget, bufferID);
-        glBufferSubData(defaultTarget, 0, size, data);
-        glBindBuffer(defaultTarget, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, id);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, size, pData);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        // Reset internal buffer offset if requested
-        currentByteOffset = resetOffset ? 0 : currentByteOffset;
+        // Reset internal buffer pointer if requested
+        pCurrent = resetOffset ? pData : pCurrent;
     }
 
     bool GPUBuffer::FlushSection(GLuint offset, GLuint bytes, bool resetOffset)
@@ -237,28 +210,23 @@ namespace Phi
             return false;
         }
 
-        glBindBuffer(defaultTarget, bufferID);
-        glBufferSubData(defaultTarget, offset, bytes, data);
-        glBindBuffer(defaultTarget, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, id);
+        glBufferSubData(GL_ARRAY_BUFFER, offset, bytes, pData);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         
-        // Reset internal buffer offset if requested
-        currentByteOffset = resetOffset ? 0 : currentByteOffset;
+        // Reset internal buffer pointer if requested
+        pCurrent = resetOffset ? pData : pCurrent;
 
         return true;
     }
 
-    void GPUBuffer::Bind() const
-    {
-        glBindBuffer(defaultTarget, bufferID);
-    }
-
     void GPUBuffer::Bind(GLenum target) const
     {
-        glBindBuffer(target, bufferID);
+        glBindBuffer(target, id);
     }
 
     void GPUBuffer::BindBase(GLenum target, GLuint index) const
     {
-        glBindBufferBase(target, index, bufferID);
+        glBindBufferBase(target, index, id);
     }
 }

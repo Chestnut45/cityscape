@@ -10,6 +10,9 @@
 
 namespace Phi
 {
+    // Different types of buffers for different usage patterns
+    // Dynamic = Persistent + coherent mapping, fast to update with large batches of data
+    // Static = Immutable
     enum class BufferType
     {
         DynamicVertex,
@@ -36,11 +39,11 @@ namespace Phi
             void operator=(GPUBuffer&& other) = delete;
 
             // Accessors
-            inline GLuint GetOffset() const { return currentByteOffset; };
+            inline GLuint GetOffset() const { return (&pCurrent - &pData); };
             inline GLuint GetSize() const { return size; };
 
             // Sets the internal buffer's current offset
-            inline void SetOffset(GLuint offset) { currentByteOffset = offset < size ? offset : currentByteOffset; };
+            inline void SetOffset(GLuint offset) { pCurrent = offset < size ? (pData + offset) : pCurrent; };
 
             // Write operations
             // NOTE: All writes are performed at the internal buffer's current offset
@@ -58,32 +61,28 @@ namespace Phi
             bool FlushSection(GLuint offset, GLuint bytes, bool resetOffset = false);
 
             // State management
-            void Bind() const;
             void Bind(GLenum target) const;
             void BindBase(GLenum target, GLuint index) const;
 
             // Accessors
-            inline GLuint GetName() const { return bufferID; };
+            inline GLuint GetName() const { return id; };
             inline BufferType GetType() const { return type; };
 
             // Helper method to ensure buffer writes are safe
-            inline bool CanWrite(GLuint bytes) const { return (currentByteOffset + bytes <= size); };
+            inline bool CanWrite(GLuint bytes) const { return (pCurrent + bytes) <= (pData + size); };
 
         // Data / implementation
         private:
         
             // Should know their own buffer type, small cost
             BufferType type;
-
-            // Internal buffer
-            unsigned char * data = nullptr;
             GLuint size;
 
-            // Current write offset
-            GLuint currentByteOffset = 0;
+            // Pointer to persistently mapped buffer
+            unsigned char* pData = nullptr;
+            unsigned char* pCurrent = nullptr;
 
             // OpenGL object handles
-            GLuint bufferID;
-            GLenum defaultTarget;
+            GLuint id;
     };
 }

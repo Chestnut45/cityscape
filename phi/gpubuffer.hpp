@@ -31,7 +31,7 @@ namespace Phi
         // Interface
         public:
 
-            // Constructor: size is the section size in bytes (full size if one section)
+            // Constructor: size is the usable size in bytes of a single section
             GPUBuffer(BufferType type, GLuint size, const void* const data = NULL);
             ~GPUBuffer();
 

@@ -41,7 +41,7 @@ class Cityscape: public Phi::App
     private:
 
         // Components
-        Phi::Camera camera;
+        Phi::Camera mainCamera;
         Sky sky;
 
         // Lighting pass objects

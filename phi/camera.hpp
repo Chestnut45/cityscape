@@ -48,6 +48,7 @@ namespace Phi
             inline const glm::vec3& GetRight() const { return right; };
             inline int GetWidth() const { return width; };
             inline int GetHeight() const { return height; };
+            inline GPUBuffer& GetUBO() { return ubo; };
 
         private:
         

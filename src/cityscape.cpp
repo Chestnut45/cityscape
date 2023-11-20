@@ -1,7 +1,7 @@
 #include "cityscape.hpp"
 
 // Constructor
-Cityscape::Cityscape() : App("Cityscape", 4, 4), camera(), sky("data/skyboxDay", "data/skyboxNight")
+Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxDay", "data/skyboxNight")
 {
     // Enable programs
     glEnable(GL_DEPTH_TEST);
@@ -31,7 +31,7 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), camera(), sky("data/skyboxDay",
     glGenVertexArrays(1, &dummyVAO);
 
     // Initialize camera pos
-    camera.SetPosition(glm::vec3(0, 2, 4));
+    mainCamera.SetPosition(glm::vec3(0, 2, 4));
 
     // Initial generation
     Regenerate();
@@ -72,8 +72,8 @@ void Cityscape::Update(float delta)
     }
 
     // Update the camera's viewport if the window size has changed
-    if (wWidth != camera.GetWidth() || wHeight != camera.GetHeight())
-        camera.UpdateViewport(wWidth, wHeight);
+    if (wWidth != mainCamera.GetWidth() || wHeight != mainCamera.GetHeight())
+        mainCamera.UpdateViewport(wWidth, wHeight);
 
     // Process all input for this frame
     ProcessInput(delta);
@@ -188,14 +188,14 @@ void Cityscape::Update(float delta)
 
 void Cityscape::Render()
 {
+    // Update the camera's UBO so all shaders have access to the new values
+    mainCamera.UpdateUBO();
+    
     // Geometry pass
 
     // Bind the geometry fbo and clear it
     gBuffer->Bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Update the camera's UBO so all shaders have access to the new values
-    camera.UpdateUBO();
 
     // Draw all ground tiles to the gBuffer
     for(auto &&[entity, ground]: registry.view<GroundTile>().each())
@@ -261,6 +261,9 @@ void Cityscape::Render()
 
     // Re-enable writing into the depth buffer after all lights have been drawn
     glDepthMask(GL_TRUE);
+
+    // Lock the camera buffer
+    mainCamera.GetUBO().Lock();
 }
 
 // Handles all input for this demo
@@ -274,16 +277,16 @@ void Cityscape::ProcessInput(float delta)
         glm::vec2 mouseOffset = (mousePos - prevMousePos) * delta * mouseSensitivity;
 
         // Rotate the camera according to mouse movement
-        camera.Rotate(mouseOffset.x, -mouseOffset.y);
+        mainCamera.Rotate(mouseOffset.x, -mouseOffset.y);
 
         // Boost if shift is held
         float boost = IsKeyDown(GLFW_KEY_LEFT_SHIFT) ? 2 : 1;
 
         // Move the camera according to WASD
-        if (IsKeyDown(GLFW_KEY_W)) camera.Translate(camera.GetDirection() * delta * cameraSpeed * boost);
-        if (IsKeyDown(GLFW_KEY_S)) camera.Translate(-camera.GetDirection() * delta * cameraSpeed * boost);
-        if (IsKeyDown(GLFW_KEY_A)) camera.Translate(-camera.GetRight() * delta * cameraSpeed * boost);
-        if (IsKeyDown(GLFW_KEY_D)) camera.Translate(camera.GetRight() * delta * cameraSpeed * boost);
+        if (IsKeyDown(GLFW_KEY_W)) mainCamera.Translate(mainCamera.GetDirection() * delta * cameraSpeed * boost);
+        if (IsKeyDown(GLFW_KEY_S)) mainCamera.Translate(-mainCamera.GetDirection() * delta * cameraSpeed * boost);
+        if (IsKeyDown(GLFW_KEY_A)) mainCamera.Translate(-mainCamera.GetRight() * delta * cameraSpeed * boost);
+        if (IsKeyDown(GLFW_KEY_D)) mainCamera.Translate(mainCamera.GetRight() * delta * cameraSpeed * boost);
 
         // Unload blocks and regenerate if we press R
         if (IsKeyJustDown(GLFW_KEY_R)) Regenerate();
@@ -293,7 +296,7 @@ void Cityscape::ProcessInput(float delta)
 
         // Zoom the camera according to scroll
         glm::vec2 scroll = GetMouseScroll();
-        camera.Zoom(scroll.y);
+        mainCamera.Zoom(scroll.y);
 
         // Keep track of previous mouse position
         prevMousePos = mousePos;
@@ -326,7 +329,7 @@ void Cityscape::Regenerate()
     cityBlocks.clear();
 
     // Generate a 10x10 grid of city blocks around the camera
-    glm::ivec3 pos = camera.GetPosition() / 16.0f;
+    glm::ivec3 pos = mainCamera.GetPosition() / 16.0f;
     for (int x = pos.x - 5; x < pos.x + 5; x++)
     {
         for (int z = pos.z - 5; z < pos.z + 5; z++)
@@ -350,7 +353,7 @@ void Cityscape::UpdateBlocks()
         shouldBeLoaded.clear();
 
         // Calculate which chunks should be loaded given the camera's position
-        glm::ivec3 pos = camera.GetPosition() / 16.0f;
+        glm::ivec3 pos = mainCamera.GetPosition() / 16.0f;
         for (int x = pos.x - 5; x < pos.x + 5; ++x)
         {
             for (int z = pos.z - 5; z < pos.z + 5; ++z)

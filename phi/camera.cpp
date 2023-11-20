@@ -99,6 +99,9 @@ namespace Phi
         // Combine view and projection into one matrix
         glm::mat4 viewProj = proj * view;
 
+        // Ensure we don't write when commands are reading
+        ubo.Sync();
+
         // Write camera matrix data to UBO
         ubo.Write(viewProj);
         ubo.Write(glm::vec4(position, 1));

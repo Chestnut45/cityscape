@@ -2,6 +2,11 @@
 
 ### D'Anyil Landry
 
+## Build Instructions
+
+CMake: Configure
+Build Target Cityscape
+
 ## Controls:
 
 WASD: Movement\

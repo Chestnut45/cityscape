@@ -5,6 +5,8 @@ project(cityscape VERSION 1.0.0)
 set(OpenGL_GL_PREFERENCE "GLVND")
 find_package(OpenGL REQUIRED)
 
+# Phi doesn't use assimp yet, but I'm sure it will at some point, so keeping this here for future convenience
+
 # Set Assimp build flags
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "If the test suite for Assimp is built in addition to the library." FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE BOOL "Disable Assimp's export functionality." FORCE)

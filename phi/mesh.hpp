@@ -16,8 +16,7 @@
 namespace Phi
 {
     // Represents a renderable mesh of arbitrary format
-    // NOTE: Vertex and InstanceData are assumed to be GPUBuffer-writable formats
-    template <typename Vertex, typename InstanceData = glm::mat4>
+    template <typename Vertex>
     class Mesh
     {
         // Interface
@@ -34,7 +33,7 @@ namespace Phi
             Mesh(Mesh&& other) = delete;
             void operator=(Mesh&& other) = delete;
 
-            // Procedural vertex data generation
+            // Vertex data generation
             void AddSurface(const std::vector<Vertex>& vertices, const std::vector<GLuint>* const indices = nullptr);
             void AddTriangle(const Vertex& a, const Vertex& b, const Vertex& c);
             void AddQuad(const Vertex& topLeft, const Vertex& topRight, const Vertex& bottomLeft, const Vertex& bottomRight);
@@ -63,6 +62,5 @@ namespace Phi
             VertexAttributes* vertexAttributes = nullptr;
             GPUBuffer* vertexBuffer = nullptr;
             GPUBuffer* indexBuffer = nullptr;
-            GPUBuffer* instanceBuffer = nullptr;
     };
 }

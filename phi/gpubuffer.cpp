@@ -193,16 +193,17 @@ namespace Phi
         // Only sync if a sync object exists
         if (syncObj[currentSection])
         {
+            // Wait for the sync object to be signaled
             while (true)
             {
                 GLenum response = glClientWaitSync(syncObj[currentSection], GL_SYNC_FLUSH_COMMANDS_BIT, 1);
                 if (response == GL_ALREADY_SIGNALED || response == GL_CONDITION_SATISFIED) return;
             }
+
+            // Delete and reset the sync object
+            glDeleteSync(syncObj[currentSection]);
+            syncObj[currentSection] = 0;
         }
-        
-        // Reset the sync object
-        glDeleteSync(syncObj[currentSection]);
-        syncObj[currentSection] = 0;
     }
 
     void GPUBuffer::SwapSections()

@@ -125,7 +125,7 @@ void Building::Draw()
         FlushDrawCalls();
     }
 
-    // Ensure we aren't in the process of rendering buildings already
+    // Ensure we aren't in the process of rendering buildings from this section of the buffer already
     vbo->Sync();
     ebo->Sync();
 

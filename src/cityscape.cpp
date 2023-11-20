@@ -402,7 +402,7 @@ void Cityscape::UpdateBlocks()
 // Deletes and regenerates if one already exists with the given ID
 void Cityscape::GenerateBlock(const glm::ivec2& id)
 {
-    // Delete if already generated (regenerate)
+    // Delete if already generated
     if (cityBlocks.count(id) > 0) DeleteBlock(id);
 
     // Create a ground tile component

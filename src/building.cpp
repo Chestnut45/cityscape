@@ -158,7 +158,7 @@ void Building::FlushDrawCalls()
     // Issue draw call
     glDrawElementsBaseVertex(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT,
         (void*)((size_t)ebo->GetSize() * ebo->GetCurrentSection()),
-        0);
+        MAX_VERTICES * vbo->GetCurrentSection());
     
     glBindVertexArray(0);
     
@@ -167,7 +167,7 @@ void Building::FlushDrawCalls()
     ebo->Lock();
 
     // Needed for double-buffering
-    vbo->SetOffset(0);
+    vbo->SwapSections();
     ebo->SwapSections();
 
     // Reset static counters

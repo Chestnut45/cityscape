@@ -126,14 +126,10 @@ void Sky::Update()
     offsetTime = currentTime + (dayCycle / 2);
 
     // Perform expensive trig calculations once
-    float st = std::sin(Phi::TAU * currentTime / dayCycle);
-    float ct = std::cos(Phi::TAU * currentTime / dayCycle);
-    float so = std::sin(Phi::TAU * offsetTime / dayCycle);
-    float co = std::cos(Phi::TAU * offsetTime / dayCycle);
-    
-    // Calculate normalized TOD (t for lerping between day / night skyboxes)
-    skyboxShader->Use();
-    skyboxShader->SetUniform("time", 1 - ((st + 1) / 2));
+    st = std::sin(Phi::TAU * currentTime / dayCycle);
+    ct = std::cos(Phi::TAU * currentTime / dayCycle);
+    so = std::sin(Phi::TAU * offsetTime / dayCycle);
+    co = std::cos(Phi::TAU * offsetTime / dayCycle);
 
     // Update sun
     sun.SetPosition({0.0f, st * sunDistance, (1 - ct - 1) * sunDistance, 1.0f});
@@ -147,7 +143,11 @@ void Sky::Update()
 
     // Update ambient lighting
     ambient = std::max(0.05f, ((st + 1) / 2) * 0.45f);
+}
 
+// Renders the sky
+void Sky::Draw()
+{
     // Wait for buffer to be free
     lightUBO.Sync();
 
@@ -159,12 +159,11 @@ void Sky::Update()
     lightUBO.Write(moon.GetDirection());
     lightUBO.Write(moon.GetColor());
     lightUBO.Write(ambient);
-    lightUBO.SetOffset(0);
-}
 
-// Renders the sky
-void Sky::Draw()
-{
+    // Calculate normalized time (t for lerping between day / night skyboxes)
+    skyboxShader->Use();
+    skyboxShader->SetUniform("time", 1 - ((st + 1) / 2));
+
     // First pass: Draw skybox
 
     // Bind resources
@@ -211,5 +210,7 @@ void Sky::Draw()
     glBindVertexArray(0);
     glFrontFace(GL_CCW);
 
+    // Lock the UBO
     lightUBO.Lock();
+    lightUBO.SetOffset(0);
 }

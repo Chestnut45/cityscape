@@ -61,7 +61,7 @@ namespace Phi
             // Synchronization
             void Lock(); // Insert a fence sync for all rendering commands
             void Sync(); // Wait until our sync object has been signaled
-            void SwapSections();
+            void SwapSections(); // Increase the buffer section, wraps to [0, numSections)
 
             // Accessors
             inline GLuint GetName() const { return id; };
@@ -71,7 +71,7 @@ namespace Phi
             inline GLuint GetSize() const { return size; };
 
             // Helper method to ensure buffer writes are safe
-            inline bool CanWrite(GLuint bytes) const { return (pCurrent + bytes) <= (pData + size * numSections); };
+            inline bool CanWrite(GLuint bytes) const { return (pCurrent + bytes) <= (pData + currentSection * size + size); };
 
         // Data / implementation
         private:

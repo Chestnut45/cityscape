@@ -153,8 +153,8 @@ namespace Phi
             {
                 updateSamples.push_back(lastUpdate * 1000);
                 renderSamples.push_back(lastRender * 1000);
-                while (updateSamples.size() > numSamples) updateSamples.erase(updateSamples.begin());
-                while (renderSamples.size() > numSamples) renderSamples.erase(renderSamples.begin());
+                while (updateSamples.size() > perfSamplesPerSecond) updateSamples.erase(updateSamples.begin());
+                while (renderSamples.size() > perfSamplesPerSecond) renderSamples.erase(renderSamples.begin());
                 sampleAccum -= sampleRate;
             }
 

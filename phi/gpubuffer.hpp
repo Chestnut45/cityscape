@@ -8,6 +8,8 @@
 
 #include <GL/glew.h> // OpenGL types / functions
 
+#include "app.hpp" // Error functions
+
 namespace Phi
 {
     // Different types of buffers for different usage patterns
@@ -38,16 +40,12 @@ namespace Phi
             GPUBuffer(GPUBuffer&& other) = delete;
             void operator=(GPUBuffer&& other) = delete;
 
-            // Accessors
-            inline GLuint GetOffset() const { return (&pCurrent - &pData); };
-            inline GLuint GetSize() const { return size; };
-
             // Sets the internal buffer's current offset
-            inline void SetOffset(GLuint offset) { pCurrent = offset < size ? (pData + offset) : pCurrent; };
+            inline void SetOffset(GLuint offset) { pCurrent = offset < size ? (pData + currentSection * size + offset) : pCurrent; };
 
             // Write operations
-            // NOTE: All writes are performed at the internal buffer's current offset
-            // If the write succeeds, the current offset will be increased by the size of the data written
+            // NOTE: All writes are performed at the current pointer offset (in bytes)
+            // If the write succeeds, the offset will be increased by the size of the data written
             bool Write(int value);
             bool Write(float value);
             bool Write(const glm::vec2& value);
@@ -56,20 +54,24 @@ namespace Phi
             bool Write(const glm::mat4& value);
             bool Write(const void* const data, GLuint size);
 
-            // Flush all or part of the internal buffer to the OpenGL buffer object
-            void Flush(bool resetOffset = false);
-            bool FlushSection(GLuint offset, GLuint bytes, bool resetOffset = false);
-
-            // State management
+            // Binding methods
             void Bind(GLenum target) const;
             void BindBase(GLenum target, GLuint index) const;
+
+            // Synchronization
+            void Lock(); // Insert a fence sync for all rendering commands
+            void Sync(); // Wait until our sync object has been signaled
+            void SwapSections();
 
             // Accessors
             inline GLuint GetName() const { return id; };
             inline BufferType GetType() const { return type; };
+            inline GLuint GetCurrentSection() const { return currentSection; };
+            inline GLuint GetOffset() const { return (pCurrent - (pData + currentSection * size)); };
+            inline GLuint GetSize() const { return size; };
 
             // Helper method to ensure buffer writes are safe
-            inline bool CanWrite(GLuint bytes) const { return (pCurrent + bytes) <= (pData + size); };
+            inline bool CanWrite(GLuint bytes) const { return (pCurrent + bytes) <= (pData + size * numSections); };
 
         // Data / implementation
         private:
@@ -83,6 +85,11 @@ namespace Phi
             unsigned char* pCurrent = nullptr;
 
             // OpenGL object handles
-            GLuint id;
+            GLuint id = 0;
+            GLsync syncObj[2] = {0};
+
+            // Section state
+            GLuint currentSection = 0;
+            GLuint numSections = 1;
     };
 }

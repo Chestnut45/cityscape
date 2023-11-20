@@ -148,6 +148,9 @@ void Sky::Update()
     // Update ambient lighting
     ambient = std::max(0.05f, ((st + 1) / 2) * 0.45f);
 
+    // Wait for buffer to be free
+    lightUBO.Sync();
+
     // Update UBO
     lightUBO.Write(sun.GetPosition());
     lightUBO.Write(sun.GetDirection());
@@ -156,7 +159,7 @@ void Sky::Update()
     lightUBO.Write(moon.GetDirection());
     lightUBO.Write(moon.GetColor());
     lightUBO.Write(ambient);
-    lightUBO.Flush(true);
+    lightUBO.SetOffset(0);
 }
 
 // Renders the sky
@@ -207,4 +210,6 @@ void Sky::Draw()
     // Unbind and reset to default winding order
     glBindVertexArray(0);
     glFrontFace(GL_CCW);
+
+    lightUBO.Lock();
 }

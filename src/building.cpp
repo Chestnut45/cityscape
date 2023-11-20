@@ -125,6 +125,10 @@ void Building::Draw()
         FlushDrawCalls();
     }
 
+    // Ensure we aren't in the process of rendering buildings already
+    vbo->Sync();
+    ebo->Sync();
+
     // Recalculate offset indices
     std::transform(indices.cbegin(), indices.cend(), offsetIndices.begin(), [](GLuint original) { return original + vertexCount; });
 
@@ -145,10 +149,6 @@ void Building::FlushDrawCalls()
 {
     // Only flush if we have drawn at least once building
     if (drawCount == 0) return;
-
-    // Ensure all buffer writes are flushed
-    vbo->Flush(true);
-    ebo->Flush(true);
     
     // Bind relevant resources
     shader->Use();
@@ -156,8 +156,19 @@ void Building::FlushDrawCalls()
     vao->Bind();
 
     // Issue draw call
-    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+    glDrawElementsBaseVertex(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT,
+        (void*)((size_t)ebo->GetSize() * ebo->GetCurrentSection()),
+        0);
+    
     glBindVertexArray(0);
+    
+    // Insert a fence sync
+    vbo->Lock();
+    ebo->Lock();
+
+    // Needed for double-buffering
+    vbo->SetOffset(0);
+    ebo->SwapSections();
 
     // Reset static counters
     vertexCount = 0;

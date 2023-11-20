@@ -103,6 +103,6 @@ namespace Phi
         ubo.Write(viewProj);
         ubo.Write(glm::vec4(position, 1));
         ubo.Write(glm::vec4(width, height, 0.0f, 0.0f));
-        ubo.Flush(true);
+        ubo.SetOffset(0);
     }
 }

@@ -6,52 +6,55 @@ namespace Phi
     {
         glGenBuffers(1, &id);
 
-        GLbitfield mapFlags = 0;
+        GLenum mapFlags = 0;
 
-        // OLD
-        pData = new unsigned char[size];
-        pCurrent = pData;
-        
-        // Create the data store with glBufferData so it can be resized / orphaned
         switch (type)
         {
+            case BufferType::DynamicIndex:
             case BufferType::DynamicVertex:
 
+                mapFlags |= GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+
+                numSections = 2;
+
+                // Create an immutable data store
                 glBindBuffer(GL_ARRAY_BUFFER, id);
-                glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+                glBufferStorage(GL_ARRAY_BUFFER, size * numSections, data, mapFlags);
+
+                // Map the buffer
+                pData = (unsigned char*)glMapBufferRange(GL_ARRAY_BUFFER, 0, size * numSections, mapFlags);
+                if (!pData) FatalError("OpenGL: Failed to map buffer");
+                pCurrent = pData;
+
+                // Unbind
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
 
                 break;
             
-            case BufferType::StaticVertex:
+            case BufferType::Uniform:
 
+                mapFlags |= GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+
+                // Create an immutable data store
                 glBindBuffer(GL_ARRAY_BUFFER, id);
-                glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+                glBufferStorage(GL_ARRAY_BUFFER, size, data, mapFlags);
+
+                // Map the buffer
+                pData = (unsigned char*)glMapBufferRange(GL_ARRAY_BUFFER, 0, size, mapFlags);
+                if (!pData) FatalError("OpenGL: Failed to map buffer");
+                pCurrent = pData;
+
+                // Unbind
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-                break;
-            
-            case BufferType::DynamicIndex:
-
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
                 break;
             
             case BufferType::StaticIndex:
+            case BufferType::StaticVertex:
 
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-                break;
-
-            case BufferType::Uniform:
-
-                glBindBuffer(GL_UNIFORM_BUFFER, id);
-                glBufferData(GL_UNIFORM_BUFFER, size, data, GL_DYNAMIC_DRAW);
-                glBindBuffer(GL_UNIFORM_BUFFER, 0);
+                glBindBuffer(GL_ARRAY_BUFFER, id);
+                glBufferStorage(GL_ARRAY_BUFFER, size, data, 0);
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
 
                 break;
         }
@@ -59,9 +62,6 @@ namespace Phi
 
     GPUBuffer::~GPUBuffer()
     {
-        // Free internal buffer
-        delete[] pData;
-
         // Delete OpenGL buffer object
         glDeleteBuffers(1, &id);
     }
@@ -192,34 +192,6 @@ namespace Phi
         return true;
     }
 
-    void GPUBuffer::Flush(bool resetOffset)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, id);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, size, pData);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        // Reset internal buffer pointer if requested
-        pCurrent = resetOffset ? pData : pCurrent;
-    }
-
-    bool GPUBuffer::FlushSection(GLuint offset, GLuint bytes, bool resetOffset)
-    {
-        if (offset + bytes > size)
-        {
-            std::cout << "ERROR: Buffer section flush failed @" << this << std::endl;
-            return false;
-        }
-
-        glBindBuffer(GL_ARRAY_BUFFER, id);
-        glBufferSubData(GL_ARRAY_BUFFER, offset, bytes, pData);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        
-        // Reset internal buffer pointer if requested
-        pCurrent = resetOffset ? pData : pCurrent;
-
-        return true;
-    }
-
     void GPUBuffer::Bind(GLenum target) const
     {
         glBindBuffer(target, id);
@@ -228,5 +200,43 @@ namespace Phi
     void GPUBuffer::BindBase(GLenum target, GLuint index) const
     {
         glBindBufferBase(target, index, id);
+    }
+
+    void GPUBuffer::Lock()
+    {
+        // If already locked, delete old sync
+        if (syncObj[currentSection])
+        {
+            glDeleteSync(syncObj[currentSection]);
+            syncObj[currentSection] = 0;
+        }
+
+        // Place fence sync
+        syncObj[currentSection] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    }
+
+    void GPUBuffer::Sync()
+    {
+        // Only sync if a sync object exists
+        if (syncObj[currentSection])
+        {
+            while (true)
+            {
+                GLenum response = glClientWaitSync(syncObj[currentSection], GL_SYNC_FLUSH_COMMANDS_BIT, 1);
+                if (response == GL_ALREADY_SIGNALED || response == GL_CONDITION_SATISFIED) return;
+            }
+        }
+        
+        // Reset the sync object
+        glDeleteSync(syncObj[currentSection]);
+        syncObj[currentSection] = 0;
+    }
+
+    void GPUBuffer::SwapSections()
+    {
+        // Update current section
+        currentSection++;
+        if (currentSection >= numSections) currentSection = 0;
+        pCurrent = pData + currentSection * size;
     }
 }

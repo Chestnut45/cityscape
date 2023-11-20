@@ -68,6 +68,8 @@ void GroundTile::Draw()
         FlushDrawCalls();
     };
 
+    instanceUBO->Sync();
+
     // Increase counter and write instance position to buffer
     drawCount++;
     instanceUBO->Write(position);
@@ -79,8 +81,10 @@ void GroundTile::FlushDrawCalls()
     // Only flush if there is something to render
     if (drawCount == 0) return;
 
-    // Flush all buffer writes and bind objects
-    instanceUBO->Flush(true);
+    // Reset UBO offset
+    instanceUBO->SetOffset(0);
+
+    // Bind resources
     instanceUBO->BindBase(GL_UNIFORM_BUFFER, 1);
     vao->Bind();
     texture->Bind();
@@ -89,6 +93,8 @@ void GroundTile::FlushDrawCalls()
     // Issue draw call
     glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, drawCount);
     glBindVertexArray(0);
+
+    instanceUBO->Lock();
 
     // Reset counter
     drawCount = 0;

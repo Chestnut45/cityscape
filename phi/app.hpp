@@ -23,6 +23,10 @@
 
 namespace Phi
 {
+    // Error functions
+    void FatalError(const char* const msg);
+    void Error(const char* const msg);
+
     // Main app class, handles OpenGL context creation and input
     class App
     {

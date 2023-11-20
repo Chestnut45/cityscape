@@ -62,6 +62,8 @@ void PointLight::Draw()
         FlushDrawCalls();
     };
 
+    instanceUBO->Sync();
+
     // Increase counter and write instance position to buffer
     drawCount++;
     instanceUBO->Write(position);
@@ -74,7 +76,7 @@ void PointLight::FlushDrawCalls()
     if (drawCount == 0) return;
 
     // Flush all buffer writes and bind objects
-    instanceUBO->Flush(true);
+    instanceUBO->SetOffset(0);
     instanceUBO->BindBase(GL_UNIFORM_BUFFER, 1);
     vao->Bind();
     shader->Use();
@@ -82,6 +84,8 @@ void PointLight::FlushDrawCalls()
     // Issue draw call
     glDrawElementsInstanced(GL_TRIANGLES, 60, GL_UNSIGNED_INT, 0, drawCount);
     glBindVertexArray(0);
+
+    instanceUBO->Lock();
 
     // Reset counter
     drawCount = 0;

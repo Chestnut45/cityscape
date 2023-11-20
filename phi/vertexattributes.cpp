@@ -84,7 +84,7 @@ namespace Phi
         if (ebo)
         {
             // This call stores the index buffer object id in the currently bound VAO
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo->GetName());
+            ebo->Bind(GL_ELEMENT_ARRAY_BUFFER);
             useIndices = true;
         }
 

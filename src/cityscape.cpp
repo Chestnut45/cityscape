@@ -280,7 +280,7 @@ void Cityscape::ProcessInput(float delta)
         mainCamera.Rotate(mouseOffset.x, -mouseOffset.y);
 
         // Boost if shift is held
-        float boost = IsKeyDown(GLFW_KEY_LEFT_SHIFT) ? 2 : 1;
+        float boost = IsKeyDown(GLFW_KEY_LEFT_SHIFT) ? 4 : 1;
 
         // Move the camera according to WASD
         if (IsKeyDown(GLFW_KEY_W)) mainCamera.Translate(mainCamera.GetDirection() * delta * cameraSpeed * boost);

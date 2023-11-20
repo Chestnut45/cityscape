@@ -295,8 +295,7 @@ void Cityscape::ProcessInput(float delta)
         if (IsKeyJustDown(GLFW_KEY_I)) infinite = !infinite;
 
         // Zoom the camera according to scroll
-        glm::vec2 scroll = GetMouseScroll();
-        mainCamera.Zoom(scroll.y);
+        mainCamera.Zoom(GetMouseScroll().y);
 
         // Keep track of previous mouse position
         prevMousePos = mousePos;

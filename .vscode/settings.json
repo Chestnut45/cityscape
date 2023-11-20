@@ -74,5 +74,6 @@
         "span": "cpp",
         "variant": "cpp",
         "format": "cpp"
-    }
+    },
+    "dotnet.defaultSolution": "disable"
 }

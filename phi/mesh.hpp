@@ -38,6 +38,9 @@ namespace Phi
             void AddTriangle(const Vertex& a, const Vertex& b, const Vertex& c);
             void AddQuad(const Vertex& topLeft, const Vertex& topRight, const Vertex& bottomLeft, const Vertex& bottomRight);
 
+            // Mesh asset loading
+            void Load();
+
             // TODO: Factory mesh generation functions
 
             // Commits all mesh data to GPU resources in preperation for rendering
@@ -45,7 +48,7 @@ namespace Phi
 
             // Rendering methods
             void Draw(const Shader& shader, const Camera& camera, const glm::mat4& transform);
-            void DrawInstance(const InstanceData& instanceData);
+            void DrawInstance();
             void FlushInstances(const Shader& shader, const Camera& camera);
 
             // Clear all mesh data, cleanup resources, return to initial state

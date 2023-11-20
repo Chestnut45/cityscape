@@ -60,9 +60,11 @@ The sky's skybox colors will be blended with both main directional light colors 
 
 ### Persistent Mapped Buffer Streaming
 
-The GPUBuffer class allows us to use many buffer streaming techniques, which are useful for streaming data to the GPU with very minimal driver overhead. If you create a buffer of any of the dynamic types, it will be persistently mapped (until the resource is destroyed), using the GL_MAP_COHERENT_BIT flag set. This ensures that all writes through the pointer returned by glMapBufferRange() are seen by any subsequent OpenGL operations.
+The GPUBuffer class allows us to use many buffer streaming techniques, which are useful for streaming data to the GPU with very minimal driver overhead. If you create a buffer of any of the dynamic types, it will be persistently mapped (until the resource is destroyed), using the `GL_MAP_COHERENT_BIT` flag set. This ensures that all writes through the pointer returned by glMapBufferRange() are seen by any subsequent OpenGL operations.
 
 The main caveat with using persistently mapped buffers is that you must perform synchronization yourself. It's your responsibility not to write to the buffer while any OpenGL calls are reading from it. To this end, the GPUBuffer class provides the Lock(), Sync(), and SwapSections() methods. Lock() inserts a fence sync object and associates it with the current section of the buffer, Sync() performs a client-blocking sync call until the current section's sync object has been signaled, and SwapSections() moves to the next buffer section, or back to the beginning if the current section is the last.
+
+The main reason for double/triple buffering is to minimize the client sync points. The general method is to write to section A of the buffer, issue commands that read from section A, place a sync on section A, then start writing to section B (while the GPU is still reading from section A). In an ideal world, by the time we send commands to read from the final section and swap back to section A for writing, section A's sync object will already be signaled, so the Sync() method will return immediately.
 
 ### Shadow Mapping:
 

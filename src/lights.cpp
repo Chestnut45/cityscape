@@ -20,8 +20,8 @@ PointLight::PointLight(const glm::vec4& pos, const glm::vec4& col) : position(po
     if (refCount == 0)
     {
         // Vertex data
-        vbo = new Phi::GPUBuffer(Phi::BufferType::StaticVertex, sizeof(Phi::Icosphere::ICOSPHERE_VERTICES), Phi::Icosphere::ICOSPHERE_VERTICES);
-        ebo = new Phi::GPUBuffer(Phi::BufferType::StaticIndex, sizeof(Phi::Icosphere::ICOSPHERE_INDICES), Phi::Icosphere::ICOSPHERE_INDICES);
+        vbo = new Phi::GPUBuffer(Phi::BufferType::Static, sizeof(Phi::Icosphere::ICOSPHERE_VERTICES), Phi::Icosphere::ICOSPHERE_VERTICES);
+        ebo = new Phi::GPUBuffer(Phi::BufferType::Static, sizeof(Phi::Icosphere::ICOSPHERE_INDICES), Phi::Icosphere::ICOSPHERE_INDICES);
         vao = new Phi::VertexAttributes(Phi::VertexFormat::POS, vbo, ebo);
 
         shader = new Phi::Shader();
@@ -31,7 +31,7 @@ PointLight::PointLight(const glm::vec4& pos, const glm::vec4& col) : position(po
 
         // Instance buffer data
         // 512 * 2 * sizeof(glm::vec4) = 16,384 = minimum UBO limit required by OpenGL
-        instanceUBO = new Phi::GPUBuffer(Phi::BufferType::Uniform, sizeof(glm::vec4) * 2 * MAX_INSTANCES);
+        instanceUBO = new Phi::GPUBuffer(Phi::BufferType::Dynamic, sizeof(glm::vec4) * 2 * MAX_INSTANCES);
     }
 
     refCount++;
@@ -75,8 +75,7 @@ void PointLight::FlushDrawCalls()
     // Only flush if there is something to render
     if (drawCount == 0) return;
 
-    // Flush all buffer writes and bind objects
-    instanceUBO->SetOffset(0);
+    // Bind objects
     instanceUBO->BindBase(GL_UNIFORM_BUFFER, 1);
     vao->Bind();
     shader->Use();
@@ -85,7 +84,9 @@ void PointLight::FlushDrawCalls()
     glDrawElementsInstanced(GL_TRIANGLES, 60, GL_UNSIGNED_INT, 0, drawCount);
     glBindVertexArray(0);
 
+    // Lock buffer and reset pointer
     instanceUBO->Lock();
+    instanceUBO->SetOffset(0);
 
     // Reset counter
     drawCount = 0;

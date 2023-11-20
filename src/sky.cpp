@@ -67,7 +67,7 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath)
         nightSkyboxPath + "/back.png"
     }),
 
-    lightUBO(Phi::BufferType::Uniform, sizeof(DirectionalLight) * 2 + sizeof(GLfloat) * 2)
+    lightUBO(Phi::BufferType::Dynamic, sizeof(DirectionalLight) * 2 + sizeof(GLfloat) * 2)
 {
     // Bind UBO to default light binding point
     lightUBO.BindBase(GL_UNIFORM_BUFFER, 2);
@@ -76,7 +76,7 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath)
     if (refCount == 0)
     {
         // Create VAO / VBO / Shader for skybox
-        skyboxVBO = new Phi::GPUBuffer(Phi::BufferType::StaticVertex, sizeof(SKYBOX_VERTICES), SKYBOX_VERTICES);
+        skyboxVBO = new Phi::GPUBuffer(Phi::BufferType::Static, sizeof(SKYBOX_VERTICES), SKYBOX_VERTICES);
         skyboxVAO = new Phi::VertexAttributes(Phi::VertexFormat::POS, skyboxVBO);
         skyboxShader = new Phi::Shader();
         skyboxShader->LoadShaderSource(GL_VERTEX_SHADER, "data/skybox.vs");
@@ -84,8 +84,8 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath)
         skyboxShader->Link();
 
         // Create resources for rendering sun and moon
-        sphereVBO = new Phi::GPUBuffer(Phi::BufferType::StaticVertex, sizeof(Phi::Icosphere::ICOSPHERE_VERTICES), Phi::Icosphere::ICOSPHERE_VERTICES);
-        sphereEBO = new Phi::GPUBuffer(Phi::BufferType::StaticIndex, sizeof(Phi::Icosphere::ICOSPHERE_INDICES), Phi::Icosphere::ICOSPHERE_INDICES);
+        sphereVBO = new Phi::GPUBuffer(Phi::BufferType::Static, sizeof(Phi::Icosphere::ICOSPHERE_VERTICES), Phi::Icosphere::ICOSPHERE_VERTICES);
+        sphereEBO = new Phi::GPUBuffer(Phi::BufferType::Static, sizeof(Phi::Icosphere::ICOSPHERE_INDICES), Phi::Icosphere::ICOSPHERE_INDICES);
         sphereVAO = new Phi::VertexAttributes(Phi::VertexFormat::POS, sphereVBO, sphereEBO);
         celestialBodyShader = new Phi::Shader();
         celestialBodyShader->LoadShaderSource(GL_VERTEX_SHADER, "data/celestialBody.vs");

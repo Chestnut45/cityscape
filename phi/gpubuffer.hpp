@@ -13,22 +13,25 @@
 namespace Phi
 {
     // Different types of buffers for different usage patterns
-    // Dynamic = Persistent + coherent mapping, fast to update with large batches of data
-    // Static = Immutable
+    // Static is best for data you only update once at construction
+    // Dynamic is best for data you must update every frame but don't have the space for double/triple buffering
+    // Double/triple buffers make use of SwapSection() to write to different sections of the buffer
+    // NOTE: With double/triple buffering, Lock() only locks the current section of the buffer
     enum class BufferType
     {
-        DynamicVertex,
-        StaticVertex,
-        DynamicIndex,
-        StaticIndex,
-        Uniform,
+        Static,
+        Dynamic,
+        DynamicDoubleBuffer,
+        DynamicTripleBuffer
     };
-
+    
+    // Buffer object RAII wrapper
     class GPUBuffer
     {
         // Interface
         public:
 
+            // Constructor: size is the section size in bytes (full size if one section)
             GPUBuffer(BufferType type, GLuint size, const void* const data = NULL);
             ~GPUBuffer();
 
@@ -75,10 +78,14 @@ namespace Phi
 
         // Data / implementation
         private:
-        
-            // Should know their own buffer type, small cost
+            
+            static const int MAX_SECTIONS = 3;
+            
+            // Buffer state / data
             BufferType type;
             GLuint size;
+            GLuint currentSection = 0;
+            GLuint numSections = 1;
 
             // Pointer to persistently mapped buffer
             unsigned char* pData = nullptr;
@@ -86,10 +93,6 @@ namespace Phi
 
             // OpenGL object handles
             GLuint id = 0;
-            GLsync syncObj[2] = {0};
-
-            // Section state
-            GLuint currentSection = 0;
-            GLuint numSections = 1;
+            GLsync syncObj[MAX_SECTIONS] = {0};
     };
 }

@@ -6,58 +6,31 @@ namespace Phi
     {
         glGenBuffers(1, &id);
 
-        GLenum mapFlags = 0;
-
         switch (type)
         {
-            case BufferType::DynamicIndex:
-            case BufferType::DynamicVertex:
-
-                mapFlags |= GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-
-                numSections = 2;
-
-                // Create an immutable data store
-                glBindBuffer(GL_ARRAY_BUFFER, id);
-                glBufferStorage(GL_ARRAY_BUFFER, size * numSections, data, mapFlags);
-
-                // Map the buffer
-                pData = (unsigned char*)glMapBufferRange(GL_ARRAY_BUFFER, 0, size * numSections, mapFlags);
-                if (!pData) FatalError("OpenGL: Failed to map buffer");
-                pCurrent = pData;
-
-                // Unbind
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-                break;
-            
-            case BufferType::Uniform:
-
-                mapFlags |= GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-
-                // Create an immutable data store
-                glBindBuffer(GL_ARRAY_BUFFER, id);
-                glBufferStorage(GL_ARRAY_BUFFER, size, data, mapFlags);
-
-                // Map the buffer
-                pData = (unsigned char*)glMapBufferRange(GL_ARRAY_BUFFER, 0, size, mapFlags);
-                if (!pData) FatalError("OpenGL: Failed to map buffer");
-                pCurrent = pData;
-
-                // Unbind
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-                break;
-            
-            case BufferType::StaticIndex:
-            case BufferType::StaticVertex:
-
-                glBindBuffer(GL_ARRAY_BUFFER, id);
-                glBufferStorage(GL_ARRAY_BUFFER, size, data, 0);
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-                break;
+            case BufferType::Static:                numSections = 1;    break;
+            case BufferType::Dynamic:               numSections = 1;    break;
+            case BufferType::DynamicDoubleBuffer:   numSections = 2;    break;
+            case BufferType::DynamicTripleBuffer:   numSections = 3;    break;
         }
+
+        // Set the flags for buffer storage creation / mapping
+        GLenum flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+
+        // Create an immutable data store
+        glBindBuffer(GL_ARRAY_BUFFER, id);
+        glBufferStorage(GL_ARRAY_BUFFER, size * numSections, data, flags);
+
+        // Map the buffer
+        if (type != BufferType::Static)
+        {
+            pData = (unsigned char*)glMapBufferRange(GL_ARRAY_BUFFER, 0, size * numSections, flags);
+            if (!pData) FatalError("OpenGL: Failed to map buffer");
+            pCurrent = pData;
+        }
+
+        // Unbind
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     GPUBuffer::~GPUBuffer()

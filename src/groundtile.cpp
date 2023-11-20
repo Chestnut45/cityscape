@@ -25,11 +25,11 @@ GroundTile::GroundTile(const glm::ivec2& id) : position(id.x * TILE_SIZE, 0, id.
     {
         // Initialize static resources
         texture = new Phi::Texture2D("data/cityBlockGround.png", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
-        vbo = new Phi::GPUBuffer(Phi::BufferType::StaticVertex, sizeof(GROUND_VERTICES), GROUND_VERTICES);
-        ebo = new Phi::GPUBuffer(Phi::BufferType::StaticIndex, sizeof(GROUND_INDICES), GROUND_INDICES);
+        vbo = new Phi::GPUBuffer(Phi::BufferType::Static, sizeof(GROUND_VERTICES), GROUND_VERTICES);
+        ebo = new Phi::GPUBuffer(Phi::BufferType::Static, sizeof(GROUND_INDICES), GROUND_INDICES);
         vao = new Phi::VertexAttributes(Phi::VertexFormat::POS_NORM_UV, vbo, ebo);
 
-        instanceUBO = new Phi::GPUBuffer(Phi::BufferType::Uniform, sizeof(glm::vec4) * MAX_INSTANCES);
+        instanceUBO = new Phi::GPUBuffer(Phi::BufferType::Dynamic, sizeof(glm::vec4) * MAX_INSTANCES);
 
         // Load the default shader
         shader = new Phi::Shader();
@@ -81,9 +81,6 @@ void GroundTile::FlushDrawCalls()
     // Only flush if there is something to render
     if (drawCount == 0) return;
 
-    // Reset UBO offset
-    instanceUBO->SetOffset(0);
-
     // Bind resources
     instanceUBO->BindBase(GL_UNIFORM_BUFFER, 1);
     vao->Bind();
@@ -93,8 +90,10 @@ void GroundTile::FlushDrawCalls()
     // Issue draw call
     glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, drawCount);
     glBindVertexArray(0);
-
+    
+    // Lock the buffer and reset the pointer
     instanceUBO->Lock();
+    instanceUBO->SetOffset(0);
 
     // Reset counter
     drawCount = 0;

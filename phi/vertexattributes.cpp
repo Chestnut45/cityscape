@@ -12,13 +12,7 @@ namespace Phi
     // Builds the VAO for you assuming you pack the given vertex format into the provided vertex buffer
     // Also associates an index buffer with the vao if one is provided
     VertexAttributes::VertexAttributes(VertexFormat format, const GPUBuffer* const vbo, const GPUBuffer* const ebo)
-    {
-        // Ensure we have been handed a vertex buffer
-        if (vbo->GetType() != BufferType::DynamicVertex && vbo->GetType() != BufferType::StaticVertex)
-        {
-            std::cout << "Error: Incorrect buffer type to construct VertexAttributes object" << std::endl;
-        }
-        
+    {   
         // Bind VAO and VBO
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);

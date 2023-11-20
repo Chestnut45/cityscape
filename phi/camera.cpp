@@ -4,7 +4,7 @@ namespace Phi
 {
     // Constructor
     Camera::Camera() : position(0), direction(0, 0, -1), up(0, 1, 0), right(1, 0, 0),
-                        ubo(BufferType::Uniform, sizeof(glm::mat4) + sizeof(glm::vec4) * 2)
+                        ubo(BufferType::Dynamic, sizeof(glm::mat4) + sizeof(glm::vec4) * 2)
     {
         // Bind UBO to binding point 0
         ubo.BindBase(GL_UNIFORM_BUFFER, 0);

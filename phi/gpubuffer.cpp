@@ -24,7 +24,7 @@ namespace Phi
         // Map the buffer
         if (type != BufferType::Static)
         {
-            pData = (unsigned char*)glMapBufferRange(GL_ARRAY_BUFFER, 0, size * numSections, flags);
+            pData = (unsigned char*)glMapBufferRange(GL_ARRAY_BUFFER, 0, size * numSections, flags | GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_INVALIDATE_RANGE_BIT);
             if (!pData) FatalError("OpenGL: Failed to map buffer");
             pCurrent = pData;
         }

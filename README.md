@@ -42,7 +42,7 @@ Light volume proxy geometry is used to only generate fragments for pixels that w
 
 I considered implementing tiled deferred or clustered deferred shading to remove all of the unnecessary extra gBuffer reads per fragment, but it proved too difficult in the timeframe available.
 
-There are 2 main directional lights (sun + moon), and ~400 point lights (at night, when the streetlights are on).
+There are 2 main directional lights (sun + moon), and ~400 point lights at night, when the streetlights are on.
 
 ### Building Shapes:
 
@@ -56,7 +56,13 @@ Pressing the I key will toggle Infinite Mode. In this state, city blocks will be
 
 ### Sky:
 
-...
+The sky's skybox colors will be blended with both main directional light colors by the amount of "ambient" in the scene, and interpolated over time of day.
+
+### Persistent Mapped Buffer Streaming
+
+The GPUBuffer class allows us to use many buffer streaming techniques, which are useful for streaming data to the GPU with very minimal driver overhead. If you create a buffer of any of the dynamic types, it will be persistently mapped (until the resource is destroyed), using the GL_MAP_COHERENT_BIT flag set. This ensures that all writes through the pointer returned by glMapBufferRange() are seen by any subsequent OpenGL operations.
+
+The main caveat with using persistently mapped buffers is that you must perform synchronization yourself. It's your responsibility not to write to the buffer while any OpenGL calls are reading from it. To this end, the GPUBuffer class provides the Lock(), Sync(), and SwapSections() methods. Lock() inserts a fence sync object and associates it with the current section of the buffer, Sync() performs a client-blocking sync call until the current section's sync object has been signaled, and SwapSections() moves to the next buffer section, or back to the beginning if the current section is the last.
 
 ### Shadow Mapping:
 

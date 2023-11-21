@@ -4,8 +4,32 @@
 
 ## Build Instructions
 
-CMake: Configure
-Build Target Cityscape
+### Prerequisites
+
+- C/C++ Tools VSCode extension
+- CMake
+- A C++20 compliant compiler
+
+### Linux
+
+CMake: Configure\
+CMake: Build (Target Cityscape)\
+Run with debugging
+
+### Windows
+
+- MSYS2 or ninja may be helpful for configuring cmake to use gcc on windows
+
+CMake: Configure\
+CMake: Build (Target Cityscape)\
+Run with debugging
+
+### Tested Platforms
+
+- GCC 12+ / CMake 3.27.4 / Ubuntu 23.10 / 6.5.0-10-lowlatency / NVIDIA RTX 3070ti on 535.129.03
+- GCC 12+ / CMake 3.27.4 / Ubuntu 23.10 / 6.5.0-10-lowlatency / Intel Iris XE on ...
+- GCC 13+ / CMake 3.27.8 / Windows 11 / NVIDIA RTX 3070ti on 535.129.03
+- GCC 13+ / CMake 3.27.8 / Windows 11 / Intel Iris XE on ...
 
 ## Controls:
 

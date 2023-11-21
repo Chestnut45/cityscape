@@ -47,9 +47,10 @@ namespace Phi
             void Commit();
 
             // Rendering methods
-            void Draw(const Shader& shader, const Camera& camera, const glm::mat4& transform);
-            void DrawInstance();
-            void FlushInstances(const Shader& shader, const Camera& camera);
+            // NOTE: Just binds textures and issues the draw call, shader is responsible for everything else
+            // NOTE: Material shader would be nice, maybe UBER style? Could proc-gen materials...
+            void Draw(const Shader& shader);
+            void Draw(); // TODO: Materials
 
             // Clear all mesh data, cleanup resources, return to initial state
             void Reset();

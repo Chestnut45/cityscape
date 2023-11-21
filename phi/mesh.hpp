@@ -15,6 +15,22 @@
 
 namespace Phi
 {
+    // Texture unit mapping
+    // When rendering a mesh, its textures will be mapped to these units
+    // You can use explicit layouts in your shader's samplers to access the textures (4.2+),
+    // or set them directly with glUniform1i(samplerLoc, texUnit).
+    // Ex: layout(binding = 0) uniform sampler2D myAlbedo1Sampler;
+    enum class TexUnit : int
+    {
+        ALBEDO_1,   // 0
+        ALBEDO_2,   // 1
+        SPECULAR_1, // 2
+        SPECULAR_2, // 3
+        NORMAL_1,   // 4
+        NORMAL_2,   // 5
+        MAX_TEXTURES
+    };
+
     // Represents a renderable mesh of arbitrary format
     template <typename Vertex>
     class Mesh
@@ -46,11 +62,12 @@ namespace Phi
             // Commits all mesh data to GPU resources in preperation for rendering
             void Commit();
 
-            // Rendering methods
-            // NOTE: Just binds textures and issues the draw call, shader is responsible for everything else
-            // NOTE: Material shader would be nice, maybe UBER style? Could proc-gen materials...
+            // Immediately render to the current FBO
             void Draw(const Shader& shader);
-            void Draw(); // TODO: Materials
+
+            // Immediately draw iData.size() instances, 
+            template <typename InstanceData>
+            void DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData);
 
             // Clear all mesh data, cleanup resources, return to initial state
             void Reset();
@@ -58,9 +75,12 @@ namespace Phi
         // Data / implementation
         private:
 
-            // Vertex / index data
+            static const int MAX_TEXTURES = 16;
+
+            // Mesh data
             std::vector<Vertex> vertices;
             std::vector<GLuint> indices;
+            const Texture2D* const textures[(int)TexUnit::MAX_TEXTURES];
 
             // OpenGL Resources
             VertexAttributes* vertexAttributes = nullptr;

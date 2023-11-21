@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include <glm/glm.hpp>
 
@@ -22,13 +23,13 @@ namespace Phi
     // Ex: layout(binding = 0) uniform sampler2D myAlbedo1Sampler;
     enum class TexUnit : int
     {
-        ALBEDO_1,   // 0
-        ALBEDO_2,   // 1
-        SPECULAR_1, // 2
-        SPECULAR_2, // 3
-        NORMAL_1,   // 4
-        NORMAL_2,   // 5
-        MAX_TEXTURES
+        ALBEDO_1,       // 0
+        ALBEDO_2,       // 1
+        SPECULAR_1,     // 2
+        SPECULAR_2,     // 3
+        NORMAL_1,       // 4
+        NORMAL_2,       // 5
+        MAX_TEXTURES    // 6
     };
 
     // Represents a renderable mesh of arbitrary format
@@ -52,13 +53,12 @@ namespace Phi
             // Vertex data generation
             void AddSurface(const std::vector<Vertex>& vertices, const std::vector<GLuint>* const indices = nullptr);
             void AddTriangle(const Vertex& a, const Vertex& b, const Vertex& c);
-            void AddQuad(const Vertex& topLeft, const Vertex& topRight, const Vertex& bottomLeft, const Vertex& bottomRight);
+            void AddQuad(const Vertex& topLeft, const Vertex& topRight,
+                         const Vertex& bottomLeft, const Vertex& bottomRight);
 
             // Mesh asset loading
-            void Load();
+            void LoadFromAiMesh();
             void AddTexture(const std::string& path, TexUnit type);
-
-            // TODO: Factory mesh generation functions
 
             // Commits all mesh data to GPU resources in preperation for rendering
             void Commit();
@@ -66,7 +66,7 @@ namespace Phi
             // Immediately render to the current FBO
             void Draw(const Shader& shader);
 
-            // Immediately draw iData.size() instances, 
+            // Immediately render iData.size() instances to the current FBO
             template <typename InstanceData>
             void DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData);
 
@@ -76,24 +76,26 @@ namespace Phi
         // Data / implementation
         private:
 
+            // Mesh texture data format
+            struct Texture
+            {
+                Texture2D texture;
+                TexUnit unit;
+            };
+
             // Mesh data
             std::vector<Vertex> vertices;
             std::vector<GLuint> indices;
 
             // OpenGL Resources
+            Texture* textures[(int)TexUnit::MAX_TEXTURES] = {nullptr};
             VertexAttributes* vertexAttributes = nullptr;
             GPUBuffer* vertexBuffer = nullptr;
             GPUBuffer* indexBuffer = nullptr;
 
-            // Mesh texture data
-            struct Texture
-            {
-                Texture2D texture;
-                TexUnit unit;
-                std::string path;
-            };
+            // Static resources
 
-            // Static mesh texture storage
-            // Textures
+            // Texture storage for all meshes
+            static std::unordered_map<std::string, Texture> loadedTextures;
     };
 }

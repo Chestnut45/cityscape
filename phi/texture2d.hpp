@@ -14,8 +14,17 @@ namespace Phi
         // Interface
         public:
 
-            Texture2D(int width, int height, GLint internalFormat, GLint format, GLenum type, GLenum minFilter, GLenum magFilter, bool mipmap = false);
-            Texture2D(const std::string& texPath, GLenum minFilter, GLenum magFilter, bool mipmap = false);
+            Texture2D(int width, int height,
+                      GLint internalFormat, GLint format, GLenum type,
+                      GLint wrapU, GLint wrapV,
+                      GLenum minFilter, GLenum magFilter,
+                      bool mipmap = false);
+            
+            Texture2D(const std::string& texPath,
+                      GLint wrapU, GLint wrapV,
+                      GLenum minFilter, GLenum magFilter,
+                      bool mipmap = false);
+            
             ~Texture2D();
 
             // Delete copy constructor/assignment

@@ -3,15 +3,19 @@
 namespace Phi
 {
     // Generate texture constructor
-    Texture2D::Texture2D(int width, int height, GLint internalFormat, GLint format, GLenum type, GLenum minFilter, GLenum magFilter, bool mipmap)
+    Texture2D::Texture2D(int width, int height,
+                         GLint internalFormat, GLint format, GLenum type,
+                         GLint wrapU, GLint wrapV,
+                         GLenum minFilter, GLenum magFilter,
+                         bool mipmap)
     {
         // Generate the texture object
         glGenTextures(1, &textureID);
         glBindTexture(GL_TEXTURE_2D, textureID);
 
-        // Apply default texture parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        // Apply texture parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapU);	
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapV);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 
@@ -25,15 +29,18 @@ namespace Phi
     }
 
     // Load from file constructor
-    Texture2D::Texture2D(const std::string& texPath, GLenum minFilter, GLenum magFilter, bool mipmap)
+    Texture2D::Texture2D(const std::string& texPath,
+                         GLint wrapU, GLint wrapV,
+                         GLenum minFilter, GLenum magFilter,
+                         bool mipmap)
     {
         // Generate the texture object
         glGenTextures(1, &textureID);
         glBindTexture(GL_TEXTURE_2D, textureID);
 
         // Default default texture parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapU);	
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapV);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 

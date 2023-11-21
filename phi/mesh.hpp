@@ -56,6 +56,7 @@ namespace Phi
 
             // Mesh asset loading
             void Load();
+            void AddTexture(const std::string& path, TexUnit type);
 
             // TODO: Factory mesh generation functions
 
@@ -75,16 +76,24 @@ namespace Phi
         // Data / implementation
         private:
 
-            static const int MAX_TEXTURES = 16;
-
             // Mesh data
             std::vector<Vertex> vertices;
             std::vector<GLuint> indices;
-            const Texture2D* const textures[(int)TexUnit::MAX_TEXTURES];
 
             // OpenGL Resources
             VertexAttributes* vertexAttributes = nullptr;
             GPUBuffer* vertexBuffer = nullptr;
             GPUBuffer* indexBuffer = nullptr;
+
+            // Mesh texture data
+            struct Texture
+            {
+                Texture2D texture;
+                TexUnit unit;
+                std::string path;
+            };
+
+            // Static mesh texture storage
+            // Textures
     };
 }

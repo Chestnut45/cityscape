@@ -489,10 +489,10 @@ void Cityscape::RecreateFBO()
     }
 
     // Generate geometry buffer textures
-    gPositionTex = new Phi::Texture2D(wWidth, wHeight, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST, GL_NEAREST);
-    gNormalTex = new Phi::Texture2D(wWidth, wHeight, GL_RGBA8_SNORM, GL_RGBA, GL_BYTE, GL_NEAREST, GL_NEAREST);
-    gColorSpecTex = new Phi::Texture2D(wWidth, wHeight, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, GL_NEAREST);
-    gDepthStencilTex = new Phi::Texture2D(wWidth, wHeight, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST, GL_NEAREST);
+    gPositionTex = new Phi::Texture2D(wWidth, wHeight, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
+    gNormalTex = new Phi::Texture2D(wWidth, wHeight, GL_RGBA8_SNORM, GL_RGBA, GL_BYTE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
+    gColorSpecTex = new Phi::Texture2D(wWidth, wHeight, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
+    gDepthStencilTex = new Phi::Texture2D(wWidth, wHeight, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
 
     // Attach textures to geometry buffer
     gBuffer = new Phi::FrameBuffer();

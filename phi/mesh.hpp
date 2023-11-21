@@ -25,11 +25,22 @@ namespace Phi
     {
         ALBEDO_1,       // 0
         ALBEDO_2,       // 1
-        SPECULAR_1,     // 2
-        SPECULAR_2,     // 3
-        NORMAL_1,       // 4
-        NORMAL_2,       // 5
-        MAX_TEXTURES    // 6
+        ALBEDO_3,       // 2
+        ALBEDO_4,       // 3
+
+        SPECULAR_1,     // 4
+        SPECULAR_2,     // 5
+        SPECULAR_3,     // 6
+        SPECULAR_4,     // 7
+
+        NORMAL_1,       // 8
+        NORMAL_2,       // 9
+        NORMAL_3,       // 10
+        NORMAL_4,       // 11
+
+        MAX_TEXTURES    // 12
+
+        // Unused units: GL_TEXTURE12+
     };
 
     // Represents a renderable mesh of arbitrary format
@@ -56,8 +67,7 @@ namespace Phi
             void AddQuad(const Vertex& topLeft, const Vertex& topRight,
                          const Vertex& bottomLeft, const Vertex& bottomRight);
 
-            // Mesh asset loading
-            void LoadFromAiMesh();
+            // Texture loading
             void AddTexture(const std::string& path, TexUnit type);
 
             // Commits all mesh data to GPU resources in preperation for rendering

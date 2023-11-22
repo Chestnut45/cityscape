@@ -46,5 +46,9 @@ namespace Phi
             
             // Instance buffer used by all models
             static inline GPUBuffer* instanceBuffer = nullptr;
+
+            // Helper assimp loading / processing methods
+            void ProcessNode(aiNode* node, const aiScene* scene);
+            void AddMesh(aiMesh* mesh, const aiScene* scene);
     };
 }

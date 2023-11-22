@@ -27,9 +27,9 @@ Run with debugging
 ### Tested Platforms
 
 - GCC 12+ / CMake 3.27.4 / Ubuntu 23.10 / 6.5.0-10-lowlatency / NVIDIA RTX 3070ti on 535.129.03
-- GCC 12+ / CMake 3.27.4 / Ubuntu 23.10 / 6.5.0-10-lowlatency / Intel Iris XE on ...
+- GCC 12+ / CMake 3.27.4 / Ubuntu 23.10 / 6.5.0-10-lowlatency / Intel Iris XE on Mesa 23.2.1-1ubuntu3
 - GCC 13+ / CMake 3.27.8 / Windows 11 / NVIDIA RTX 3070ti on 535.129.03
-- GCC 13+ / CMake 3.27.8 / Windows 11 / Intel Iris XE on ...
+- GCC 13+ / CMake 3.27.8 / Windows 11 / Intel Iris XE on Mesa 23.2.1-1ubuntu3
 
 ## Controls:
 

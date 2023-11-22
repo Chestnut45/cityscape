@@ -73,6 +73,8 @@ I considered implementing tiled deferred or clustered deferred shading to remove
 
 There are 2 main directional lights (sun + moon), and ~400 point lights at night, when the streetlights are on.
 
+Both directional lights and point lights are using the Blinn-Phong model (with the adjusted half way vector).
+
 ### Building Shapes:
 
 Each building is generated story by story, face by face. Texture offsets into the building texture atlas are procedurally generated for each face based on constructor arguments and rng. (If you are creating a "Door" face, it generates texture coordinates that correspond to the "Door" section of the texture, for the given building variant)

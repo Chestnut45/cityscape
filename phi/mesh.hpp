@@ -25,22 +25,21 @@ namespace Phi
     {
         ALBEDO_1,       // 0
         ALBEDO_2,       // 1
-        ALBEDO_3,       // 2
-        ALBEDO_4,       // 3
+        SPECULAR_1,     // 2
+        SPECULAR_2,     // 3
+        NORMAL_1,       // 4
+        NORMAL_2,       // 5
 
-        SPECULAR_1,     // 4
-        SPECULAR_2,     // 5
-        SPECULAR_3,     // 6
-        SPECULAR_4,     // 7
+        MAX_TEXTURES    // 6
 
-        NORMAL_1,       // 8
-        NORMAL_2,       // 9
-        NORMAL_3,       // 10
-        NORMAL_4,       // 11
+        // Unused units: GL_TEXTURE6+
+    };
 
-        MAX_TEXTURES    // 12
-
-        // Unused units: GL_TEXTURE12+
+    // SSBO binding points
+    enum class SSBOBinding : int
+    {
+        MaterialBuffer, // 0
+        InstanceBuffer, // 1
     };
 
     // Represents a renderable mesh of arbitrary format
@@ -77,6 +76,7 @@ namespace Phi
             void Draw(const Shader& shader);
 
             // Immediately render iData.size() instances to the current FBO
+            // Binds an SSBO to the 
             template <typename InstanceData>
             void DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData);
 

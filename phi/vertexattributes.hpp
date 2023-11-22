@@ -47,8 +47,5 @@ namespace Phi
             GLuint attribCount = 0;
             GLsizeiptr currentOffset = 0;
             GLuint stride = 0;
-
-            // Info
-            bool useIndices = false;
     };
 }

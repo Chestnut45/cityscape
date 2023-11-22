@@ -1,9 +1,14 @@
 #pragma once
 
 #include <iostream>
+#include <type_traits> // Important for std::is_same_v
 #include <string>
 #include <vector>
 #include <unordered_map>
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include <glm/glm.hpp>
 
@@ -32,13 +37,13 @@ namespace Phi
 
         MAX_TEXTURES    // 6
 
-        // Unused units: GL_TEXTURE6+
+        // Unused units: GL_TEXTURE6+ for your custom textures / shaders
     };
 
     // SSBO binding points
     enum class SSBOBinding : int
     {
-        MaterialBuffer, // 0
+        MaterialBuffer, // 0 (Unused for now)
         InstanceBuffer, // 1
     };
 
@@ -49,7 +54,11 @@ namespace Phi
         // Interface
         public:
 
+            // Manual / procedural constructors
             Mesh();
+            Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>* const indices = nullptr);
+
+            // Destructor
             ~Mesh();
 
             // Delete copy constructor/assignment
@@ -61,7 +70,7 @@ namespace Phi
             void operator=(Mesh&& other) = delete;
 
             // Vertex data generation
-            void AddSurface(const std::vector<Vertex>& vertices, const std::vector<GLuint>* const indices = nullptr);
+            void AddSurface(const std::vector<Vertex>* vertices, const std::vector<GLuint>* const indices = nullptr);
             void AddTriangle(const Vertex& a, const Vertex& b, const Vertex& c);
             void AddQuad(const Vertex& topLeft, const Vertex& topRight,
                          const Vertex& bottomLeft, const Vertex& bottomRight);
@@ -75,8 +84,8 @@ namespace Phi
             // Immediately render to the current FBO
             void Draw(const Shader& shader);
 
-            // Immediately render iData.size() instances to the current FBO
-            // Binds an SSBO to the 
+            // Immediately render iData.size() instances to the current FBO, uploads iData 
+            // directly to the static instance buffer and binds it to SSBOBinding::InstanceBuffer
             template <typename InstanceData>
             void DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData);
 
@@ -96,6 +105,7 @@ namespace Phi
             // Mesh data
             std::vector<Vertex> vertices;
             std::vector<GLuint> indices;
+            bool useIndices;
 
             // OpenGL Resources
             Texture* textures[(int)TexUnit::MAX_TEXTURES] = {nullptr};
@@ -107,5 +117,8 @@ namespace Phi
 
             // Texture storage for all meshes
             static std::unordered_map<std::string, Texture> loadedTextures;
+
+            // Instance buffer used by all meshes
+            static inline GPUBuffer* instanceBuffer = nullptr;
     };
 }

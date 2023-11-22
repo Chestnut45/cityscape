@@ -47,6 +47,15 @@ namespace Phi
                 Add(2, GL_FLOAT);
                 break;
             
+            case VertexFormat::POS_COLOR_NORM_UV1_UV2:
+                stride = sizeof(VertexPosColorNormUv1Uv2);
+                Add(3, GL_FLOAT);
+                Add(4, GL_FLOAT);
+                Add(3, GL_FLOAT);
+                Add(2, GL_FLOAT);
+                Add(2, GL_FLOAT);
+                break;
+            
             case VertexFormat::POS_COLOR_UV:
                 stride = sizeof(VertexPosColorUv);
                 Add(3, GL_FLOAT);
@@ -79,7 +88,6 @@ namespace Phi
         {
             // This call stores the index buffer object id in the currently bound VAO
             ebo->Bind(GL_ELEMENT_ARRAY_BUFFER);
-            useIndices = true;
         }
 
         glBindVertexArray(0);

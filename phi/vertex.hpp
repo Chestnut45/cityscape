@@ -15,6 +15,7 @@ namespace Phi
         POS_COLOR,
         POS_COLOR_NORM,
         POS_COLOR_NORM_UV,
+        POS_COLOR_NORM_UV1_UV2, // Internal format for Assimp-imported meshes
         POS_COLOR_UV,
         POS_NORM,
         POS_NORM_UV,
@@ -47,6 +48,15 @@ namespace Phi
         GLfloat r, g, b, a;
         GLfloat nx, ny, nz;
         GLfloat u, v;
+    };
+
+    struct VertexPosColorNormUv1Uv2
+    {
+        GLfloat x, y, z;
+        GLfloat r, g, b, a;
+        GLfloat nx, ny, nz;
+        GLfloat u1, v1;
+        GLfloat u2, v2;
     };
 
     struct VertexPosColorUv

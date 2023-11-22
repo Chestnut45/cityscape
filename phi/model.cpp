@@ -106,7 +106,10 @@ namespace Phi
         // Load material textures
         if (mesh->mMaterialIndex >= 0)
         {
+            // Grab the material associated with the mesh
+            aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
+            // TODO: Load relevant textures
         }
     }
 }

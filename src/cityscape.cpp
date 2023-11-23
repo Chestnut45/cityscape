@@ -33,6 +33,9 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     // Initialize camera pos
     mainCamera.SetPosition(glm::vec3(0, 2, 4));
 
+    // TESTING:
+    Phi::Model streetlight = {"data/models/streetlight.obj"};
+
     // Initial generation
     Regenerate();
 

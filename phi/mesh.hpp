@@ -176,7 +176,7 @@ namespace Phi
             this->indices = *indices;
         }
 
-        std::cout << "Mesh created" << std::endl;
+        std::cout << "Mesh created @" << this << std::endl;
         IncreaseReferences();
     }
 
@@ -184,7 +184,7 @@ namespace Phi
     Mesh<Vertex>::~Mesh()
     {
         Reset();
-        std::cout << "Mesh destroyed" << std::endl;
+        std::cout << "Mesh destroyed @" << this << std::endl;
         DecreaseReferences();
     }
 

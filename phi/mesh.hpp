@@ -160,7 +160,7 @@ namespace Phi
     template <typename Vertex>
     Mesh<Vertex>::Mesh()
     {
-        std::cout << "Mesh created" << std::endl;
+        std::cout << "Mesh created @" << this <<  std::endl;
         IncreaseReferences();
     }
 
@@ -210,8 +210,7 @@ namespace Phi
     template <typename Vertex>
     void Mesh<Vertex>::AddTexture(const std::string& path, TexUnit type)
     {
-        std::cout << "Texture loaded by mesh" << std::endl;
-
+        std::cout << "Mesh texture loaded: " << path << std::endl;
     }
 
 

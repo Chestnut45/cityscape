@@ -34,7 +34,7 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     mainCamera.SetPosition(glm::vec3(0, 2, 4));
 
     // TESTING:
-    Phi::Model streetlight = {"data/models/streetlight.obj"};
+    streetlight = new Phi::Model("data/models/streetlight.obj");
 
     // Initial generation
     Regenerate();
@@ -61,6 +61,9 @@ Cityscape::~Cityscape()
     delete gNormalTex;
     delete gColorSpecTex;
     delete gDepthStencilTex;
+
+    // Delete models
+    delete streetlight;
 
     std::cout << "Cityscape shutdown successfully" << std::endl;
 }

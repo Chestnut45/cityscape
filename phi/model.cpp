@@ -103,8 +103,11 @@ namespace Phi
             }
         }
 
-        // Construct mesh object and move to vector
-        Mesh<Vertex>& meshObj = meshes.emplace_back(&vertices, &indices);
+        // Construct mesh object in-place (no copy)
+        meshes.emplace_back(&vertices, &indices);
+
+        // Grab a reference to the one we just emplaced
+        Mesh<Vertex>& meshObj = meshes[meshes.size()];
 
         // Load material textures
         if (mesh->mMaterialIndex >= 0)

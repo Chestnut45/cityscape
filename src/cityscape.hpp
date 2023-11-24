@@ -41,8 +41,10 @@ class Cityscape: public Phi::App
     private:
 
         // Components
+        Phi::Model* streetlight = nullptr;
         Phi::Camera mainCamera;
         Sky sky;
+        
 
         // Lighting pass objects
         Phi::Shader globalLightShader;

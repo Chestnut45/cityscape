@@ -1,12 +1,13 @@
 #include "vertexattributes.hpp"
 #include "vertex.hpp"
 
+// Geometry data used in various places
+// All specific shapes are wrapped in a namespace so globals can be constrained to their scope
 namespace Phi
 {
-    // Geometric constants
+    // Global geometric constants
     static constexpr float TAU = 6.28318530718;
 
-    // Wrapped it in a namespace so globals X and Z are constrained to this scope
     namespace Icosphere
     {
         // Icosphere data
@@ -20,10 +21,7 @@ namespace Phi
             {Z, X, 0.0f}, {-Z, X, 0.0f}, {Z, -X, 0.0f}, {-Z, -X, 0.0f}
         };
 
-        // NOTE: These indices specify the INTERNAL tris of an icosphere
-        // This is so we can avoid changing glCullFace() modes in the render method,
-        // since we only want to render the internal faces of light volumes
-        // to avoid them disappearing when we enter them
+        // NOTE: These indices specify the INTERNAL tris of an icosphere with CCW winding
         static const GLuint ICOSPHERE_INDICES[] =
         {
             0, 4, 1,

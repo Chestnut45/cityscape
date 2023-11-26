@@ -15,7 +15,7 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_ONE, GL_ONE);
 
-    // Create the gBuffer FBO
+    // Create the gBuffer
     RecreateFBO();
 
     // Load lighting pass shader

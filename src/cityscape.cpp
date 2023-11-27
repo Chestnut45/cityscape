@@ -219,6 +219,9 @@ void Cityscape::Render()
     }
     Building::FlushDrawCalls();
 
+    // TESTING
+    streetlight->Draw(globalLightShader);
+
     // Lighting passes
 
     // First bind all gBuffer textures appropriately

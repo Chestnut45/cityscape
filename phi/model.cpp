@@ -107,46 +107,46 @@ namespace Phi
         meshes.emplace_back(&vertices, &indices);
 
         // Grab a reference to the one we just emplaced
-        Mesh<Vertex>& meshObj = meshes[meshes.size()];
+        Mesh<Vertex>& meshObj = meshes[meshes.size() - 1];
 
         // Load material textures
         if (mesh->mMaterialIndex >= 0)
         {
             // Grab the material associated with the mesh
             aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+            aiString path;
+
+            // TODO: Turn below into AddMaterialTextures(aiMaterial*, Mesh&, aiTextureType, TexUnitStart, TexUnitEnd)
 
             // Load albedo textures
-            for (int i = (int)TexUnit::ALBEDO_1; i < material->GetTextureCount(aiTextureType_DIFFUSE); ++i)
+            for (int i = 0; i < material->GetTextureCount(aiTextureType_DIFFUSE); ++i)
             {
                 // Stop importing textures if we have no more room
-                if (i > (int)TexUnit::ALBEDO_2) return;
+                if (i + (int)TexUnit::ALBEDO_1 > (int)TexUnit::ALBEDO_2) return;
 
                 // Grab the path and load the texture into the mesh object
-                aiString path;
                 material->GetTexture(aiTextureType_DIFFUSE, i, &path);
                 meshObj.AddTexture(path.C_Str(), (TexUnit)((int)TexUnit::ALBEDO_1 + i));
             }
 
             // Load specular maps
-            for (int i = (int)TexUnit::SPECULAR_1; i < material->GetTextureCount(aiTextureType_SPECULAR); ++i)
+            for (int i = 0; i < material->GetTextureCount(aiTextureType_SPECULAR); ++i)
             {
                 // Stop importing textures if we have no more room
-                if (i > (int)TexUnit::SPECULAR_2) return;
+                if (i + (int)TexUnit::SPECULAR_1 > (int)TexUnit::SPECULAR_2) return;
 
                 // Grab the path and load the texture into the mesh object
-                aiString path;
                 material->GetTexture(aiTextureType_SPECULAR, i, &path);
                 meshObj.AddTexture(path.C_Str(), (TexUnit)((int)TexUnit::SPECULAR_1 + i));
             }
 
             // Load normal maps
-            for (int i = (int)TexUnit::NORMAL_1; i < material->GetTextureCount(aiTextureType_NORMALS); ++i)
+            for (int i = 0; i < material->GetTextureCount(aiTextureType_NORMALS); ++i)
             {
                 // Stop importing textures if we have no more room
-                if (i > (int)TexUnit::NORMAL_2) return;
+                if (i + (int)TexUnit::NORMAL_1 > (int)TexUnit::NORMAL_2) return;
 
                 // Grab the path and load the texture into the mesh object
-                aiString path;
                 material->GetTexture(aiTextureType_NORMALS, i, &path);
                 meshObj.AddTexture(path.C_Str(), (TexUnit)((int)TexUnit::NORMAL_1 + i));
             }

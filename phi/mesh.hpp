@@ -224,7 +224,32 @@ namespace Phi
     template <typename Vertex>
     void Mesh<Vertex>::Draw(const Shader& shader)
     {
+        shader.Use();
 
+        // Bind the VAO
+        vertexAttributes->Bind();
+
+        // Bind all textures
+        for (Texture* tex : textures)
+        {
+            if (tex)
+            {
+                tex->texture.Bind(tex->unit);
+            }
+        }
+
+        // Issue draw call
+        if (useIndices)
+        {
+            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        }
+        else
+        {
+            glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+        }
+
+        // Unbind VAO
+        glBindVertexArray(0);
     }
 
 

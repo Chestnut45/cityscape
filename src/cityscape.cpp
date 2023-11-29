@@ -204,7 +204,7 @@ void Cityscape::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Draw all ground tiles to the gBuffer
-    for(auto &&[entity, ground]: registry.view<GroundTile>().each())
+    for (auto &&[entity, ground]: registry.view<GroundTile>().each())
     {
         ground.Draw();
     }
@@ -212,7 +212,7 @@ void Cityscape::Render()
 
     // Then draw all buildings to the gBuffer
     buildingDrawCount = 0;
-    for(auto &&[entity, building]: registry.view<Building>().each())
+    for (auto &&[entity, building]: registry.view<Building>().each())
     {
         building.Draw();
         buildingDrawCount++;

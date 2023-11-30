@@ -127,7 +127,10 @@ void Building::Draw()
 
     // Ensure we aren't in the process of rendering buildings from this section of the buffer already
     // NOTE: These calls should be essentially free, since glClientWaitSync() should return IMMEDIATELY
-    // if the sync object has already been signaled
+    // if the sync object has already been signaled, but having to sync 2 buffers every time a building
+    // is added to the draw buffer is bad. We could move the sync outside to before we draw any buildings,
+    // but an even better solution would be to have the mesh/model class handling the buffer synchronization
+    // automatically. This should be implemented by the time this is submitted, but if not, it's only because of time.
     vbo->Sync();
     ebo->Sync();
 

@@ -126,6 +126,8 @@ void Building::Draw()
     }
 
     // Ensure we aren't in the process of rendering buildings from this section of the buffer already
+    // NOTE: These calls should be essentially free, since glClientWaitSync() should return IMMEDIATELY
+    // if the sync object has already been signaled
     vbo->Sync();
     ebo->Sync();
 

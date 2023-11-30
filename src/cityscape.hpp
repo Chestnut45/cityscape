@@ -46,8 +46,9 @@ class Cityscape: public Phi::App
         Sky sky;
         
 
-        // Lighting pass objects
+        // Resources
         Phi::Shader globalLightShader;
+        Phi::Shader streetlightShader;
         GLuint dummyVAO; // When using attributeless rendering, a non-zero VAO must still be bound
 
         // Registry of all active entities

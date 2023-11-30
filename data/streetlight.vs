@@ -10,6 +10,7 @@ layout(std140, binding = 0) uniform CameraBlock
 
 // Vertex data inputs
 in vec3 vPos;
+in vec3 vColor;
 in vec3 vNorm;
 in vec2 vUv1;
 in vec2 vUv2;
@@ -27,5 +28,6 @@ void main()
     // Varying outputs
     fragPos = vPos;
     normal = vNorm;
-    texCoords = vUv;
+    texCoords1 = vUv1;
+    texCoords2 = vUv2;
 }

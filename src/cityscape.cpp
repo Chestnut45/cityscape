@@ -23,6 +23,11 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     globalLightShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/globalLightPass.fs");
     globalLightShader.Link();
 
+    // Load streetlight shader
+    streetlightShader.LoadShaderSource(GL_VERTEX_SHADER, "data/streetlight.vs");
+    streetlightShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/streetlight.fs");
+    streetlightShader.Link();
+
     // Generate placeholder empty VAO for attributeless rendering
     // This is really only used for drawing a fullscreen triangle generated
     // by a vertex shader for some post-processing effects since it saves
@@ -220,7 +225,7 @@ void Cityscape::Render()
     Building::FlushDrawCalls();
 
     // TESTING
-    streetlight->Draw(globalLightShader);
+    streetlight->Draw(streetlightShader);
 
     // Lighting passes
 

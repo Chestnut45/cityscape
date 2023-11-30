@@ -71,6 +71,11 @@ namespace Phi
                 vertexAttributes = other.vertexAttributes;
                 vertexBuffer = other.vertexBuffer;
                 indexBuffer = other.indexBuffer;
+
+                // Ensure other doesn't free resources early
+                other.vertexAttributes = nullptr;
+                other.vertexBuffer = nullptr;
+                other.indexBuffer = nullptr;
                 
                 // Texture pointers must be handled a bit more carefully
                 // Steal all textures and set to nullptr before reseting,
@@ -80,8 +85,6 @@ namespace Phi
                     textures[i] = other.textures[i];
                     other.textures[i] = nullptr;
                 }
-
-                other.Reset();
 
                 std::cout << "Mesh moved from " << &other << " to " << this << std::endl;
 
@@ -105,12 +108,12 @@ namespace Phi
             void Commit();
 
             // Immediately render to the current FBO
-            void Draw(const Shader& shader);
+            void Draw(const Shader& shader) const;
 
             // Immediately render iData.size() instances to the current FBO, uploads iData 
             // directly to the static instance buffer and binds it to SSBOBinding::InstanceBuffer
             template <typename InstanceData>
-            void DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData);
+            void DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData) const;
 
             // Clear all mesh data, cleanup resources, return to initial state
             void Reset();
@@ -217,12 +220,20 @@ namespace Phi
     template <typename Vertex>
     void Mesh<Vertex>::Commit()
     {
+        // VAO creation (for now only model vertex format)
+        if (std::is_same_v<Vertex, VertexPosColorNormUv1Uv2>)
+        {
+            vertexBuffer = new GPUBuffer(BufferType::Static, sizeof(Vertex) * vertices.size(), vertices.data());
+            indexBuffer = new GPUBuffer(BufferType::Static, sizeof(GLuint) * indices.size(), indices.data());
+            vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_NORM_UV1_UV2, vertexBuffer, indexBuffer);
+        }
+
         std::cout << "Mesh resources committed to VRAM" << std::endl;
     }
 
 
     template <typename Vertex>
-    void Mesh<Vertex>::Draw(const Shader& shader)
+    void Mesh<Vertex>::Draw(const Shader& shader) const
     {
         shader.Use();
 
@@ -234,7 +245,7 @@ namespace Phi
         {
             if (tex)
             {
-                tex->texture.Bind(tex->unit);
+                tex->texture.Bind((int)tex->unit);
             }
         }
 
@@ -255,7 +266,7 @@ namespace Phi
 
     template <typename Vertex>
     template <typename InstanceData>
-    void Mesh<Vertex>::DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData)
+    void Mesh<Vertex>::DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData) const
     {
         
     }
@@ -285,9 +296,9 @@ namespace Phi
             }
         }
 
-        if (vertexAttributes) delete vertexAttributes;
-        if (vertexBuffer) delete vertexBuffer;
-        if (indexBuffer) delete indexBuffer;
+        if (vertexAttributes) { delete vertexAttributes; vertexAttributes = nullptr; }
+        if (vertexBuffer) { delete vertexBuffer; vertexBuffer = nullptr; }
+        if (indexBuffer) { delete indexBuffer; indexBuffer = nullptr; }
     }
 
     // Reference counting helpers

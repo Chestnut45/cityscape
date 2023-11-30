@@ -13,7 +13,7 @@ in vec3 vPos;
 in vec3 vNorm;
 in vec2 vUv;
 
-// Fragment outputs
+// Per-fragment outputs
 layout(location = 0) out vec3 fragPos;
 layout(location = 1) out vec3 normal;
 layout(location = 2) out vec2 texCoords;

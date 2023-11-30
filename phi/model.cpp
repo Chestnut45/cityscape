@@ -26,7 +26,10 @@ namespace Phi
 
     void Model::Draw(const Shader& shader)
     {
-
+        for (const auto& mesh : meshes)
+        {
+            mesh.Draw(shader);
+        }
     }
 
     template <typename InstanceData>

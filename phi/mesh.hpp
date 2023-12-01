@@ -72,13 +72,12 @@ namespace Phi
                 vertexBuffer = other.vertexBuffer;
                 indexBuffer = other.indexBuffer;
 
-                // Ensure other doesn't free resources early
+                // Ensure other mesh doesn't free resources we're stealing on destruction
                 other.vertexAttributes = nullptr;
                 other.vertexBuffer = nullptr;
                 other.indexBuffer = nullptr;
-                
-                // Texture pointers must be handled a bit more carefully
-                // Steal all textures and set to nullptr before reseting,
+
+                // Steal all textures and set others to nullptr
                 // so the texture refCounts are unaffected
                 for (int i = 0; i < (int)TexUnit::MAX_TEXTURES; ++i)
                 {

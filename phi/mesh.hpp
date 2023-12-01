@@ -219,11 +219,13 @@ namespace Phi
     template <typename Vertex>
     void Mesh<Vertex>::Commit()
     {
-        // VAO creation (for now only model vertex format)
+        // Create VBO and EBO
+        vertexBuffer = new GPUBuffer(BufferType::Static, sizeof(Vertex) * vertices.size(), vertices.data());
+        indexBuffer = new GPUBuffer(BufferType::Static, sizeof(GLuint) * indices.size(), indices.data());
+        
+        // VAO creation (Depends on vertex format)
         if (std::is_same_v<Vertex, VertexPosColorNormUv1Uv2>)
         {
-            vertexBuffer = new GPUBuffer(BufferType::Static, sizeof(Vertex) * vertices.size(), vertices.data());
-            indexBuffer = new GPUBuffer(BufferType::Static, sizeof(GLuint) * indices.size(), indices.data());
             vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_NORM_UV1_UV2, vertexBuffer, indexBuffer);
         }
 

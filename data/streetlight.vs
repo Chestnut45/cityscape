@@ -17,9 +17,10 @@ in vec2 vUv2;
 
 // Per-fragment outputs
 layout(location = 0) out vec3 fragPos;
-layout(location = 1) out vec3 normal;
-layout(location = 2) out vec2 texCoords1;
-layout(location = 3) out vec2 texCoords2;
+layout(location = 1) out vec3 color;
+layout(location = 2) out vec3 normal;
+layout(location = 3) out vec2 texCoords1;
+layout(location = 4) out vec2 texCoords2;
 
 void main()
 {
@@ -27,6 +28,7 @@ void main()
 
     // Varying outputs
     fragPos = vPos;
+    color = vColor;
     normal = vNorm;
     texCoords1 = vUv1;
     texCoords2 = vUv2;

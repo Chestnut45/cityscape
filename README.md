@@ -2,27 +2,19 @@
 
 ### D'Anyil Landry
 
-## Build Instructions
-
-### Prerequisites
+## Prerequisites
 
 - C/C++ Tools VSCode extension
 - CMake
 - A C++20 compliant compiler
+- NOTE: MSYS2 or ninja may be helpful for configuring cmake to use gcc on windows
 
-### Linux
+## Build Instructions
 
-CMake: Configure\
-CMake: Build (Target Cityscape)\
-Run with debugging
-
-### Windows
-
-- MSYS2 or ninja may be helpful for configuring cmake to use gcc on windows
+### Linux/Windows
 
 CMake: Configure\
-CMake: Build (Target Cityscape)\
-Run with debugging
+CMake: Build (Target Cityscape)
 
 ### Tested Platforms
 
@@ -47,7 +39,7 @@ Mouse Scroll: Zoom
 
 ### data:
 
-All data files for the project; shaders, textures, etc.
+All data files for the project; shaders, textures, models, etc.
 
 ### src:
 
@@ -55,7 +47,7 @@ All of the project source, including the main.cpp entrypoint and all cityscape f
 
 ### phi:
 
-Phi is the micro-engine I've put together for this assignment. I wrote every line, except the App class, which is basically just an adlib of the W_App class from wolf, but with support for other OpenGL context versions and some basic performance monitoring. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera.
+Phi is the micro-engine I've put together for this assignment. I wrote every line, except the App class, which is basically just an adlib of the W_App class from wolf, but with support for other OpenGL context versions and some basic performance monitoring. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera. It's by no means complete, but it's a great starting point for my personal projects and I can add more features to it as I encounter the need for them.
 
 ## Extras Chosen:
 

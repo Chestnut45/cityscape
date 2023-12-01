@@ -6,7 +6,7 @@ namespace Phi
     {
         // Create the importer and read the model file
         Assimp::Importer importer;
-        const aiScene *scene = importer.ReadFile(objPath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_FlipUVs);
+        const aiScene *scene = importer.ReadFile(objPath, aiProcess_Triangulate | aiProcess_FlipUVs);
 
         // Ensure the scene was imported correctly
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
@@ -68,9 +68,13 @@ namespace Phi
             v.y = mesh->mVertices[i].y;
             v.z = mesh->mVertices[i].z;
 
-            v.nx = mesh->mNormals[i].x;
-            v.ny = mesh->mNormals[i].y;
-            v.nz = mesh->mNormals[i].z;
+            // Add normals if present
+            if (mesh->mNormals)
+            {
+                v.nx = mesh->mNormals[i].x;
+                v.ny = mesh->mNormals[i].y;
+                v.nz = mesh->mNormals[i].z;
+            }
 
             // Add colors if present
             if (mesh->mColors[0])

@@ -20,5 +20,5 @@ void main()
     // Store data into geometry buffer
     gPos = fragPos;
     gNorm = normalize(normal);
-    gColorSpec = vec4(1.0);//texture(colorSpecMap, texCoords1);
+    gColorSpec = texture(colorSpecMap, texCoords1);
 }

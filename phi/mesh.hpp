@@ -125,9 +125,9 @@ namespace Phi
             // Mesh texture data format
             struct Texture
             {
-                Texture2D texture;
-                TexUnit unit;
-                std::string path;
+                Texture2D* texture = nullptr;
+                TexUnit unit = TexUnit::ALBEDO_1;
+                std::string path = {};
                 int refCount = 0;
             };
 
@@ -212,6 +212,28 @@ namespace Phi
     template <typename Vertex>
     void Mesh<Vertex>::AddTexture(const std::string& path, TexUnit type)
     {
+        // Ensure this mesh doesn't already have this texture type
+        if (textures[(int)type])
+        {
+            std::cout << "Mesh @" << this << " already contains a texture of type " << (int)type << std::endl;
+            return;
+        }
+
+        // Load texture from disk if not loaded
+        if (loadedTextures.count(path) == 0)
+        {
+            // Load from disk if not loaded yet
+            Texture2D* tex = new Texture2D(path, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_NEAREST, GL_NEAREST, true);
+            loadedTextures[path].texture = tex;
+            loadedTextures[path].path = path;
+            loadedTextures[path].unit = type;
+        }
+
+        // Point to the static texture resource and increase reference counter
+        textures[(int)type] = &loadedTextures[path];
+        loadedTextures[path].refCount++;
+
+        // Final output if successful
         std::cout << "Mesh texture loaded: " << path << std::endl;
     }
 
@@ -246,7 +268,7 @@ namespace Phi
         {
             if (tex)
             {
-                tex->texture.Bind((int)tex->unit);
+                tex->texture->Bind((int)tex->unit);
             }
         }
 
@@ -289,6 +311,7 @@ namespace Phi
                 if (tex->refCount == 0)
                 {
                     // This automatically calls the Texture2D object's destructor
+                    delete tex->texture;
                     loadedTextures.erase(tex->path);
                     tex = nullptr;
                     

@@ -6,7 +6,7 @@ namespace Phi
     {
         // Create the importer and read the model file
         Assimp::Importer importer;
-        const aiScene *scene = importer.ReadFile(objPath, aiProcess_Triangulate | aiProcess_FlipUVs);
+        const aiScene *scene = importer.ReadFile(objPath, aiProcess_Triangulate);
 
         // Ensure the scene was imported correctly
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 

@@ -47,7 +47,7 @@ All of the project source, including the main.cpp entrypoint and all cityscape f
 
 ### phi:
 
-Phi is the micro-engine I've put together for this assignment. I wrote every line, except the App class, which is basically just an adlib of the W_App class from wolf, but with support for other OpenGL context versions and some basic performance monitoring. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera. It's by no means complete, but it's a great starting point for my personal projects and I can add more features to it as I encounter the need for them.
+Phi is the OpenGL abstraction I've put together for this assignment. I wrote every line, except the App class, which is basically just an adlib of the W_App class from wolf, but with support for other OpenGL context versions and some basic performance monitoring. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera. It's by no means complete, but it's a great starting point for my personal projects and I can add more features to it as I encounter the need for them.
 
 ## Extras Chosen:
 

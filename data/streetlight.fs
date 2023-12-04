@@ -1,7 +1,8 @@
 #version 440
 
 // Texture samplers
-layout(binding = 0) uniform sampler2D colorSpecMap;
+layout(binding = 0) uniform sampler2D colorMap;
+layout(binding = 2) uniform sampler2D specMap;
 
 // Varying inputs
 layout(location = 0) in vec3 fragPos;
@@ -20,5 +21,5 @@ void main()
     // Store data into geometry buffer
     gPos = fragPos;
     gNorm = normalize(normal);
-    gColorSpec = texture(colorSpecMap, texCoords1);
+    gColorSpec = texture(colorMap, texCoords1);
 }

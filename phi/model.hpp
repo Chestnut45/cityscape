@@ -30,12 +30,15 @@ namespace Phi
             void operator=(Model&& other) = delete;
 
             // Immediately render to the current FBO
-            void Draw(const Shader& shader);
+            void Draw(const Shader& shader) const;
 
             // Immediately render iData.size() instances of the model to the current FBO, uploads iData 
             // directly to the static instance buffer and binds it to SSBOBinding::InstanceBuffer
             template <typename InstanceData>
-            void DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData);
+            void DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData) const;
+
+            // Const access to individual mesh resources by index
+            const Mesh<Vertex>& GetMesh(int index) const { return meshes[index]; };
 
         // Data / implementation
         private:

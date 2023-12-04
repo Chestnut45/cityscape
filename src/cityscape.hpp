@@ -41,14 +41,14 @@ class Cityscape: public Phi::App
     private:
 
         // Components
-        Phi::Model* streetlight = nullptr;
+        Phi::Model* streetLight = nullptr;
         Phi::Camera mainCamera;
         Sky sky;
-        
 
         // Resources
         Phi::Shader globalLightShader;
-        Phi::Shader streetlightShader;
+        Phi::Shader streetLightShader;
+        Phi::Shader lightSourceShader;
         GLuint dummyVAO; // When using attributeless rendering, a non-zero VAO must still be bound
 
         // Registry of all active entities
@@ -93,7 +93,7 @@ class Cityscape: public Phi::App
         static inline std::uniform_int_distribution<int> storyDist{3, Building::MAX_STORIES};
         static inline std::uniform_int_distribution<int> variantDist{0, Building::NUM_VARIANTS - 1};
         static inline std::uniform_int_distribution<int> boolDist{0, 1};
-        static inline std::uniform_real_distribution<float> colorDist{0.0f, 1.0f};
+        static inline std::uniform_real_distribution<float> colorDist{0.2f, 1.0f};
 
         // Geometry buffer + textures for deferred rendering
         Phi::FrameBuffer* gBuffer = nullptr;

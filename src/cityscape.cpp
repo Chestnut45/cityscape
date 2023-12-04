@@ -23,10 +23,16 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     globalLightShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/globalLightPass.fs");
     globalLightShader.Link();
 
-    // Load streetlight shader
-    streetlightShader.LoadShaderSource(GL_VERTEX_SHADER, "data/streetlight.vs");
-    streetlightShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/streetlight.fs");
-    streetlightShader.Link();
+    // Load streetLight shader
+    streetLightShader.LoadShaderSource(GL_VERTEX_SHADER, "data/streetLight.vs");
+    streetLightShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/streetLight.fs");
+    streetLightShader.Link();
+
+    // Load light source shader
+    // NOTE: Shares a VS with the streetLight shader
+    lightSourceShader.LoadShaderSource(GL_VERTEX_SHADER, "data/streetLight.vs");
+    lightSourceShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/lightSource.fs");
+    lightSourceShader.Link();
 
     // Generate placeholder empty VAO for attributeless rendering
     // This is really only used for drawing a fullscreen triangle generated
@@ -39,7 +45,7 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     mainCamera.SetPosition(glm::vec3(0, 2, 4));
 
     // TESTING:
-    streetlight = new Phi::Model("data/models/streetlight.obj");
+    streetLight = new Phi::Model("data/models/streetlight.obj");
 
     // Initial generation
     Regenerate();
@@ -68,7 +74,7 @@ Cityscape::~Cityscape()
     delete gDepthStencilTex;
 
     // Delete models
-    delete streetlight;
+    delete streetLight;
 
     std::cout << "Cityscape shutdown successfully" << std::endl;
 }
@@ -223,9 +229,19 @@ void Cityscape::Render()
         buildingDrawCount++;
     }
     Building::FlushDrawCalls();
-
-    // TESTING
-    streetlight->Draw(streetlightShader);
+    
+    // Draw all street lights
+    if (sky.IsNight())
+    {
+        // Draw the bulbs with a different shader during nighttime
+        streetLight->GetMesh(0).Draw(streetLightShader);
+        streetLight->GetMesh(1).Draw(lightSourceShader);
+    }
+    else
+    {
+        // Draw full model using textures during the day
+        streetLight->Draw(streetLightShader);
+    }
 
     // Lighting passes
 

@@ -62,6 +62,7 @@ class Building
         static const inline int MAX_INDICES = 131'072;
 
         // Rendering methods
+        // Note: Can't be const due to writing to internal buffers
         void Draw();
         static void FlushDrawCalls();
     

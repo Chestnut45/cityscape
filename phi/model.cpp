@@ -24,7 +24,7 @@ namespace Phi
 
     }
 
-    void Model::Draw(const Shader& shader)
+    void Model::Draw(const Shader& shader) const
     {
         for (const auto& mesh : meshes)
         {
@@ -33,7 +33,7 @@ namespace Phi
     }
 
     template <typename InstanceData>
-    void Model::DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData)
+    void Model::DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData) const
     {
 
     }

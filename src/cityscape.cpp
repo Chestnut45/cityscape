@@ -433,19 +433,19 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
 
     // Create point lights for each street lamp
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8, 2, 2), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8.0f, 1.7f, 1.65f), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
     cityBlocks[id].push_back(temp);
 
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(2, 2, 8), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(1.65f, 1.7f, 8.0f), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
 
     cityBlocks[id].push_back(temp);
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(14, 2, 8), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(14.35f, 1.7f, 8.0f), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
 
     cityBlocks[id].push_back(temp);
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8, 2, 14), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8.0f, 1.7f, 14.35f), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
     cityBlocks[id].push_back(temp);
 
     // Generate buildings for each quadrant

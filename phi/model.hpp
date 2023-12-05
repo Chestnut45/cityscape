@@ -63,6 +63,8 @@ namespace Phi
     template <typename InstanceData>
     void Model::DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData) const
     {
+        // TODO: Possibly make use of the Mesh instance buffer instead of keeping our own?
+        
         // Upload instance data and bind the buffer
         instanceBuffer->Sync();
         instanceBuffer->Write(iData.data(), iData.size() * sizeof(InstanceData));

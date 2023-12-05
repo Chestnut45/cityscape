@@ -41,7 +41,7 @@ class Cityscape: public Phi::App
     private:
 
         // Components
-        Phi::Model* streetLight = nullptr;
+        Phi::Model* streetLightModel = nullptr;
         Phi::Camera mainCamera;
         Sky sky;
 

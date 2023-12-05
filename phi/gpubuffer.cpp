@@ -175,6 +175,11 @@ namespace Phi
         glBindBufferBase(target, index, id);
     }
 
+    void GPUBuffer::BindRange(GLenum target, GLuint index, GLintptr offset, GLsizeiptr size)
+    {
+        glBindBufferRange(target, index, id, offset, size);
+    }
+
     void GPUBuffer::Lock()
     {
         // If already locked, delete old sync

@@ -45,7 +45,7 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     mainCamera.SetPosition(glm::vec3(0, 2, 4));
 
     // TESTING:
-    streetLight = new Phi::Model("data/models/streetlight.obj");
+    streetLightModel = new Phi::Model("data/models/streetlight.obj");
 
     // Initial generation
     Regenerate();
@@ -74,7 +74,7 @@ Cityscape::~Cityscape()
     delete gDepthStencilTex;
 
     // Delete models
-    delete streetLight;
+    delete streetLightModel;
 
     std::cout << "Cityscape shutdown successfully" << std::endl;
 }
@@ -214,10 +214,14 @@ void Cityscape::Render()
     gBuffer->Bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    static std::vector<glm::vec4> blockInstancePositions;
+    blockInstancePositions.clear();
+
     // Draw all ground tiles to the gBuffer
     for (auto &&[entity, ground]: registry.view<GroundTile>().each())
     {
         ground.Draw();
+        blockInstancePositions.push_back(ground.GetPosition());
     }
     GroundTile::FlushDrawCalls();
 
@@ -233,14 +237,14 @@ void Cityscape::Render()
     // Draw all street lights
     if (sky.IsNight())
     {
-        // Draw the bulbs with a different shader during nighttime
-        streetLight->GetMesh(0).Draw(streetLightShader);
-        streetLight->GetMesh(1).Draw(lightSourceShader);
+        // Draw the bulbs with the light source shader during nighttime
+        streetLightModel->GetMesh(0).DrawInstances(streetLightShader, blockInstancePositions);
+        streetLightModel->GetMesh(1).DrawInstances(lightSourceShader, blockInstancePositions);
     }
     else
     {
         // Draw full model using textures during the day
-        streetLight->Draw(streetLightShader);
+        streetLightModel->DrawInstances(streetLightShader, blockInstancePositions);
     }
 
     // Lighting passes

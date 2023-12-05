@@ -49,9 +49,33 @@ namespace Phi
             
             // Instance buffer used by all models
             static inline GPUBuffer* instanceBuffer = nullptr;
+            static const size_t INSTANCE_BUFFER_SIZE = sizeof(glm::mat4) * 10'000;
+
+            // Reference counter for all models
+            static inline int refCount = 0;
 
             // Helper assimp loading / processing methods
             void ProcessNode(aiNode* node, const aiScene* scene);
             void AddMesh(aiMesh* mesh, const aiScene* scene);
     };
+
+    // Templated implementations
+    template <typename InstanceData>
+    void Model::DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData) const
+    {
+        // Upload instance data and bind the buffer
+        instanceBuffer->Sync();
+        instanceBuffer->Write(iData.data(), iData.size() * sizeof(InstanceData));
+        instanceBuffer->BindRange(GL_SHADER_STORAGE_BUFFER, (int)SSBOBinding::InstanceBuffer, INSTANCE_BUFFER_SIZE * instanceBuffer->GetCurrentSection(), INSTANCE_BUFFER_SIZE);
+        
+        // Instance all meshes without reuploading data
+        for (int i = 0; i < meshes.size(); ++i)
+        {
+            meshes[i].DrawInstances(shader, iData.size());
+        }
+
+        // Lock the buffer section and switch to the next one
+        instanceBuffer->Lock();
+        instanceBuffer->SwapSections();
+    }
 }

@@ -109,10 +109,13 @@ namespace Phi
             // Immediately render to the current FBO
             void Draw(const Shader& shader) const;
 
-            // Immediately render iData.size() instances to the current FBO, uploads iData 
-            // directly to the static instance buffer and binds it to SSBOBinding::InstanceBuffer
+            // Immediately render iData.size() or instanceCount instances of the mesh to the current FBO
+            // NOTE: The first method uploads iData to the static instance buffer, while the second method
+            // only binds the relevant resources and issues the draw call, so the user may use their own
+            // instancing method with any Mesh
             template <typename InstanceData>
             void DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData) const;
+            void DrawInstances(const Shader& shader, int instanceCount) const;
 
             // Clear all mesh data, cleanup resources, return to initial state
             void Reset();
@@ -149,7 +152,7 @@ namespace Phi
 
             // Instance buffer used by all meshes
             static inline GPUBuffer* instanceBuffer = nullptr;
-            static const size_t INSTANCE_BUFFER_SIZE = sizeof(glm::mat4) * 100'000;
+            static const size_t INSTANCE_BUFFER_SIZE = sizeof(glm::mat4) * 10'000;
 
             // Reference counter for all meshes
             static inline int refCount = 0;
@@ -291,7 +294,72 @@ namespace Phi
     template <typename InstanceData>
     void Mesh<Vertex>::DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData) const
     {
-        
+        shader.Use();
+
+        // Bind the VAO
+        vertexAttributes->Bind();
+
+        // Bind all textures
+        for (Texture* tex : textures)
+        {
+            if (tex)
+            {
+                tex->texture->Bind((int)tex->unit);
+            }
+        }
+
+        // Upload instance data and bind the buffer
+        instanceBuffer->Sync();
+        instanceBuffer->Write(iData.data(), iData.size() * sizeof(InstanceData));
+        instanceBuffer->BindRange(GL_SHADER_STORAGE_BUFFER, (int)SSBOBinding::InstanceBuffer, INSTANCE_BUFFER_SIZE * instanceBuffer->GetCurrentSection(), INSTANCE_BUFFER_SIZE);
+
+        // Issue draw call
+        if (useIndices)
+        {
+            glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, iData.size());
+        }
+        else
+        {
+            glDrawArraysInstanced(GL_TRIANGLES, 0, vertices.size(), iData.size());
+        }
+
+        // Lock the buffer section and switch to the next one
+        instanceBuffer->Lock();
+        instanceBuffer->SwapSections();
+
+        // Unbind VAO
+        glBindVertexArray(0);
+    }
+
+    template <typename Vertex>
+    void Mesh<Vertex>::DrawInstances(const Shader& shader, int instanceCount) const
+    {
+        shader.Use();
+
+        // Bind the VAO
+        vertexAttributes->Bind();
+
+        // Bind all textures
+        for (Texture* tex : textures)
+        {
+            if (tex)
+            {
+                tex->texture->Bind((int)tex->unit);
+            }
+        }
+
+        // Issue draw call
+        if (useIndices)
+        {
+            glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, instanceCount);
+        }
+        else
+        {
+            glDrawArraysInstanced(GL_TRIANGLES, 0, vertices.size(), instanceCount);
+        }
+
+        // Unbind VAO
+        glBindVertexArray(0);
     }
 
     template <typename Vertex>

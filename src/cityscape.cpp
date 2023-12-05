@@ -5,7 +5,7 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
 {
     // Enable programs
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_POINT_SIZE);
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     // Back face culling
     glEnable(GL_CULL_FACE);
@@ -61,7 +61,8 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     for (int i = 0; i < MAX_SNOW; ++i)
     {
         std::uniform_real_distribution<float> posDist{-1.0f, 1.0f};
-        snowPositions[i] = {posDist(rng), posDist(rng), posDist(rng), boolDist(rng) + 1.0f};
+        std::uniform_real_distribution<float> sizeDist{1.0f, 4.0f};
+        snowPositions[i] = {posDist(rng), posDist(rng), posDist(rng), sizeDist(rng)};
     }
     snowBuffer = new Phi::GPUBuffer(Phi::BufferType::Dynamic, sizeof(glm::vec4) * MAX_SNOW, snowPositions.data());
     snowBuffer->Bind(GL_ARRAY_BUFFER);
@@ -272,6 +273,18 @@ void Cityscape::Render()
         streetLightModel->DrawInstances(streetLightShader, blockInstancePositions);
     }
 
+    // Draw snow
+    if (festiveMode)
+    {
+        snowShader.Use();
+        snowShader.SetUniform("delta", lastFrameTime);
+        snowShader.SetUniform("time", programLifetime);
+        snowVAO.Bind();
+        snowBuffer->BindBase(GL_SHADER_STORAGE_BUFFER, 1);
+        glDrawArrays(GL_POINTS, 0, MAX_SNOW);
+        snowVAO.Unbind();
+    }
+
     // Lighting passes
 
     // First bind all gBuffer textures appropriately
@@ -320,17 +333,6 @@ void Cityscape::Render()
 
     // Re-enable writing into the depth buffer after all lights have been drawn
     glDepthMask(GL_TRUE);
-
-    // Draw snow
-    if (festiveMode)
-    {
-        snowShader.Use();
-        snowShader.SetUniform("delta", lastFrameTime);
-        snowVAO.Bind();
-        snowBuffer->BindBase(GL_SHADER_STORAGE_BUFFER, 1);
-        glDrawArrays(GL_POINTS, 0, MAX_SNOW);
-        snowVAO.Unbind();
-    }
 
     // Lock the camera buffer
     mainCamera.GetUBO().Lock();

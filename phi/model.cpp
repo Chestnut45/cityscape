@@ -4,14 +4,6 @@ namespace Phi
 {    
     Model::Model(const std::string& objPath)
     {
-        if (refCount == 0)
-        {
-            // Initialize static resources
-            instanceBuffer = new GPUBuffer(BufferType::DynamicDoubleBuffer, INSTANCE_BUFFER_SIZE);
-        }
-
-        refCount++;
-
         // Create the importer and read the model file
         Assimp::Importer importer;
         const aiScene *scene = importer.ReadFile(objPath, aiProcess_Triangulate);
@@ -29,12 +21,6 @@ namespace Phi
 
     Model::~Model()
     {
-        refCount--;
-
-        if (refCount == 0)
-        {
-            delete instanceBuffer;
-        }
     }
 
     void Model::Draw(const Shader& shader) const

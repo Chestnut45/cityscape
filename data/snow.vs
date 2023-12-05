@@ -34,7 +34,7 @@ void main()
     float noise = openSimplex2SDerivatives_Conventional(vPos.xyz + vec3(time)).w;
 
     // Calculate position
-    vec3 pos = vPos.xyz + cameraPos.xyz + vec3(noise);
+    vec3 pos = vPos.xyz + cameraPos.xyz;
 
     // Keep all the snow centered around the camera
     gl_Position = viewProj * vec4(pos, 1.0);
@@ -42,7 +42,7 @@ void main()
 
     // Set position and normal
     fragPos = pos;
-    normal = vec3(noise);
+    normal = vec3(0, 1, 0);
 
     // Update the position after rendering
     vec4 nextPos = vPos;

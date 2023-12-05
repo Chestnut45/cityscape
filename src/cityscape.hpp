@@ -20,6 +20,9 @@
 #include "groundtile.hpp"
 #include "sky.hpp"
 
+// Constants
+const size_t MAX_SNOW = 20'000;
+
 class Cityscape: public Phi::App
 {
     // Interface
@@ -39,15 +42,19 @@ class Cityscape: public Phi::App
 
     // Data / implementation
     private:
-    
-        // Resources
+
         Sky sky;
         Phi::Camera mainCamera;
+
+        // Resources
         Phi::Model* streetLightModel = nullptr;
         Phi::Shader globalLightShader;
         Phi::Shader streetLightShader;
         Phi::Shader lightSourceShader;
-        GLuint dummyVAO; // When using attributeless rendering, a non-zero VAO must still be bound
+        Phi::Shader snowShader;
+        Phi::GPUBuffer* snowBuffer = nullptr;
+        Phi::VertexAttributes snowVAO;
+        GLuint dummyVAO;
 
         // Registry of all active entities
         entt::registry registry;
@@ -67,6 +74,7 @@ class Cityscape: public Phi::App
         float cameraSpeed = 8.0f;
         bool infinite = false;
         bool partyMode = false;
+        bool festiveMode = false;
         bool fullscreen = false;
         bool vsync = false;
         bool keepGUIOpen = false;
@@ -75,6 +83,7 @@ class Cityscape: public Phi::App
         bool paused = false;
         bool timeAdvance = true;
         float lightTimer = 0.2f;
+        float lastFrameTime = 0.0f;
 
         // Internal statistics
         int buildingDrawCount = 0;
@@ -86,12 +95,12 @@ class Cityscape: public Phi::App
         void GenerateBlock(const glm::ivec2& id);
         void DeleteBlock(const glm::ivec2& id);
 
-        // RNG objects
+        // RNG
         static inline std::default_random_engine rng{4545L};
         static inline std::uniform_int_distribution<int> storyDist{3, Building::MAX_STORIES};
         static inline std::uniform_int_distribution<int> variantDist{0, Building::NUM_VARIANTS - 1};
         static inline std::uniform_int_distribution<int> boolDist{0, 1};
-        static inline std::uniform_real_distribution<float> colorDist{0.2f, 1.0f};
+        glm::vec4 RandomColor() const;
 
         // Geometry buffer + textures for deferred rendering
         Phi::FrameBuffer* gBuffer = nullptr;

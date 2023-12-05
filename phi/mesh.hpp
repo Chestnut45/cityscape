@@ -111,8 +111,7 @@ namespace Phi
 
             // Immediately render iData.size() or instanceCount instances of the mesh to the current FBO
             // NOTE: The first method uploads iData to the static instance buffer, while the second method
-            // only binds the relevant resources and issues the draw call, so the user may use their own
-            // instancing method with any Mesh
+            // only binds the relevant resources and issues the draw call, so the user may use their own instancing method
             template <typename InstanceData>
             void DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData) const;
             void DrawInstances(const Shader& shader, int instanceCount) const;

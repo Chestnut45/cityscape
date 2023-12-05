@@ -2,7 +2,7 @@
 
 namespace Phi
 {
-    GPUBuffer::GPUBuffer(BufferType type, GLuint size, const void* const data) : size(size), type(type)
+    GPUBuffer::GPUBuffer(BufferType type, size_t size, const void* const data) : size(size), type(type)
     {
         glGenBuffers(1, &id);
 

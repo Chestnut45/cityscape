@@ -32,7 +32,7 @@ namespace Phi
         public:
 
             // Constructor: size is the usable size in bytes of a single section
-            GPUBuffer(BufferType type, GLuint size, const void* const data = NULL);
+            GPUBuffer(BufferType type, size_t size, const void* const data = NULL);
             ~GPUBuffer();
 
             // Delete copy constructor/assignment
@@ -84,7 +84,7 @@ namespace Phi
             
             // Buffer state / data
             BufferType type;
-            GLuint size;
+            size_t size;
             GLuint currentSection = 0;
             GLuint numSections = 1;
 

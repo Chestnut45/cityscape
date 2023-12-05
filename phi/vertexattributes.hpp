@@ -36,6 +36,7 @@ namespace Phi
 
             // Binding methods
             void Bind() const;
+            void Unbind() const { glBindVertexArray(0); };
 
         // Data / implementation
         private:

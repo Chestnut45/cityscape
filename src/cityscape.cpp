@@ -5,6 +5,7 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
 {
     // Enable programs
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_POINT_SIZE);
 
     // Back face culling
     glEnable(GL_CULL_FACE);
@@ -34,6 +35,11 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     lightSourceShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/lightSource.fs");
     lightSourceShader.Link();
 
+    // Load snow shader
+    snowShader.LoadShaderSource(GL_VERTEX_SHADER, "data/snow.vs");
+    snowShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/snow.fs");
+    snowShader.Link();
+
     // Generate placeholder empty VAO for attributeless rendering
     // This is really only used for drawing a fullscreen triangle generated
     // by a vertex shader for some post-processing effects since it saves
@@ -44,11 +50,25 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     // Initialize camera pos
     mainCamera.SetPosition(glm::vec3(0, 2, 4));
 
-    // TESTING:
+    // Load models
     streetLightModel = new Phi::Model("data/models/streetlight.obj");
 
     // Initial generation
     Regenerate();
+
+    // Generate initial snow positions
+    std::array<glm::vec4, MAX_SNOW> snowPositions;
+    for (int i = 0; i < MAX_SNOW; ++i)
+    {
+        std::uniform_real_distribution<float> posDist{-1.0f, 1.0f};
+        snowPositions[i] = {posDist(rng), posDist(rng), posDist(rng), boolDist(rng) + 1.0f};
+    }
+    snowBuffer = new Phi::GPUBuffer(Phi::BufferType::Dynamic, sizeof(glm::vec4) * MAX_SNOW, snowPositions.data());
+    snowBuffer->Bind(GL_ARRAY_BUFFER);
+    snowVAO.Bind();
+    snowVAO.SetStride(sizeof(glm::vec4));
+    snowVAO.Add(4, GL_FLOAT);
+    snowVAO.Unbind();
 
     // Initialize mouse input
     glfwSetInputMode(GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -73,6 +93,8 @@ Cityscape::~Cityscape()
     delete gColorSpecTex;
     delete gDepthStencilTex;
 
+    delete snowBuffer;
+
     // Delete models
     delete streetLightModel;
 
@@ -81,6 +103,8 @@ Cityscape::~Cityscape()
 
 void Cityscape::Update(float delta)
 {
+    lastFrameTime = delta;
+
     // Recreate the Geometry Buffer if the app's window was resized
     if (windowResized)
     {
@@ -115,24 +139,24 @@ void Cityscape::Update(float delta)
         {
             for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
             {
-                pointLight.SetColor({colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+                pointLight.SetColor(RandomColor());
             }
             lightTimeAccum = 0.0f;
         }
     }
-
-    // Turn on lights at night
+    
+    // Update lights
     if (sky.IsNight())
     {
+        // Turn on lights at night
         for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
         {
             if (!pointLight.IsOn()) pointLight.TurnOn();
         }
     }
-    
-    // Turn off lights during the day
-    if (!sky.IsNight())
+    else
     {
+        // Turn off lights during the day
         for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
         {
             if (pointLight.IsOn()) pointLight.TurnOff();
@@ -163,6 +187,7 @@ void Cityscape::Update(float delta)
         ImGui::Checkbox("Keep GUI Open", &keepGUIOpen);
         ImGui::Checkbox("Infinite Mode", &infinite);
         ImGui::Checkbox("Party Mode", &partyMode);
+        ImGui::Checkbox("Festive Mode", &festiveMode);
         ImGui::NewLine();
 
         // Sky / timing
@@ -295,6 +320,17 @@ void Cityscape::Render()
 
     // Re-enable writing into the depth buffer after all lights have been drawn
     glDepthMask(GL_TRUE);
+
+    // Draw snow
+    if (festiveMode)
+    {
+        snowShader.Use();
+        snowShader.SetUniform("delta", lastFrameTime);
+        snowVAO.Bind();
+        snowBuffer->BindBase(GL_SHADER_STORAGE_BUFFER, 1);
+        glDrawArrays(GL_POINTS, 0, MAX_SNOW);
+        snowVAO.Unbind();
+    }
 
     // Lock the camera buffer
     mainCamera.GetUBO().Lock();
@@ -453,19 +489,19 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
 
     // Create point lights for each street lamp
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8.0f, 1.7f, 1.65f), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8.0f, 1.7f, 1.65f), 8.0f}, RandomColor());
     cityBlocks[id].push_back(temp);
 
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(1.65f, 1.7f, 8.0f), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
-
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(1.65f, 1.7f, 8.0f), 8.0f}, RandomColor());
     cityBlocks[id].push_back(temp);
-    temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(14.35f, 1.7f, 8.0f), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
 
-    cityBlocks[id].push_back(temp);
     temp = registry.create();
-    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8.0f, 1.7f, 14.35f), 8.0f}, glm::vec4{colorDist(rng), colorDist(rng), colorDist(rng), 1.0f});
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(14.35f, 1.7f, 8.0f), 8.0f}, RandomColor());
+    cityBlocks[id].push_back(temp);
+
+    temp = registry.create();
+    registry.emplace<PointLight>(temp, glm::vec4{blockPos + glm::vec3(8.0f, 1.7f, 14.35f), 8.0f}, RandomColor());
     cityBlocks[id].push_back(temp);
 
     // Generate buildings for each quadrant
@@ -506,6 +542,21 @@ void Cityscape::DeleteBlock(const glm::ivec2& id)
     for (entt::entity entity : cityBlocks[id])
     {
         registry.destroy(entity);
+    }
+}
+
+// Generates the next random color to be used for a street light
+glm::vec4 Cityscape::RandomColor() const
+{
+    static std::uniform_real_distribution<float> colorDist{0.2f, 1.0f};
+
+    if (festiveMode)
+    {
+        return boolDist(rng) ? glm::vec4{1.0f, 0.0f, 0.0f, 1.0f} : glm::vec4{0.0f, 1.0f, 0.0f, 1.0f};
+    }
+    else
+    {
+        return std::move(glm::vec4{glm::normalize(glm::vec3(colorDist(rng), colorDist(rng), colorDist(rng))), 1.0f});
     }
 }
 

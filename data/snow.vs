@@ -28,23 +28,34 @@ out vec3 normal;
 // Function declarations
 vec4 openSimplex2SDerivatives_Conventional(vec3 X);
 
+// Gold Noise ©2015 dcerisano@standard3d.com
+// - based on the Golden Ratio
+// - uniform normalized distribution
+// - fastest static noise generator function (also runs at low precision)
+// - use with indicated fractional seeding method.
+float PHI = 1.61803398874989484820459;  // Φ = Golden Ratio
+
+float gold_noise(in vec2 xy, in float seed){
+       return fract(tan(distance(xy*PHI, xy)*seed)*xy.x);
+}
+
 void main()
 {
     // Calculate noise value
-    float noise = openSimplex2SDerivatives_Conventional(vPos.xyz + vec3(time)).w;
+    float noise = openSimplex2SDerivatives_Conventional(vPos.xyz + cameraPos.xyz).w;
 
-    // Calculate position
-    vec3 pos = vPos.xyz + cameraPos.xyz;
+    // Calculate visible position
+    vec3 pos = vPos.xyz + cameraPos.xyz + vec3(noise, 0.0, noise);
 
-    // Keep all the snow centered around the camera
+    // Set position and size
     gl_Position = viewProj * vec4(pos, 1.0);
     gl_PointSize = vPos.w;
 
-    // Set position and normal
+    // Varying outputs
     fragPos = pos;
-    normal = vec3(0, 1, 0);
+    normal = normalize(vec3(noise, 1.0, noise));
 
-    // Update the position after rendering
+    // Update the position in the buffer after rendering
     vec4 nextPos = vPos;
     nextPos.y -= 0.1 * delta;
     nextPos.y = nextPos.y < -1.0 ? 1.0 : nextPos.y;

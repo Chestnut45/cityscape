@@ -57,8 +57,9 @@ void main()
                     (max(dot(fragNorm, moonDir), 0) * moon.color.rgb * moon.color.a);
 
     // Specular reflections
-    vec3 sunHalfDir = normalize(sunDir + (normalize(cameraPos.xyz - fragPos)));
-    vec3 moonHalfDir = normalize(moonDir + (normalize(cameraPos.xyz - fragPos)));
+    vec3 viewDir = normalize(cameraPos.xyz - fragPos);
+    vec3 sunHalfDir = normalize(sunDir + viewDir);
+    vec3 moonHalfDir = normalize(moonDir + viewDir);
     float specSun = pow(max(dot(fragNorm, sunHalfDir), 0), shininess);
     float specMoon = pow(max(dot(fragNorm, moonHalfDir), 0), shininess);
     vec3 specular = specularStrength * ((specSun * sun.color.rgb * sun.color.a) + (specMoon * moon.color.rgb * moon.color.a));

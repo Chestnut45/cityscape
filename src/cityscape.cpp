@@ -40,6 +40,11 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     snowShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/snow.fs");
     snowShader.Link();
 
+    // Load snowbank shader
+    snowbankShader.LoadShaderSource(GL_VERTEX_SHADER, "data/snowbank.vs");
+    snowbankShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/snowbank.fs");
+    snowbankShader.Link();
+
     // Generate placeholder empty VAO for attributeless rendering
     // This is really only used for drawing a fullscreen triangle generated
     // by a vertex shader for some post-processing effects since it saves
@@ -52,6 +57,7 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
 
     // Load models
     streetLightModel = new Phi::Model("data/models/streetlight.obj");
+    snowbankModel = new Phi::Model("data/models/snow.obj");
 
     // Initial generation
     Regenerate();
@@ -131,7 +137,7 @@ void Cityscape::Update(float delta)
         sky.Update();
     }
 
-    // Party Mode: Change the color of every loaded light at the rate determined by lightTimer
+    // Update light colors for special modes
     if (partyMode)
     {
         static float lightTimeAccum = 0;
@@ -145,6 +151,12 @@ void Cityscape::Update(float delta)
             lightTimeAccum = 0.0f;
         }
     }
+
+    // Festive Mode: Adjust snow accumulation
+    if (festiveMode)
+        snowAccumulation = snowAccumulation >= 1.0f ? 1.0f : snowAccumulation + lastFrameTime * 0.1f;
+    else
+        snowAccumulation = snowAccumulation <= -1.0f ? -1.0f : snowAccumulation - lastFrameTime * 0.1f;
     
     // Update lights
     if (sky.IsNight())
@@ -188,7 +200,14 @@ void Cityscape::Update(float delta)
         ImGui::Checkbox("Keep GUI Open", &keepGUIOpen);
         ImGui::Checkbox("Infinite Mode", &infinite);
         ImGui::Checkbox("Party Mode", &partyMode);
-        ImGui::Checkbox("Festive Mode", &festiveMode);
+        if (ImGui::Checkbox("Festive Mode", &festiveMode))
+        {
+            // Regenerate all light colors if mode is toggled
+            for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
+            {
+                pointLight.SetColor(RandomColor());
+            }
+        };
         ImGui::NewLine();
 
         // Sky / timing
@@ -240,6 +259,7 @@ void Cityscape::Render()
     gBuffer->Bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Hold a vector of all currently loaded blocks and their offsets
     static std::vector<glm::vec4> blockInstancePositions;
     blockInstancePositions.clear();
 
@@ -273,9 +293,10 @@ void Cityscape::Render()
         streetLightModel->DrawInstances(streetLightShader, blockInstancePositions);
     }
 
-    // Draw snow
+    // Draw snow effect
     if (festiveMode)
     {
+        // Snow particles
         snowShader.Use();
         snowShader.SetUniform("delta", lastFrameTime);
         snowShader.SetUniform("time", programLifetime);
@@ -284,6 +305,11 @@ void Cityscape::Render()
         glDrawArrays(GL_POINTS, 0, MAX_SNOW);
         snowVAO.Unbind();
     }
+
+    // Draw the snow accumulation (regardless of festive mode)
+    snowbankShader.Use();
+    snowbankShader.SetUniform("accumulationHeight", snowAccumulation);
+    snowbankModel->DrawInstances(snowbankShader, blockInstancePositions);
 
     // Lighting passes
 

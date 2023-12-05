@@ -46,12 +46,18 @@ class Cityscape: public Phi::App
         Sky sky;
         Phi::Camera mainCamera;
 
-        // Resources
+        // Models
         Phi::Model* streetLightModel = nullptr;
+        Phi::Model* snowbankModel = nullptr;
+        
+        // Shaders
         Phi::Shader globalLightShader;
         Phi::Shader streetLightShader;
         Phi::Shader lightSourceShader;
         Phi::Shader snowShader;
+        Phi::Shader snowbankShader;
+
+        // Other resources
         Phi::GPUBuffer* snowBuffer = nullptr;
         Phi::VertexAttributes snowVAO;
         GLuint dummyVAO;
@@ -88,6 +94,7 @@ class Cityscape: public Phi::App
         // Internal statistics
         int buildingDrawCount = 0;
         int lightDrawCount = 0;
+        float snowAccumulation = -1.0f;
 
         // Internal methods for simulation / generation
         void Regenerate();

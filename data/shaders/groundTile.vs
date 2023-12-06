@@ -6,6 +6,8 @@ const uint MAX_INSTANCES = 128u;
 layout(std140, binding = 0) uniform CameraBlock
 {
     mat4 viewProj;
+    mat4 view;
+    mat4 proj;
     vec4 cameraPos;
     vec2 resolution;
 };

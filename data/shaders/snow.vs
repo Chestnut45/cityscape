@@ -1,11 +1,11 @@
 #version 440
 
-const float MINIMUM_WIND_LEVEL = 0.5;
-
 // Camera uniform block
 layout(std140, binding = 0) uniform CameraBlock
 {
     mat4 viewProj;
+    mat4 view;
+    mat4 proj;
     vec4 cameraPos;
     vec2 resolution;
 };
@@ -33,7 +33,7 @@ vec4 openSimplex2SDerivatives_ImproveXY(vec3 X);
 void main()
 {
     float delta = deltaTimeWind.x;
-    float wind = max(deltaTimeWind.z, MINIMUM_WIND_LEVEL);
+    float wind = deltaTimeWind.z;
 
     // Calculate noise values
     float noiseX = openSimplex2SDerivatives_Conventional((cameraPos.xyz + vPos.xyz) * wind * wind).w;
@@ -44,15 +44,15 @@ void main()
 
     // Set position and size for the point sprites
     gl_Position = viewProj * vec4(pos, 1.0);
-    gl_PointSize = vPos.w;
+    gl_PointSize = vPos.w * proj[1][1] / gl_Position.w / 2;
 
     // Interpolate position after noise offset for fragment position
     fragPos = pos;
 
-    // Random normals that always have an "up" component so they will always reflect some moonlight
+    // Random normals that always have an "up" component so they will always reflect some sun/moonlight
     // This approximates the effect of each snowflake rotating with the wind, so swirls of flakes will
     // face similar directions
-    normal = normalize(vec3(noiseX, 1.0, noiseZ));
+    normal = normalize(vec3(noiseX, 0.75, noiseZ));
 
     // Update the position in the buffer after rendering
     vec4 nextPos = vPos;

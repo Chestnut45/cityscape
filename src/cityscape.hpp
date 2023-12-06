@@ -76,14 +76,21 @@ class Cityscape: public Phi::App
         glm::vec2 prevMousePos;
 
         // Settings
+        bool keepGUIOpen = false;
+        bool fullscreen = false;
+        bool vsync = false;
         float mouseSensitivity = 8.0f;
         float cameraSpeed = 8.0f;
+
         bool infinite = false;
         bool partyMode = false;
         bool festiveMode = false;
-        bool fullscreen = false;
-        bool vsync = false;
-        bool keepGUIOpen = false;
+
+        bool snow = false;
+        float snowIntensity = 1.0f;
+        float snowAccumulation = 0.0f;
+        float baseAccumulationLevel = 0.02f;
+        float maxAccumulation = 1.5f;
 
         // Timing
         bool paused = false;
@@ -94,7 +101,6 @@ class Cityscape: public Phi::App
         // Internal statistics
         int buildingDrawCount = 0;
         int lightDrawCount = 0;
-        float snowAccumulation = -1.0f;
 
         // Internal methods for simulation / generation
         void Regenerate();

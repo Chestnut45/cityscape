@@ -1,5 +1,7 @@
 #version 440
 
+const float SNOW_DRIFTINESS = 0.6;
+
 // Camera uniform block
 layout(std140, binding = 0) uniform CameraBlock
 {
@@ -34,8 +36,8 @@ void main()
     vec3 pos = vPos + instancePosition[gl_InstanceID].xyz;
     
     // Calculate noise value and apply to snow height
-    float noise = openSimplex2SDerivatives_Conventional(pos).w;
-    pos.y += noise + accumulationHeight;
+    float noise = openSimplex2SDerivatives_Conventional(pos).w * SNOW_DRIFTINESS;
+    pos.y += noise + accumulationHeight - 1.0;
 
     gl_Position = viewProj * vec4(pos, 1.0);
 

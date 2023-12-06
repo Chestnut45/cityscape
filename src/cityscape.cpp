@@ -66,8 +66,8 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     std::array<glm::vec4, MAX_SNOW> snowPositions;
     for (int i = 0; i < MAX_SNOW; ++i)
     {
-        std::uniform_real_distribution<float> posDist{-1.0f, 1.0f};
-        std::uniform_real_distribution<float> sizeDist{1.0f, 4.0f};
+        std::uniform_real_distribution<float> posDist{-2.0f, 2.0f};
+        std::uniform_real_distribution<float> sizeDist{1.0f, 6.0f,};
         snowPositions[i] = {posDist(rng), posDist(rng), posDist(rng), sizeDist(rng)};
     }
     snowBuffer = new Phi::GPUBuffer(Phi::BufferType::Dynamic, sizeof(glm::vec4) * MAX_SNOW, snowPositions.data());
@@ -135,6 +135,12 @@ void Cityscape::Update(float delta)
         // Advance time and wrap at dayCycle
         sky.currentTime += delta;
         sky.Update();
+
+        // Adjust snow accumulation if time is being simulated
+        if (snow)
+            snowAccumulation = snowAccumulation >= maxAccumulation ? maxAccumulation : snowAccumulation + lastFrameTime * snowIntensity * baseAccumulationLevel;
+        else
+            snowAccumulation = snowAccumulation <= 0.0f ? 0.0f : snowAccumulation - lastFrameTime * baseAccumulationLevel;
     }
 
     // Update light colors for special modes
@@ -151,12 +157,6 @@ void Cityscape::Update(float delta)
             lightTimeAccum = 0.0f;
         }
     }
-
-    // Festive Mode: Adjust snow accumulation
-    if (festiveMode)
-        snowAccumulation = snowAccumulation >= 1.0f ? 1.0f : snowAccumulation + lastFrameTime * 0.1f;
-    else
-        snowAccumulation = snowAccumulation <= -1.0f ? -1.0f : snowAccumulation - lastFrameTime * 0.1f;
     
     // Update lights
     if (sky.IsNight())
@@ -179,8 +179,16 @@ void Cityscape::Update(float delta)
     // Render ImGui window
     if (paused || keepGUIOpen)
     {
-        // Main window
         ImGui::Begin("Cityscape");
+
+        ImGui::Checkbox("Keep GUI Open", &keepGUIOpen);
+        ImGui::Separator();
+
+        // Simulation statistics
+        ImGui::Text("Simulation:");
+        ImGui::Text("Buildings: %d", buildingDrawCount);
+        ImGui::Text("Lights: %d", lightDrawCount);
+        ImGui::Separator();
         
         // Performance monitoring
         ImGui::Text("Performance:");
@@ -191,31 +199,7 @@ void Cityscape::Update(float delta)
         ImGui::PlotLines("Render:", renderSamples.data(), renderSamples.size(), 0, (const char*)nullptr, 0.0f, 16.6f, {128.0f, 32.0f});
         ImGui::SameLine();
         ImGui::Text("%.2fms", lastRender * 1000);
-        ImGui::NewLine();
-
-        // Options / statistics
-        ImGui::Text("Simulation:");
-        ImGui::Text("Buildings: %d", buildingDrawCount);
-        ImGui::Text("Lights: %d", lightDrawCount);
-        ImGui::Checkbox("Keep GUI Open", &keepGUIOpen);
-        ImGui::Checkbox("Infinite Mode", &infinite);
-        ImGui::Checkbox("Party Mode", &partyMode);
-        if (ImGui::Checkbox("Festive Mode", &festiveMode))
-        {
-            // Regenerate all light colors if mode is toggled
-            for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
-            {
-                pointLight.SetColor(RandomColor());
-            }
-        };
-        ImGui::NewLine();
-
-        // Sky / timing
-        ImGui::Text("Sky:");
-        if (ImGui::SliderFloat("Day Cycle", &sky.dayCycle, 1.0f, 120.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
-        if (ImGui::SliderFloat("Time", &sky.currentTime, 0.0f, sky.dayCycle, "%.3f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
-        ImGui::Checkbox("Time Playback", &timeAdvance);
-        ImGui::NewLine();
+        ImGui::Separator();
 
         // Graphics settings
         ImGui::Text("Graphics Settings:");
@@ -238,12 +222,41 @@ void Cityscape::Update(float delta)
             }
         }
         if (ImGui::Checkbox("Vsync", &vsync)) glfwSwapInterval(vsync);
-        ImGui::NewLine();
+
+        ImGui::End();
+
+        // Control window
+        ImGui::Begin("Controls");
+
+        ImGui::SliderFloat("Camera Speed", &cameraSpeed, 1.0f, 10.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::Separator();
+
+        ImGui::Checkbox("Infinite Mode", &infinite);
+        ImGui::Checkbox("Party Mode", &partyMode);
+        if (ImGui::Checkbox("Festive Colors", &festiveMode))
+        {
+            // Regenerate all light colors if mode is toggled
+            for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
+            {
+                pointLight.SetColor(RandomColor());
+            }
+        };
+        ImGui::Separator();
+
+        // Timing and weather controls
+        ImGui::Checkbox("Time Advance", &timeAdvance);
+        if (ImGui::SliderFloat("Day Length", &sky.dayCycle, 1.0f, 120.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
+        if (ImGui::SliderFloat("Time of Day", &sky.currentTime, 0.0f, sky.dayCycle, "%.2f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
+        ImGui::Separator();
+
+        ImGui::Checkbox("Snow", &snow);
+        ImGui::SliderFloat("Intensity", &snowIntensity, 1.0f, 5.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SliderFloat("Accumulation", &snowAccumulation, 0.0f, maxAccumulation, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::Separator();
 
         // Generation button
         if (ImGui::Button("Regenerate")) Regenerate();
 
-        // End main window
         ImGui::End();
     }
 }
@@ -294,12 +307,11 @@ void Cityscape::Render()
     }
 
     // Draw snow effect
-    if (festiveMode)
+    if (snow)
     {
         // Snow particles
         snowShader.Use();
-        snowShader.SetUniform("delta", lastFrameTime);
-        snowShader.SetUniform("time", programLifetime);
+        snowShader.SetUniform("deltaTimeWind", glm::vec3(lastFrameTime, programLifetime, snowIntensity));
         snowVAO.Bind();
         snowBuffer->BindBase(GL_SHADER_STORAGE_BUFFER, 1);
         glDrawArrays(GL_POINTS, 0, MAX_SNOW);

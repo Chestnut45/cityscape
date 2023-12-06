@@ -1,5 +1,7 @@
 #version 440
 
+const float MINIMUM_WIND_LEVEL = 0.5;
+
 // Camera uniform block
 layout(std140, binding = 0) uniform CameraBlock
 {
@@ -14,9 +16,8 @@ layout(std140, binding = 1) buffer snowVerts
     vec4 vertPositions[];
 };
 
-// Timing uniforms
-uniform float delta;
-uniform float time;
+// Combined data uniform
+uniform vec3 deltaTimeWind;
 
 // Vertex inputs
 in vec4 vPos;
@@ -27,22 +28,14 @@ out vec3 normal;
 
 // Function declarations
 vec4 openSimplex2SDerivatives_Conventional(vec3 X);
-
-// Gold Noise ©2015 dcerisano@standard3d.com
-// - based on the Golden Ratio
-// - uniform normalized distribution
-// - fastest static noise generator function (also runs at low precision)
-// - use with indicated fractional seeding method.
-float PHI = 1.61803398874989484820459;  // Φ = Golden Ratio
-
-float gold_noise(in vec2 xy, in float seed){
-       return fract(tan(distance(xy*PHI, xy)*seed)*xy.x);
-}
+vec4 openSimplex2SDerivatives_ImproveXY(vec3 X);
 
 void main()
 {
+    float wind = max(deltaTimeWind.z, MINIMUM_WIND_LEVEL);
+
     // Calculate noise value
-    float noise = openSimplex2SDerivatives_Conventional(vPos.xyz + cameraPos.xyz).w;
+    float noise = openSimplex2SDerivatives_ImproveXY((cameraPos.xyz + vPos.xyz) * wind * wind).w;
 
     // Calculate visible position
     vec3 pos = vPos.xyz + cameraPos.xyz + vec3(noise, 0.0, noise);
@@ -57,8 +50,8 @@ void main()
 
     // Update the position in the buffer after rendering
     vec4 nextPos = vPos;
-    nextPos.y -= 0.1 * delta;
-    nextPos.y = nextPos.y < -1.0 ? 1.0 : nextPos.y;
+    nextPos.y -= 0.1 * deltaTimeWind.x;
+    nextPos.y = nextPos.y < -2.0 ? 2.0 : nextPos.y;
     vertPositions[gl_VertexID] = nextPos;
 }
 
@@ -67,13 +60,14 @@ void main()
 // https://github.com/KdotJPG/OpenSimplex2
 
 // Borrowed from Stefan Gustavson's noise code
-vec4 permute(vec4 t) {
+vec4 permute(vec4 t)
+{
     return t * (t * 34.0 + 133.0);
 }
 
 // Gradient set is a normalized expanded rhombic dodecahedron
-vec3 grad(float hash) {
-    
+vec3 grad(float hash)
+{
     // Random vertex of a cube, +/- 1 each
     vec3 cube = mod(floor(hash / vec3(1.0, 2.0, 4.0)), 2.0) * 2.0 - 1.0;
     
@@ -100,7 +94,8 @@ vec3 grad(float hash) {
 }
 
 // BCC lattice split up into 2 cube lattices
-vec4 openSimplex2SDerivativesPart(vec3 X) {
+vec4 openSimplex2SDerivativesPart(vec3 X)
+{
     vec3 b = floor(X);
     vec4 i4 = vec4(X - b, 2.5);
     
@@ -132,10 +127,28 @@ vec4 openSimplex2SDerivativesPart(vec3 X) {
 }
 
 // Use this if you don't want Z to look different from X and Y
-vec4 openSimplex2SDerivatives_Conventional(vec3 X) {
+vec4 openSimplex2SDerivatives_Conventional(vec3 X)
+{
     X = dot(X, vec3(2.0/3.0)) - X;
     
     vec4 result = openSimplex2SDerivativesPart(X) + openSimplex2SDerivativesPart(X + 144.5);
     
     return vec4(dot(result.xyz, vec3(2.0/3.0)) - result.xyz, result.w);
 }
+
+// Use this if you want to show X and Y in a plane, then use Z for time, vertical, etc.
+vec4 openSimplex2SDerivatives_ImproveXY(vec3 X)
+{
+    // Not a skew transform.
+    mat3 orthonormalMap = mat3(
+        0.788675134594813, -0.211324865405187, -0.577350269189626,
+        -0.211324865405187, 0.788675134594813, -0.577350269189626,
+        0.577350269189626, 0.577350269189626, 0.577350269189626);
+    
+    X = orthonormalMap * X;
+    vec4 result = openSimplex2SDerivativesPart(X) + openSimplex2SDerivativesPart(X + 144.5);
+    
+    return vec4(result.xyz * orthonormalMap, result.w);
+}
+
+//////////////////////////////// End noise code ////////////////////////////////

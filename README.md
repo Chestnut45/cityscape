@@ -43,11 +43,11 @@ All data files for the project; shaders, textures, models, etc.
 
 ### src:
 
-All of the project source, including the main.cpp entrypoint and all cityscape files.
+All of the cityscape source files, including the main.cpp entrypoint and all non-engine code.
 
 ### phi:
 
-Phi is the OpenGL abstraction I've put together for this assignment. I wrote every line, except the App class, which is basically just an adlib of the W_App class from wolf, but with support for other OpenGL context versions and some basic performance monitoring. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera. It's by no means complete, but it's a great starting point for my personal projects and I can add more features to it as I encounter the need for them.
+Phi is the micro-engine I've put together for this assignment. I wrote every line, except for the App class, which is basically just an adlib of the W_App class from wolf, but with support for other OpenGL context versions and some basic performance monitoring. It has a few RAII wrapper classes for OpenGL resources (buffer objects, textures, etc.), and a small number of more complex resources like a renderable mesh class and a basic camera. It's by no means complete, but it's a great starting point for my personal projects and I can add more features to it as I encounter the need for them.
 
 ## Extras Chosen:
 
@@ -85,7 +85,7 @@ The sky's skybox colors are blended with both main directional light colors by t
 
 ### Weather Simulation:
 
-On December 4th, there was a really cool looking snowstorm, so I added snow to the cityscape.
+On December 4th, there was a really cool looking snowstorm, and it inspired me to add snow to the cityscape.
 
 - Snow accumulation/melting will only update if `Time Advance` is checked.
 - Snow will only accumulate if `Snowstorm` is also checked
@@ -96,9 +96,8 @@ On December 4th, there was a really cool looking snowstorm, so I added snow to t
 
 Immediately after calculating the position offset due to wind and assigning a value to gl_Position, the vertex shader applies a constant velocity downward (since snow has a relatively low terminal velocity), and wraps each particle's position back up to the top of the "effect box" that surrounds the camera.
 
-Since each snowflake is rendered to the geometry buffer, they will also automatically have the entire scene's lighting applied to them. This is achieved by the vertex shader generating normals for each snowflake that are based on the same noise value used to generate the wind offsets. You should be able to see the effect of this by standing close to the street lights, where some snowflakes may reflect the light from the street light not closest to them. Rationale for this behaviour is that snowflakes would be rotating as they fall, so the specular reflections could be from *any* nearby light.
+Since each snowflake is rendered to the geometry buffer, they will also automatically have the entire scene's lighting applied to them. This is achieved by the vertex shader generating normals for each snowflake that are based on the same noise value used to generate the wind offsets. You should be able to see the effect of this by standing close to the street lights, where some snowflakes may reflect the light from the street light not closest to them. Rationale for this behaviour is that snowflakes would be rotating due to the wind, so the specular reflections could be from *any* nearby light.
 
-Example:
 ![snow_loop.GIF](https://github.com/Chestnut45/cityscape/blob/main/snow_loop.GIF)
 
 ### Persistent Mapped Buffer Streaming
@@ -111,4 +110,4 @@ The main reason for double/triple buffering is to minimize the client sync point
 
 ### Automagical VAOs:
 
-A number of internal vertex formats are included which can be used to automatically construct a `VertexAttributes` object (My VAO wrapper class). This is only applicable when you tightly pack your vertices into the buffer you supply to the constructor, but that's the majority of VBO use cases anyway, so I think the convenience is warranted :)
+A number of internal vertex formats are included which can be used to automatically construct a `VertexAttributes` object (Phi's VAO wrapper class). This is only applicable when you tightly pack your vertices into the buffer you supply to the constructor, but I think the convenience is warranted :)

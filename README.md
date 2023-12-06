@@ -96,7 +96,9 @@ On December 4th, there was a really cool looking snowstorm, and it inspired me t
 
 Immediately after calculating the position offset due to wind and assigning a value to gl_Position, the vertex shader applies a constant velocity downward (since snow has a relatively low terminal velocity), and wraps each particle's position back up to the top of the "effect box" that surrounds the camera. After all vertex shader outputs have finished, we simply write back the updated particle position to the same location of the same buffer by binding the buffer object to an indexed SSBO binding point that is accessible to the vertex shader.
 
-Since each snowflake is rendered to the geometry buffer, they will also automatically have the entire scene's lighting applied to them. This is achieved by the vertex shader generating normals for each snowflake that are based on the same noise value used to generate the wind offsets. You should be able to see the effect of this by standing close to the street lights, where some snowflakes may reflect the light from the street light not closest to them. Rationale for this behaviour is that snowflakes would be rotating due to the wind, so the specular reflections could be from *any* nearby light.
+Since each snowflake is rendered to the geometry buffer, they will also automatically have the entire scene's lighting applied to them. This is achieved by the vertex shader generating normals for each snowflake that are based on the same noise values used to generate the wind offsets. You should be able to see the effect of this by standing close to the street lights, where some snowflakes may reflect the light from the street light not closest to them. Rationale for this behaviour is that snowflakes would be rotating due to the wind, so the specular reflections could be from *any* nearby light.
+
+(Relevant resources are in data/shaders/snow.[v|f]s)
 
 ![snow_loop.GIF](https://github.com/Chestnut45/cityscape/blob/main/snow_loop.GIF)
 

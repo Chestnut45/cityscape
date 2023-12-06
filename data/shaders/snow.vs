@@ -32,25 +32,31 @@ vec4 openSimplex2SDerivatives_ImproveXY(vec3 X);
 
 void main()
 {
+    float delta = deltaTimeWind.x;
     float wind = max(deltaTimeWind.z, MINIMUM_WIND_LEVEL);
 
-    // Calculate noise value
-    float noise = openSimplex2SDerivatives_ImproveXY((cameraPos.xyz + vPos.xyz) * wind * wind).w;
+    // Calculate noise values
+    float noiseX = openSimplex2SDerivatives_Conventional((cameraPos.xyz + vPos.xyz) * wind * wind).w;
+    float noiseZ = openSimplex2SDerivatives_Conventional((cameraPos.xyz + vPos.xyz + vec3(10)) * wind * wind).w;
 
-    // Calculate visible position
-    vec3 pos = vPos.xyz + cameraPos.xyz + vec3(noise, 0.0, noise);
+    // Calculate offset position
+    vec3 pos = vPos.xyz + cameraPos.xyz + vec3(noiseX, 0.0, noiseZ);
 
-    // Set position and size
+    // Set position and size for the point sprites
     gl_Position = viewProj * vec4(pos, 1.0);
     gl_PointSize = vPos.w;
 
-    // Varying outputs
+    // Interpolate position after noise offset for fragment position
     fragPos = pos;
-    normal = normalize(vec3(noise, 1.0, noise));
+
+    // Random normals that always have an "up" component so they will always reflect some moonlight
+    // This approximates the effect of each snowflake rotating with the wind, so swirls of flakes will
+    // face similar directions
+    normal = normalize(vec3(noiseX, 1.0, noiseZ));
 
     // Update the position in the buffer after rendering
     vec4 nextPos = vPos;
-    nextPos.y -= 0.1 * deltaTimeWind.x;
+    nextPos.y -= 0.1 * delta;
     nextPos.y = nextPos.y < -2.0 ? 2.0 : nextPos.y;
     vertPositions[gl_VertexID] = nextPos;
 }

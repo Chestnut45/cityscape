@@ -86,6 +86,8 @@ class Cityscape: public Phi::App
         bool infinite = false;
         bool partyMode = false;
         bool festiveMode = false;
+        bool lightsAlwaysOn = false;
+        bool automaticLights = true;
 
         bool snow = false;
         float snowIntensity = 1.0f;
@@ -106,6 +108,7 @@ class Cityscape: public Phi::App
         // Internal methods for simulation / generation
         void Regenerate();
         void UpdateBlocks();
+        void UpdateLights();
         void GenerateBlock(const glm::ivec2& id);
         void DeleteBlock(const glm::ivec2& id);
 

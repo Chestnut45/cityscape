@@ -126,10 +126,11 @@ void Cityscape::Update(float delta)
     // Process all input for this frame
     ProcessInput(delta);
 
-    // Update the simulated city blocks
+    // Update loaded blocks
     UpdateBlocks();
+    UpdateLights();
 
-    // Update the sky's time if selected
+    // Simulate time and its effects
     if (timeAdvance)
     {
         // Advance time and wrap at dayCycle
@@ -138,42 +139,9 @@ void Cityscape::Update(float delta)
 
         // Adjust snow accumulation if time is being simulated
         if (snow)
-            snowAccumulation = snowAccumulation >= maxAccumulation ? maxAccumulation : snowAccumulation + lastFrameTime * snowIntensity * baseAccumulationLevel;
+            snowAccumulation = snowAccumulation >= maxAccumulation ? maxAccumulation : snowAccumulation + delta * snowIntensity * baseAccumulationLevel;
         else
             snowAccumulation = snowAccumulation <= 0.0f ? 0.0f : snowAccumulation - lastFrameTime * baseAccumulationLevel * (!sky.IsNight() + 1);
-    }
-
-    // Update light colors for special modes
-    if (partyMode)
-    {
-        static float lightTimeAccum = 0;
-        lightTimeAccum += delta;
-        if (lightTimeAccum >= lightTimer)
-        {
-            for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
-            {
-                pointLight.SetColor(RandomColor());
-            }
-            lightTimeAccum = 0.0f;
-        }
-    }
-    
-    // Update lights
-    if (sky.IsNight())
-    {
-        // Turn on lights at night
-        for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
-        {
-            if (!pointLight.IsOn()) pointLight.TurnOn();
-        }
-    }
-    else
-    {
-        // Turn off lights during the day
-        for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
-        {
-            if (pointLight.IsOn()) pointLight.TurnOff();
-        }
     }
 
     // Render ImGui window
@@ -240,6 +208,8 @@ void Cityscape::Update(float delta)
                 pointLight.SetColor(RandomColor());
             }
         };
+        ImGui::Checkbox("Automatic Lights", &automaticLights);
+        ImGui::Checkbox("Lights Override", &lightsAlwaysOn);
         ImGui::Separator();
 
         // Timing and weather controls
@@ -248,8 +218,8 @@ void Cityscape::Update(float delta)
         if (ImGui::SliderFloat("Time of Day", &sky.currentTime, 0.0f, sky.dayCycle, "%.2f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
         ImGui::Separator();
 
-        ImGui::Checkbox("Snowstorm", &snow);
-        ImGui::SliderFloat("Intensity", &snowIntensity, 1.0f, 5.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::Checkbox("Snow", &snow);
+        ImGui::SliderFloat("Intensity", &snowIntensity, 1.0f, 4.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
         ImGui::SliderFloat("Accumulation", &snowAccumulation, 0.0f, maxAccumulation, "%.2f", ImGuiSliderFlags_AlwaysClamp);
         ImGui::Separator();
 
@@ -293,9 +263,9 @@ void Cityscape::Render()
     Building::FlushDrawCalls();
     
     // Draw all street lights
-    if (sky.IsNight())
+    if (sky.IsNight() || lightsAlwaysOn)
     {
-        // Draw the bulbs with the light source shader during nighttime
+        // Draw the bulbs with the light source shader when lights are on
         streetLightModel->GetMesh(0).DrawInstances(streetLightShader, blockInstancePositions);
         streetLightModel->GetMesh(1).DrawInstances(lightSourceShader, blockInstancePositions);
     }
@@ -504,6 +474,55 @@ void Cityscape::UpdateBlocks()
     {
         GenerateBlock(generationQueue.front());
         generationQueue.pop_front();
+    }
+}
+
+// Updates all of the loaded lights in the city
+void Cityscape::UpdateLights()
+{
+    // Update automatic lights unless we want them always on
+    if (!lightsAlwaysOn && automaticLights)
+    {
+        if (sky.IsNight())
+        {
+            // Turn on lights at night
+            for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
+            {
+                if (!pointLight.IsOn()) pointLight.TurnOn();
+            }
+        }
+        else
+        {
+            // Turn off lights during the day
+            for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
+            {
+                if (pointLight.IsOn()) pointLight.TurnOff();
+            }
+        }
+    }
+    else
+    {
+        // Ensure all loaded lights are in correct state
+        for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
+        {
+            if (lightsAlwaysOn) pointLight.TurnOn();
+            else pointLight.TurnOff();
+        }
+    }
+
+    // Update light colors
+    if (partyMode)
+    {
+        static float lightTimeAccum = 0;
+        lightTimeAccum += lastFrameTime;
+        if (lightTimeAccum >= lightTimer)
+        {
+            for (auto &&[entity, pointLight] : registry.view<PointLight>().each())
+            {
+                pointLight.SetColor(RandomColor());
+            }
+            lightTimeAccum = 0.0f;
+        }
     }
 }
 

@@ -67,7 +67,7 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/texture
     for (int i = 0; i < MAX_SNOW; ++i)
     {
         std::uniform_real_distribution<float> posDist{-2.0f, 2.0f};
-        std::uniform_real_distribution<float> sizeDist{1.0f, 6.0f,};
+        std::uniform_real_distribution<float> sizeDist{1.0f, 4.0f,};
         snowPositions[i] = {posDist(rng), posDist(rng), posDist(rng), sizeDist(rng)};
     }
     snowBuffer = new Phi::GPUBuffer(Phi::BufferType::Dynamic, sizeof(glm::vec4) * MAX_SNOW, &snowPositions);
@@ -335,12 +335,10 @@ void Cityscape::Render()
     glBlitFramebuffer(0, 0, wWidth, wHeight, 0, 0, wWidth, wHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT);
-
-    // Disable writing to the depth buffer here so lights don't affect it
+    
+    // Global light pass
     glDepthMask(GL_FALSE);
     glDepthFunc(GL_ALWAYS);
-
-    // Global light pass
 
     // Draw a fullscreen triangle to calculate global lighting on every pixel in the scene
     globalLightShader.Use();
@@ -349,9 +347,7 @@ void Cityscape::Render()
     glBindVertexArray(0);
 
     // Point light pass
-    
     glEnable(GL_BLEND);
-    
 
     // Draw each point light
     lightDrawCount = 0;

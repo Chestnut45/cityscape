@@ -42,9 +42,11 @@ void main()
     // Calculate offset position
     vec3 pos = vPos.xyz + cameraPos.xyz + vec3(noiseX, 0.0, noiseZ);
 
-    // Set position and size for the point sprites
+    // Set final position
     gl_Position = viewProj * vec4(pos, 1.0);
-    gl_PointSize = vPos.w * proj[1][1] / gl_Position.w / 2;
+
+    // Adjust size of snowflake
+    gl_PointSize = vPos.w * proj[1][1] / gl_Position.w;
 
     // Interpolate position after noise offset for fragment position
     fragPos = pos;

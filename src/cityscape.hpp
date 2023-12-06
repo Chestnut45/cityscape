@@ -51,6 +51,7 @@ class Cityscape: public Phi::App
         Phi::Model* snowbankModel = nullptr;
         
         // Shaders
+        Phi::Shader depthTransferShader;
         Phi::Shader globalLightShader;
         Phi::Shader streetLightShader;
         Phi::Shader lightSourceShader;

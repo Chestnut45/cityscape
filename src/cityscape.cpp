@@ -333,10 +333,12 @@ void Cityscape::Render()
     // Then blit the gBuffer's depth buffer texture to the default framebuffer
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBlitFramebuffer(0, 0, wWidth, wHeight, 0, 0, wWidth, wHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Disable writing to the depth buffer here so lights don't affect it
     glDepthMask(GL_FALSE);
+    glDepthFunc(GL_ALWAYS);
 
     // Global light pass
 
@@ -349,7 +351,7 @@ void Cityscape::Render()
     // Point light pass
     
     glEnable(GL_BLEND);
-    glDepthFunc(GL_ALWAYS);
+    
 
     // Draw each point light
     lightDrawCount = 0;

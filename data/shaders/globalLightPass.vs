@@ -1,12 +1,18 @@
 #version 440
 
-// Output texture coordinates
+// Fullscreen triangle vertices
+// Saves helper fragments that would be generated at the seam of a quad
+const vec2 verts[3] =
+{
+    vec2(-1, -1),
+    vec2(3, -1),
+    vec2(-1, 3)
+};
+
 out vec2 texCoords;
 
 void main()
 {
-    // Generate a fullscreen triangle (saves on extra fragments generated for the inner seam of a quad)
-    vec2 pos = vec2(gl_VertexID % 2, gl_VertexID / 2) * 4.0 - 1;
-    texCoords = (pos + 1) * 0.5;
-    gl_Position = vec4(pos, 0, 1);
+    gl_Position = vec4(verts[gl_VertexID], 0, 1);
+    texCoords = gl_Position.xy * 0.5 + 0.5;
 }

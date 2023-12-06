@@ -68,7 +68,7 @@ namespace Phi
             std::vector<float> renderSamples;
             static const int perfSamplesPerSecond = 240;
             static inline float sampleRate = 1.0f / perfSamplesPerSecond;
-            static inline float fpsUpdateRate = 1.0f / 5.0f;
+            static inline float fpsUpdateRate = 1.0f / 2.0f;
 
             // Input helpers
             bool IsKeyDown(int key) const;

@@ -112,7 +112,7 @@ namespace Phi
             while (timeAccum >= fpsUpdateRate)
             {
                 // 5 updates / second
-                averageFPS = frameCount / timeAccum;
+                averageFPS = (float)frameCount / timeAccum;
                 frameCount = 0;
                 timeAccum -= fpsUpdateRate;
             }

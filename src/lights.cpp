@@ -25,8 +25,8 @@ PointLight::PointLight(const glm::vec4& pos, const glm::vec4& col) : position(po
         vao = new Phi::VertexAttributes(Phi::VertexFormat::POS, vbo, ebo);
 
         shader = new Phi::Shader();
-        shader->LoadShaderSource(GL_VERTEX_SHADER, "data/pointLight.vs");
-        shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/pointLight.fs");
+        shader->LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/pointLight.vs");
+        shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/pointLight.fs");
         shader->Link();
 
         // Instance buffer data

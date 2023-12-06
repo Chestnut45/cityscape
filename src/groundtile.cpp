@@ -24,7 +24,7 @@ GroundTile::GroundTile(const glm::ivec2& id) : position(id.x * TILE_SIZE, 0, id.
     if (refCount == 0)
     {
         // Initialize static resources
-        texture = new Phi::Texture2D("data/cityBlockGround.png", GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
+        texture = new Phi::Texture2D("data/textures/cityBlockGround.png", GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
         vbo = new Phi::GPUBuffer(Phi::BufferType::Static, sizeof(GROUND_VERTICES), GROUND_VERTICES);
         ebo = new Phi::GPUBuffer(Phi::BufferType::Static, sizeof(GROUND_INDICES), GROUND_INDICES);
         vao = new Phi::VertexAttributes(Phi::VertexFormat::POS_NORM_UV, vbo, ebo);
@@ -33,8 +33,8 @@ GroundTile::GroundTile(const glm::ivec2& id) : position(id.x * TILE_SIZE, 0, id.
 
         // Load the default shader
         shader = new Phi::Shader();
-        shader->LoadShaderSource(GL_VERTEX_SHADER, "data/groundTile.vs");
-        shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/groundTile.fs");
+        shader->LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/groundTile.vs");
+        shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/groundTile.fs");
         shader->Link();
     }
 

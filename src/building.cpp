@@ -6,14 +6,14 @@ Building::Building(const glm::ivec3 &pos, int stories, int blocks, int variant, 
     // Initialize static resources if first instance
     if (refCount == 0)
     {
-        textureAtlas = new Phi::Texture2D("data/buildingAtlas.png", GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
+        textureAtlas = new Phi::Texture2D("data/textures/buildingAtlas.png", GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
         vbo = new Phi::GPUBuffer(Phi::BufferType::DynamicDoubleBuffer, sizeof(Phi::VertexPosNormUv) * MAX_VERTICES);
         ebo = new Phi::GPUBuffer(Phi::BufferType::DynamicDoubleBuffer, sizeof(GLuint) * MAX_INDICES);
         vao = new Phi::VertexAttributes(Phi::VertexFormat::POS_NORM_UV, vbo, ebo);
 
         shader = new Phi::Shader();
-        shader->LoadShaderSource(GL_VERTEX_SHADER, "data/building.vs");
-        shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/building.fs");
+        shader->LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/building.vs");
+        shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/building.fs");
         shader->Link();
 
         // Calculate normalized tile size for atlas offsets

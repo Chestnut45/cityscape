@@ -1,7 +1,7 @@
 #include "cityscape.hpp"
 
 // Constructor
-Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxDay", "data/skyboxNight")
+Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/textures/skyboxDay", "data/textures/skyboxNight")
 {
     // Enable programs
     glEnable(GL_DEPTH_TEST);
@@ -20,29 +20,29 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     RecreateFBO();
 
     // Load lighting pass shader
-    globalLightShader.LoadShaderSource(GL_VERTEX_SHADER, "data/globalLightPass.vs");
-    globalLightShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/globalLightPass.fs");
+    globalLightShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/globalLightPass.vs");
+    globalLightShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/globalLightPass.fs");
     globalLightShader.Link();
 
     // Load streetLight shader
-    streetLightShader.LoadShaderSource(GL_VERTEX_SHADER, "data/streetLight.vs");
-    streetLightShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/streetLight.fs");
+    streetLightShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/streetLight.vs");
+    streetLightShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/streetLight.fs");
     streetLightShader.Link();
 
     // Load light source shader
     // NOTE: Shares a VS with the streetLight shader
-    lightSourceShader.LoadShaderSource(GL_VERTEX_SHADER, "data/streetLight.vs");
-    lightSourceShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/lightSource.fs");
+    lightSourceShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/streetLight.vs");
+    lightSourceShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/lightSource.fs");
     lightSourceShader.Link();
 
     // Load snow shader
-    snowShader.LoadShaderSource(GL_VERTEX_SHADER, "data/snow.vs");
-    snowShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/snow.fs");
+    snowShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/snow.vs");
+    snowShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/snow.fs");
     snowShader.Link();
 
     // Load snowbank shader
-    snowbankShader.LoadShaderSource(GL_VERTEX_SHADER, "data/snowbank.vs");
-    snowbankShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/snowbank.fs");
+    snowbankShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/snowbank.vs");
+    snowbankShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/snowbank.fs");
     snowbankShader.Link();
 
     // Generate placeholder empty VAO for attributeless rendering

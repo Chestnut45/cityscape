@@ -79,8 +79,8 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath)
         skyboxVBO = new Phi::GPUBuffer(Phi::BufferType::Static, sizeof(SKYBOX_VERTICES), SKYBOX_VERTICES);
         skyboxVAO = new Phi::VertexAttributes(Phi::VertexFormat::POS, skyboxVBO);
         skyboxShader = new Phi::Shader();
-        skyboxShader->LoadShaderSource(GL_VERTEX_SHADER, "data/skybox.vs");
-        skyboxShader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/skybox.fs");
+        skyboxShader->LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/skybox.vs");
+        skyboxShader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/skybox.fs");
         skyboxShader->Link();
 
         // Create resources for rendering sun and moon
@@ -88,8 +88,8 @@ Sky::Sky(const std::string& daySkyboxPath, const std::string& nightSkyboxPath)
         sphereEBO = new Phi::GPUBuffer(Phi::BufferType::Static, sizeof(Phi::Icosphere::ICOSPHERE_INDICES), Phi::Icosphere::ICOSPHERE_INDICES);
         sphereVAO = new Phi::VertexAttributes(Phi::VertexFormat::POS, sphereVBO, sphereEBO);
         celestialBodyShader = new Phi::Shader();
-        celestialBodyShader->LoadShaderSource(GL_VERTEX_SHADER, "data/celestialBody.vs");
-        celestialBodyShader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/celestialBody.fs");
+        celestialBodyShader->LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/celestialBody.vs");
+        celestialBodyShader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/celestialBody.fs");
         celestialBodyShader->Link();
     }
 

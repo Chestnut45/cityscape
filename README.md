@@ -98,6 +98,9 @@ Immediately after calculating the position offset due to wind and assigning a va
 
 Since each snowflake is rendered to the geometry buffer, they will also automatically have the entire scene's lighting applied to them. This is achieved by the vertex shader generating normals for each snowflake that are based on the same noise value used to generate the wind offsets. You should be able to see the effect of this by standing close to the street lights, where some snowflakes may reflect the light from the street light not closest to them. Rationale for this behaviour is that snowflakes would be rotating as they fall, so the specular reflections could be from *any* nearby light.
 
+Example:
+![snow_loop.GIF](https://github.com/Chestnut45/cityscape/blob/main/snow_loop.GIF)
+
 ### Persistent Mapped Buffer Streaming
 
 Phi's GPUBuffer class is made to use many buffer streaming techniques, which are useful for streaming data to the GPU with very minimal driver overhead. If you create a buffer of any of the dynamic types, it will be persistently mapped (until the resource is destroyed), using the `GL_MAP_COHERENT_BIT` flag set. This ensures that all writes through the pointer returned by `glMapBufferRange()` are seen by any subsequent OpenGL operations.

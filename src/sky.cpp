@@ -134,7 +134,7 @@ void Sky::Update()
     // Update sun
     sun.SetPosition({0.0f, st * sunDistance, (1 - ct - 1) * sunDistance, 1.0f});
     sun.SetDirection(-glm::normalize(sun.GetPosition()));
-    sun.SetColor({1.0f, st * 0.8f, std::max(0.32f, ct * 0.32f), std::min(std::max(0.0f, st * sunlightInfluence), 1.0f)});
+    sun.SetColor({1.0f, st * 0.6f, std::max(0.32f, ct * 0.32f), std::min(std::max(0.0f, st * sunlightInfluence), 1.0f)});
 
     // Update moon
     moon.SetPosition({0.0f, so * moonDistance, (1 - co - 1) * moonDistance, 1.0f});

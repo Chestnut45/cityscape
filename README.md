@@ -25,12 +25,12 @@ CMake: Build (Target Cityscape)
 
 ## Controls:
 
+Escape: Pause + Toggle GUI\
+End: End the program
+
 WASD: Movement\
 R: Regenerate cityscape\
 I: Toggle Infinite Mode
-
-Escape: Pause + Toggle GUI\
-End: End the program
 
 Mouse Movement: Look around\
 Mouse Scroll: Zoom
@@ -71,6 +71,8 @@ Both directional lights and point lights are using the Blinn-Phong model (with t
 
 Each building is generated story by story, face by face. Texture offsets into the building texture atlas are procedurally generated for each face based on constructor arguments and rng. (If you are creating a "Door" face, it generates texture coordinates that correspond to the "Door" section of the texture, for the given building variant)
 
+The buildings are drawn using double buffering to build up a draw buffer section containing all currently loaded buildings' vertices and indices once per frame.
+
 ## Other Considerations:
 
 ### Infinite Mode:
@@ -79,21 +81,30 @@ Pressing the I key will toggle Infinite Mode. In this state, city blocks will be
 
 ### Sky:
 
-The sky's skybox colors will be blended with both main directional light colors by the amount of "ambient" in the scene, and interpolated over time of day.
+The sky's skybox colors are blended with both main directional light colors by the amount of "ambient" in the scene, and interpolated over time of day.
+
+### Weather Simulation:
+
+On December 4th, there was a really cool looking snowstorm, so I added snow to the cityscape.
+
+- Snow accumulation/melting will only update if `Time Advance` is checked.
+- Snow will only accumulate if `Snowstorm` is also checked
+- Snow will accumulate faster based on the `Intensity` value for the storm.
+- Snow will melt 2x faster during the day.
+- The snow particle effect consists of 20,000 particles each rasterized as a GL_POINT with a random size from 1 to 6.
+- The particles are updated entirely on the GPU, all the CPU does is calculate initial positions once on program startup, and issue a draw call once per frame.
+
+Immediately after calculating the position offset due to wind and assigning a value to gl_Position, the vertex shader applies a constant velocity downward (since snow has a relatively low terminal velocity), and wraps each particle's position back up to the top of the "effect box" that surrounds the camera.
+
+Since each snowflake is rendered to the geometry buffer, they will also automatically have the entire scene's lighting applied to them. This is achieved by the vertex shader generating normals for each snowflake that are based on the same noise value used to generate the wind offsets. You should be able to see the effect of this by standing close to the street lights, where some snowflakes may reflect the light from the street light not closest to them. Rationale for this behaviour is that snowflakes would be rotating as they fall, so the specular reflections could be from *any* nearby light.
 
 ### Persistent Mapped Buffer Streaming
 
-Phi's GPUBuffer class allows us to use many buffer streaming techniques, which are useful for streaming data to the GPU with very minimal driver overhead. If you create a buffer of any of the dynamic types, it will be persistently mapped (until the resource is destroyed), using the `GL_MAP_COHERENT_BIT` flag set. This ensures that all writes through the pointer returned by `glMapBufferRange()` are seen by any subsequent OpenGL operations.
+Phi's GPUBuffer class is made to use many buffer streaming techniques, which are useful for streaming data to the GPU with very minimal driver overhead. If you create a buffer of any of the dynamic types, it will be persistently mapped (until the resource is destroyed), using the `GL_MAP_COHERENT_BIT` flag set. This ensures that all writes through the pointer returned by `glMapBufferRange()` are seen by any subsequent OpenGL operations.
 
 The main caveat with using persistently mapped buffers is that you must perform synchronization yourself. It's your responsibility not to write to the buffer while any OpenGL calls are reading from it. To this end, the GPUBuffer class provides the `Lock()`, `Sync()`, and `SwapSections()` methods. `Lock()` inserts a fence sync object and associates it with the current section of the buffer, `Sync()` performs a client-blocking sync call until the current section's sync object has been signaled, and `SwapSections()` moves to the next buffer section, or back to the beginning if the current section is the last.
 
 The main reason for double/triple buffering is to minimize the client sync points. The general method is to write to section A of the buffer, issue commands that read from section A, place a sync on section A, then start writing to section B (while the GPU is still reading from section A). In an ideal world, by the time we send commands to read from the final section and swap back to section A for writing, section A's sync object will already be signaled, so the `Sync()` method will return immediately.
-
-The buildings are drawn using double buffering to build up a draw buffer section containing all currently loaded buildings' vertices and indices once per frame.
-
-### Shadow Mapping:
-
-...
 
 ### Automagical VAOs:
 

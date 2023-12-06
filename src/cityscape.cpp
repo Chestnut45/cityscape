@@ -63,14 +63,14 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/skyboxD
     Regenerate();
 
     // Generate initial snow positions
-    std::array<glm::vec4, MAX_SNOW> snowPositions;
+    glm::vec4 snowPositions[MAX_SNOW];
     for (int i = 0; i < MAX_SNOW; ++i)
     {
         std::uniform_real_distribution<float> posDist{-2.0f, 2.0f};
         std::uniform_real_distribution<float> sizeDist{1.0f, 6.0f,};
         snowPositions[i] = {posDist(rng), posDist(rng), posDist(rng), sizeDist(rng)};
     }
-    snowBuffer = new Phi::GPUBuffer(Phi::BufferType::Dynamic, sizeof(glm::vec4) * MAX_SNOW, snowPositions.data());
+    snowBuffer = new Phi::GPUBuffer(Phi::BufferType::Dynamic, sizeof(glm::vec4) * MAX_SNOW, &snowPositions);
     snowBuffer->Bind(GL_ARRAY_BUFFER);
     snowVAO.Bind();
     snowVAO.SetStride(sizeof(glm::vec4));
@@ -140,7 +140,7 @@ void Cityscape::Update(float delta)
         if (snow)
             snowAccumulation = snowAccumulation >= maxAccumulation ? maxAccumulation : snowAccumulation + lastFrameTime * snowIntensity * baseAccumulationLevel;
         else
-            snowAccumulation = snowAccumulation <= 0.0f ? 0.0f : snowAccumulation - lastFrameTime * baseAccumulationLevel;
+            snowAccumulation = snowAccumulation <= 0.0f ? 0.0f : snowAccumulation - lastFrameTime * baseAccumulationLevel * (!sky.IsNight() + 1);
     }
 
     // Update light colors for special modes
@@ -249,7 +249,7 @@ void Cityscape::Update(float delta)
         if (ImGui::SliderFloat("Time of Day", &sky.currentTime, 0.0f, sky.dayCycle, "%.2f", ImGuiSliderFlags_AlwaysClamp)) sky.Update();
         ImGui::Separator();
 
-        ImGui::Checkbox("Snow", &snow);
+        ImGui::Checkbox("Snowstorm", &snow);
         ImGui::SliderFloat("Intensity", &snowIntensity, 1.0f, 5.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
         ImGui::SliderFloat("Accumulation", &snowAccumulation, 0.0f, maxAccumulation, "%.2f", ImGuiSliderFlags_AlwaysClamp);
         ImGui::Separator();

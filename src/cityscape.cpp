@@ -192,7 +192,7 @@ void Cityscape::Update(float delta)
         
         // Performance monitoring
         ImGui::Text("Performance:");
-        ImGui::Text("FPS: %.0f", averageFPS);
+        ImGui::Text("Average FPS: %.0f", averageFPS);
         ImGui::PlotLines("Update:", updateSamples.data(), updateSamples.size(), 0, (const char*)nullptr, 0.0f, 16.6f, {128.0f, 32.0f});
         ImGui::SameLine();
         ImGui::Text("%.2fms", lastUpdate * 1000);

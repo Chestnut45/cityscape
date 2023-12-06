@@ -185,7 +185,6 @@ void Cityscape::Update(float delta)
         ImGui::Separator();
 
         // Simulation statistics
-        ImGui::Text("Simulation:");
         ImGui::Text("Buildings: %d", buildingDrawCount);
         ImGui::Text("Lights: %d", lightDrawCount);
         ImGui::Separator();

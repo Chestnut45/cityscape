@@ -38,10 +38,14 @@ void main()
     vec3 pos = vPos + instancePosition[gl_InstanceID].xyz;
     
     // Calculate noise value and apply to snow height
-    float noise = openSimplex2SDerivatives_Conventional(pos).w * SNOW_DRIFTINESS;
-    pos.y += noise + accumulationHeight - 1.0;
+    vec4 noise = openSimplex2SDerivatives_Conventional(pos);
+    pos.y += noise.w * SNOW_DRIFTINESS + accumulationHeight - 1.0;
 
+    // Set final position
     gl_Position = viewProj * vec4(pos, 1.0);
+
+    // TODO: Calculate normals after noise offset?
+    // float offset = noise.w > 0.0 ? 0.0 : noise.w;
 
     // Send fragment outputs
     fragPos = pos;

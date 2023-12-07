@@ -195,10 +195,12 @@ void Cityscape::Update(float delta)
         // Control window
         ImGui::Begin("Controls");
 
+        ImGui::SliderInt("Render Distance", &renderDistance, 1, 10, "%d", ImGuiSliderFlags_AlwaysClamp);
         ImGui::SliderFloat("Camera Speed", &cameraSpeed, 1.0f, 10.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
         ImGui::Separator();
 
-        ImGui::Checkbox("Infinite Mode", &infinite);
+        ImGui::Checkbox("Automatic Lights", &automaticLights);
+        ImGui::Checkbox("Lights Override", &lightsAlwaysOn);
         ImGui::Checkbox("Party Mode", &partyMode);
         if (ImGui::Checkbox("Festive Colors", &festiveMode))
         {
@@ -208,8 +210,6 @@ void Cityscape::Update(float delta)
                 pointLight.SetColor(RandomColor());
             }
         };
-        ImGui::Checkbox("Automatic Lights", &automaticLights);
-        ImGui::Checkbox("Lights Override", &lightsAlwaysOn);
         ImGui::Separator();
 
         // Timing and weather controls
@@ -351,7 +351,7 @@ void Cityscape::ProcessInput(float delta)
     {
         // Calculate mouse movement
         glm::vec2 mousePos = GetMousePos();
-        glm::vec2 mouseOffset = (mousePos - prevMousePos) * delta * mouseSensitivity;
+        glm::vec2 mouseOffset = (mousePos - prevMousePos) * mouseSensitivity;
 
         // Rotate the camera according to mouse movement
         mainCamera.Rotate(mouseOffset.x, -mouseOffset.y);
@@ -367,9 +367,6 @@ void Cityscape::ProcessInput(float delta)
 
         // Unload blocks and regenerate if we press R
         if (IsKeyJustDown(GLFW_KEY_R)) Regenerate();
-
-        // Toggle infinite generation mode with I
-        if (IsKeyJustDown(GLFW_KEY_I)) infinite = !infinite;
 
         // Zoom the camera according to scroll
         mainCamera.Zoom(GetMouseScroll().y);
@@ -406,9 +403,9 @@ void Cityscape::Regenerate()
 
     // Generate a 10x10 grid of city blocks around the camera
     glm::ivec3 pos = mainCamera.GetPosition() / 16.0f;
-    for (int x = pos.x - 5; x < pos.x + 5; x++)
+    for (int x = pos.x - renderDistance; x < pos.x + renderDistance; x++)
     {
-        for (int z = pos.z - 5; z < pos.z + 5; z++)
+        for (int z = pos.z - renderDistance; z < pos.z + renderDistance; z++)
         {
             GenerateBlock({x, z});
         }
@@ -423,40 +420,37 @@ void Cityscape::Regenerate()
 void Cityscape::UpdateBlocks()
 {
     // Update which chunks should be loaded
-    if (infinite)
+    static std::vector<glm::ivec2> shouldBeLoaded;
+    shouldBeLoaded.clear();
+
+    // Calculate which chunks should be loaded given the camera's position
+    glm::ivec3 pos = mainCamera.GetPosition() / 16.0f;
+    for (int x = pos.x - renderDistance; x < pos.x + renderDistance; ++x)
     {
-        static std::vector<glm::ivec2> shouldBeLoaded;
-        shouldBeLoaded.clear();
-
-        // Calculate which chunks should be loaded given the camera's position
-        glm::ivec3 pos = mainCamera.GetPosition() / 16.0f;
-        for (int x = pos.x - 5; x < pos.x + 5; ++x)
+        for (int z = pos.z - renderDistance; z < pos.z + renderDistance; ++z)
         {
-            for (int z = pos.z - 5; z < pos.z + 5; ++z)
+            shouldBeLoaded.push_back(glm::ivec2(x, z));
+        }
+    }
+
+    // Ensure all chunks are added to generation queue if necessary
+    for (const auto& id : shouldBeLoaded)
+    {
+        if (cityBlocks.count(id) == 0)
+        {
+            if (std::find(generationQueue.begin(), generationQueue.end(), id) == generationQueue.end())
             {
-                shouldBeLoaded.push_back(glm::ivec2(x, z));
+                generationQueue.push_back(id);
             }
         }
+    }
 
-        // Ensure all chunks are added to generation queue if necessary
-        for (const auto& id : shouldBeLoaded)
+    // Ensure any unnecessary chunks are deleted ASAP
+    for (const auto&[id, entityList] : cityBlocks)
+    {
+        if (std::find(shouldBeLoaded.begin(), shouldBeLoaded.end(), id) == shouldBeLoaded.end())
         {
-            if (cityBlocks.count(id) == 0)
-            {
-                if (std::find(generationQueue.begin(), generationQueue.end(), id) == generationQueue.end())
-                {
-                    generationQueue.push_back(id);
-                }
-            }
-        }
-
-        // Ensure any unnecessary chunks are deleted ASAP
-        for (const auto&[id, entityList] : cityBlocks)
-        {
-            if (std::find(shouldBeLoaded.begin(), shouldBeLoaded.end(), id) == shouldBeLoaded.end())
-            {
-                deletionQueue.push_back(id);
-            }
+            deletionQueue.push_back(id);
         }
     }
 

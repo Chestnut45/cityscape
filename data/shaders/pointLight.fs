@@ -30,10 +30,11 @@ void main()
     // Grab data from geometry buffer
     vec3 fragPos = texture(gPos, texCoords).xyz;
     vec3 fragNorm = texture(gNorm, texCoords).xyz;
-    vec3 fragAlbedo = texture(gColorSpec, texCoords).xyz;
+    vec4 colorSpec = texture(gColorSpec, texCoords);
+    vec3 fragAlbedo = colorSpec.rgb;
 
     // Constant material properties
-    float specularStrength = 0.45;
+    float specularStrength = colorSpec.a;
     float shininess = 32;
 
     // Initial values

@@ -77,13 +77,13 @@ class Cityscape: public Phi::App
         glm::vec2 prevMousePos;
 
         // Settings
+        int renderDistance = 5.0f;
         bool keepGUIOpen = false;
         bool fullscreen = false;
         bool vsync = false;
-        float mouseSensitivity = 8.0f;
+        float mouseSensitivity = 0.045f;
         float cameraSpeed = 8.0f;
 
-        bool infinite = false;
         bool partyMode = false;
         bool festiveMode = false;
         bool lightsAlwaysOn = false;

@@ -7,7 +7,6 @@
 - C/C++ Tools VSCode extension
 - CMake
 - A C++20 compliant compiler
-- NOTE: MSYS2 or ninja may be helpful for configuring cmake to use gcc on windows
 
 ## Build Instructions
 
@@ -30,7 +29,6 @@ End: End the program
 
 WASD: Movement\
 R: Regenerate cityscape\
-I: Toggle Infinite Mode
 
 Mouse Movement: Look around\
 Mouse Scroll: Zoom
@@ -63,7 +61,7 @@ Light volume proxy geometry is used to only generate fragments for pixels that w
 
 I considered implementing tiled deferred or clustered deferred shading to remove all of the unnecessary extra gBuffer reads per fragment, but it proved too difficult in the timeframe available.
 
-There are 2 main directional lights (sun + moon), and ~400 point lights at night, when the streetlights are on.
+There are 2 main directional lights (sun + moon), and ~400 point lights (at the default render distance), when the streetlights are on.
 
 Both directional lights and point lights are using the Blinn-Phong model (with the adjusted half way vector).
 
@@ -75,9 +73,9 @@ The buildings are drawn using double buffering to build up a draw buffer section
 
 ## Other Considerations:
 
-### Infinite Mode:
+### Infinite Generation:
 
-Pressing the I key will toggle Infinite Mode. In this state, city blocks will be generated and deleted around the camera as you move around.
+City blocks will be loaded / unloaded around the camera as you move through the city. The default render distance of 5 ensures that at least 400 buildings are loaded, since a single block can have 4-12 buildings, and render distance 5 means a 10x10 grid of blocks will be generated.
 
 ### Sky:
 
@@ -88,7 +86,7 @@ The sky's skybox colors are blended with both main directional light colors by t
 On December 4th, there was a really cool looking snowstorm, and it inspired me to add snow to the cityscape.
 
 - Snow accumulation/melting will only update if `Time Advance` is checked.
-- Snow will only accumulate if `Snowstorm` is also checked
+- Snow will only accumulate if `Snow` is also checked
 - Snow will accumulate faster based on the `Intensity` value for the storm.
 - Snow will melt 2x faster during the day.
 - The snow particle effect consists of 20,000 particles each rasterized as a GL_POINT with a random size from 1 to 6.

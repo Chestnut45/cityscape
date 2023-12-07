@@ -200,7 +200,7 @@ void Sky::Draw()
     celestialBodyShader->SetUniform("position", {sunPos.x, sunPos.y, sunPos.z, sunRadius});
     celestialBodyShader->SetUniform("color", {sunCol.r, sunCol.g, sunCol.b, 1.0f});
     glDrawElements(GL_TRIANGLES, 60, GL_UNSIGNED_INT, 0);
-
+    
     // Draw moon
     celestialBodyShader->SetUniform("position", {moonPos.x, moonPos.y, moonPos.z, moonRadius});
     celestialBodyShader->SetUniform("color", {moonCol.r, moonCol.g, moonCol.b, 1.0f});

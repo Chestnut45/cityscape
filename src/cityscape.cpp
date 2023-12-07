@@ -67,7 +67,7 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/texture
     for (int i = 0; i < MAX_SNOW; ++i)
     {
         std::uniform_real_distribution<float> posDist{-2.0f, 2.0f};
-        std::uniform_real_distribution<float> sizeDist{1.0f, 4.0f,};
+        std::uniform_real_distribution<float> sizeDist{1.0f, 4.0f};
         snowPositions[i] = {posDist(rng), posDist(rng), posDist(rng), sizeDist(rng)};
     }
     snowBuffer = new Phi::GPUBuffer(Phi::BufferType::Dynamic, sizeof(glm::vec4) * MAX_SNOW, &snowPositions);

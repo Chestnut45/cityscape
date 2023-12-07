@@ -28,6 +28,7 @@ Escape: Pause + Toggle GUI\
 End: End the program
 
 WASD: Movement\
+Shift: Speed Boost\
 R: Regenerate cityscape\
 
 Mouse Movement: Look around\

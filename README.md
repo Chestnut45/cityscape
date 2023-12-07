@@ -89,7 +89,7 @@ On December 4th, there was a really cool looking snowstorm, and it inspired me t
 - Snow will only accumulate if `Snow` is also checked
 - Snow will accumulate faster based on the `Intensity` value for the storm.
 - Snow will melt 2x faster during the day.
-- The snow particle effect consists of 20,000 particles each rasterized as a GL_POINT with a random size from 1 to 6.
+- The snow particle effect consists of 20,000 particles each rasterized as a GL_POINT with a random size.
 - The particles are updated entirely on the GPU, all the CPU does is calculate initial positions once on program startup, and issue a draw call once per frame.
 
 Immediately after calculating the position offset due to wind and assigning a value to gl_Position and gl_PointSize, the vertex shader applies a constant velocity downward (since snow has a relatively low terminal velocity), and wraps each particle's position back up to the top of the "effect box" that surrounds the camera. After all vertex shader outputs have finished, we simply write back the updated particle position to the same location of the same buffer by binding the buffer object to an indexed SSBO binding point that is accessible to the vertex shader.

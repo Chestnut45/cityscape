@@ -44,13 +44,13 @@ void main()
     // Set final position
     gl_Position = viewProj * vec4(pos, 1.0);
 
-    // TODO: Calculate normals after noise offset?
-    // float offset = noise.w > 0.0 ? 0.0 : noise.w;
+    // Calculate normals after noise offset?
+    float offset = noise.w > 0.0 ? 0.0 : noise.w * 2;
 
     // Send fragment outputs
     fragPos = pos;
     fragColor = vColor;
-    fragNorm = vNorm;
+    fragNorm = normalize(vNorm + vec3(offset, 0.0, 0.0));
 }
 
 /////////////// K.jpg's Re-oriented 8-Point BCC Noise (OpenSimplex2S) ////////////////

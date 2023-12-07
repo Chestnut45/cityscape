@@ -16,5 +16,5 @@ void main()
     // Store geometry data in gBuffer
     gPos = fragPos;
     gNorm = fragNorm;
-    gColorSpec = vec4(1.0, 1.0, 1.0, 0.2);
+    gColorSpec = vec4(1.0, 1.0, 1.0, 0.45);
 }

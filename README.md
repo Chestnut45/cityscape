@@ -112,3 +112,10 @@ The main reason for double/triple buffering is to minimize the client sync point
 ### Automagical VAOs:
 
 A number of internal vertex formats are included which can be used to automatically construct a `VertexAttributes` object (Phi's VAO wrapper class). This is only applicable when you tightly pack your vertices into the buffer you supply to the constructor, but I think the convenience is warranted :)
+
+### Challenges
+
+There are definitely some things in this assignment that could/should have been done differently. Below is a small outline of some design / implementation challenges I faced along the way.
+
+- ...
+- EnTT is not being used in a way that lets it shine. I originally thought it would be a good fit for separating rendering logic and the different components that make up the city, but the components ended up being almost entirely self contained; not many (if any) entities actually use more than one component. In its current state, the entity registry is mostly being used as a big bucket for anything being simulated, with contiguous views into individual components being used for quick sequential access during each render pass.

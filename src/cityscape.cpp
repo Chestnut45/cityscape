@@ -74,7 +74,7 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/texture
     snowBuffer->Bind(GL_ARRAY_BUFFER);
     snowVAO.Bind();
     snowVAO.SetStride(sizeof(glm::vec4));
-    snowVAO.Add(4, GL_FLOAT);
+    snowVAO.AddAttribute(4, GL_FLOAT);
     snowVAO.Unbind();
 
     // Initialize mouse input

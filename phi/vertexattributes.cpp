@@ -23,63 +23,63 @@ namespace Phi
         {
             case VertexFormat::POS:
                 stride = sizeof(VertexPos);
-                Add(3, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
                 break;
             
             case VertexFormat::POS_COLOR:
                 stride = sizeof(VertexPosColor);
-                Add(3, GL_FLOAT);
-                Add(4, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
+                AddAttribute(4, GL_FLOAT);
                 break;
             
             case VertexFormat::POS_COLOR_NORM:
                 stride = sizeof(VertexPosColorNorm);
-                Add(3, GL_FLOAT);
-                Add(4, GL_FLOAT);
-                Add(3, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
+                AddAttribute(4, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
                 break;
             
             case VertexFormat::POS_COLOR_NORM_UV:
                 stride = sizeof(VertexPosColorNormUv);
-                Add(3, GL_FLOAT);
-                Add(4, GL_FLOAT);
-                Add(3, GL_FLOAT);
-                Add(2, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
+                AddAttribute(4, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
+                AddAttribute(2, GL_FLOAT);
                 break;
             
             case VertexFormat::POS_COLOR_NORM_UV1_UV2:
                 stride = sizeof(VertexPosColorNormUv1Uv2);
-                Add(3, GL_FLOAT);
-                Add(4, GL_FLOAT);
-                Add(3, GL_FLOAT);
-                Add(2, GL_FLOAT);
-                Add(2, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
+                AddAttribute(4, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
+                AddAttribute(2, GL_FLOAT);
+                AddAttribute(2, GL_FLOAT);
                 break;
             
             case VertexFormat::POS_COLOR_UV:
                 stride = sizeof(VertexPosColorUv);
-                Add(3, GL_FLOAT);
-                Add(4, GL_FLOAT);
-                Add(2, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
+                AddAttribute(4, GL_FLOAT);
+                AddAttribute(2, GL_FLOAT);
                 break;
             
             case VertexFormat::POS_NORM:
                 stride = sizeof(VertexPosNorm);
-                Add(3, GL_FLOAT);
-                Add(3, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
                 break;
             
             case VertexFormat::POS_NORM_UV:
                 stride = sizeof(VertexPosNormUv);
-                Add(3, GL_FLOAT);
-                Add(3, GL_FLOAT);
-                Add(2, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
+                AddAttribute(2, GL_FLOAT);
                 break;
             
             case VertexFormat::POS_UV:
                 stride = sizeof(VertexPosUv);
-                Add(3, GL_FLOAT);
-                Add(2, GL_FLOAT);
+                AddAttribute(3, GL_FLOAT);
+                AddAttribute(2, GL_FLOAT);
                 break;
         }
 
@@ -104,7 +104,7 @@ namespace Phi
     // Adds an attribute and associates the currently bound buffer with that attribute
     // type must be one of GL_FLOAT, FL_INT, or GL_UNSIGNED_BYTE
     // This object must be bound properly before making any calls to Add()
-    void VertexAttributes::Add(GLuint numComponents, GLenum type)
+    void VertexAttributes::AddAttribute(GLuint numComponents, GLenum type)
     {
         glVertexAttribPointer(attribCount, numComponents, type, GL_FALSE, stride, (void*)currentOffset);
         glEnableVertexAttribArray(attribCount);

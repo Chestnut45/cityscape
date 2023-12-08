@@ -171,7 +171,7 @@ namespace Phi
     template <typename Vertex>
     Mesh<Vertex>::Mesh()
     {
-        std::cout << "Mesh created @" << this <<  std::endl;
+        // std::cout << "Mesh created @" << this <<  std::endl;
         IncreaseReferences();
     }
 
@@ -187,7 +187,7 @@ namespace Phi
             this->indices = *indices;
         }
 
-        std::cout << "Mesh created @" << this << std::endl;
+        // std::cout << "Mesh created @" << this << std::endl;
         IncreaseReferences();
     }
 
@@ -195,7 +195,7 @@ namespace Phi
     Mesh<Vertex>::~Mesh()
     {
         Reset();
-        std::cout << "Mesh destroyed @" << this << std::endl;
+        // std::cout << "Mesh destroyed @" << this << std::endl;
         DecreaseReferences();
     }
 

@@ -147,7 +147,7 @@ namespace Phi
         // Copy index data
         if (useIndices)
         {
-            // Static container for holding offset index data
+            // Ensure we have enough space to hold the indices for the current mesh
             static std::vector<GLuint> offsetIndices;
             offsetIndices.reserve(meshInds.size());
 

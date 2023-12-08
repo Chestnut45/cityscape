@@ -51,7 +51,7 @@ namespace Phi
         public:
 
             // Manual / procedural constructors
-            Mesh();
+            Mesh(bool useIndices = true);
             Mesh(const std::vector<Vertex>* const vertices, const std::vector<GLuint>* const indices = nullptr);
 
             // Destructor
@@ -169,7 +169,7 @@ namespace Phi
     // Template implementation
 
     template <typename Vertex>
-    Mesh<Vertex>::Mesh()
+    Mesh<Vertex>::Mesh(bool useIndices) : useIndices(useIndices)
     {
         // std::cout << "Mesh created @" << this <<  std::endl;
         IncreaseReferences();
@@ -208,7 +208,18 @@ namespace Phi
     template <typename Vertex>
     void Mesh<Vertex>::AddTriangle(const Vertex& a, const Vertex& b, const Vertex& c)
     {
+        GLuint n = vertices.size();
+        
+        vertices.push_back(a);
+        vertices.push_back(b);
+        vertices.push_back(c);
 
+        if (useIndices)
+        {
+            indices.push_back(n);
+            indices.push_back(n + 1);
+            indices.push_back(n + 2);
+        }
     }
 
     template <typename Vertex>
@@ -216,18 +227,31 @@ namespace Phi
                                const Vertex& bottomLeft, const Vertex& bottomRight)
     {
         GLuint n = vertices.size();
+        
+        if (useIndices)
+        {
+            vertices.push_back(topLeft);
+            vertices.push_back(topRight);
+            vertices.push_back(bottomLeft);
+            vertices.push_back(bottomRight);
 
-        vertices.push_back(topLeft);
-        vertices.push_back(topRight);
-        vertices.push_back(bottomLeft);
-        vertices.push_back(bottomRight);
-
-        indices.push_back(n);
-        indices.push_back(n + 2);
-        indices.push_back(n + 1);
-        indices.push_back(n + 1);
-        indices.push_back(n + 2);
-        indices.push_back(n + 3);
+            indices.push_back(n);
+            indices.push_back(n + 2);
+            indices.push_back(n + 1);
+            indices.push_back(n + 1);
+            indices.push_back(n + 2);
+            indices.push_back(n + 3);
+        }
+        else
+        {
+            vertices.push_back(topLeft);
+            vertices.push_back(bottomLeft);
+            vertices.push_back(topRight);
+            
+            vertices.push_back(topRight);
+            vertices.push_back(bottomLeft);
+            vertices.push_back(bottomRight);
+        }
     }
 
     template <typename Vertex>

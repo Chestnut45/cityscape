@@ -72,7 +72,7 @@ namespace Phi
             inline BufferType GetType() const { return type; };
             inline GLuint GetCurrentSection() const { return currentSection; };
             inline GLuint GetOffset() const { return (pCurrent - (pData + currentSection * size)); };
-            inline GLuint GetSize() const { return size; };
+            inline size_t GetSize() const { return size; };
 
             // Helper method to ensure buffer writes are safe
             inline bool CanWrite(GLuint bytes) const { return (pCurrent + bytes) <= (pData + currentSection * size + size); };

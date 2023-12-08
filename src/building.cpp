@@ -1,25 +1,28 @@
 #include "building.hpp"
 
 // Main constructor
-Building::Building(const glm::ivec3 &pos, int stories, int baseBlockCount, int variant, Orientation orientation)
+Building::Building(const glm::vec3 &pos, int stories, int baseBlockCount, int variant, Orientation orientation)
 {
     // Initialize static resources if first instance
     if (refCount == 0)
     {
+        // Load the texture atlas
         textureAtlas = new Phi::Texture2D("data/textures/buildingAtlas.png", GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
-        vbo = new Phi::GPUBuffer(Phi::BufferType::DynamicDoubleBuffer, sizeof(Phi::VertexPosNormUv) * MAX_VERTICES);
-        ebo = new Phi::GPUBuffer(Phi::BufferType::DynamicDoubleBuffer, sizeof(GLuint) * MAX_INDICES);
-        vao = new Phi::VertexAttributes(Phi::VertexFormat::POS_NORM_UV, vbo, ebo);
 
+        // Compile the shader
         shader = new Phi::Shader();
         shader->LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/building.vs");
         shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/building.fs");
         shader->Link();
 
+        // Initialize the render batch
+        renderBatch = new Phi::RenderBatch<Phi::VertexPosNormUv>(65'536, 131'072);
+
         // Calculate normalized tile size for atlas offsets
-        float w = textureAtlas->GetWidth();
-        float h = textureAtlas->GetHeight();
-        tileSizeNormalized = glm::vec2((float)TILE_SIZE / w, (float)TILE_SIZE / h);
+        int w = textureAtlas->GetWidth();
+        int h = textureAtlas->GetHeight();
+        tileSize = w / (int)TexOffset::Count;
+        tileSizeNormalized = glm::vec2((float)tileSize / w, (float)tileSize / h);
     }
     refCount++;
 
@@ -60,13 +63,6 @@ Building::Building(const glm::ivec3 &pos, int stories, int baseBlockCount, int v
 
     // Generate the final roof
     AddFace(Orientation::Up, TexOffset::Roof, variant, stories - 1, currentStoryBlocks);
-
-    // Store final size of each local buffer
-    vertBytes = mesh.GetVertices().size() * sizeof(Phi::VertexPosNormUv);
-    indBytes = mesh.GetIndices().size() * sizeof(GLuint);
-
-    // Reserve proper space for offsets while rendering
-    offsetIndices.reserve(mesh.GetIndices().size());
 }
 
 // Cleanup
@@ -77,74 +73,30 @@ Building::~Building()
     {
         // Cleanup static resources
         delete textureAtlas;
-        delete vbo;
-        delete ebo;
-        delete vao;
         delete shader;
+        delete renderBatch;
     }
 }
 
 // Draws this building into the static buffer
-void Building::Draw()
+void Building::Draw() const
 {
-    // Flush if either of the static buffers are full
-    if (!(vbo->CanWrite(vertBytes) && ebo->CanWrite(indBytes)))
+    // TODO: Reactive flushing could be made simpler
+    if (!renderBatch->AddMesh(mesh))
     {
         FlushDrawCalls();
+        renderBatch->AddMesh(mesh);
     }
-
-    // Ensure we aren't in the process of rendering buildings from this section of the buffer already
-    if (drawCount == 0)
-    {
-        vbo->Sync();
-        ebo->Sync();
-    }
-
-    // Recalculate offset indices
-    std::transform(mesh.GetIndices().cbegin(), mesh.GetIndices().cend(), offsetIndices.begin(), [](GLuint original) { return original + vertexCount; });
-
-    // Write vertex data
-    vbo->Write(mesh.GetVertices().data(), vertBytes);
-
-    // Write offset index data
-    ebo->Write(offsetIndices.data(), indBytes);
-
-    // Increase static counters
-    vertexCount += mesh.GetVertices().size();
-    indexCount += mesh.GetIndices().size();
-    drawCount++;
 }
 
 // Flushes all buildings drawn since last flush
 void Building::FlushDrawCalls()
 {
-    // Only flush if we have drawn at least once building
-    if (drawCount == 0) return;
-    
     // Bind relevant resources
-    shader->Use();
     textureAtlas->Bind();
-    vao->Bind();
 
-    // Issue draw call
-    glDrawElementsBaseVertex(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT,
-        (void*)((size_t)ebo->GetSize() * ebo->GetCurrentSection()),
-        MAX_VERTICES * vbo->GetCurrentSection());
-    
-    glBindVertexArray(0);
-    
-    // Insert a fence sync
-    vbo->Lock();
-    ebo->Lock();
-
-    // Needed for double-buffering
-    vbo->SwapSections();
-    ebo->SwapSections();
-
-    // Reset static counters
-    vertexCount = 0;
-    indexCount = 0;
-    drawCount = 0;
+    // Issue rendering commands
+    renderBatch->Flush(*shader);
 }
 
 // Constructs a wall with the given parameters

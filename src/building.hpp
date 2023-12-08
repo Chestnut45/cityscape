@@ -41,11 +41,14 @@ class Building
             Window,
             LargeWindow,
             Roof,
-            Awning
+            Awning,
+
+            // Number of columns in the atlas, for calculating tile size (leave at end)
+            Count
         };
 
         // Constructor
-        Building(const glm::ivec3& pos, int stories, int baseBlockCount, int variant, Orientation orientation = Orientation::North);
+        Building(const glm::vec3& pos, int stories, int baseBlockCount, int variant, Orientation orientation = Orientation::North);
         ~Building();
 
         // Delete copy constructor/assignment
@@ -59,51 +62,36 @@ class Building
         // Constants
         static const inline int MAX_STORIES = 16;
         static const inline int NUM_VARIANTS = 4;
-        static const inline int MAX_VERTICES = 65'536;
-        static const inline int MAX_INDICES = 131'072;
 
         // Rendering methods
-        // Note: Can't be const due to writing to internal buffers
-        void Draw();
+        void Draw() const;
         static void FlushDrawCalls();
     
     // Data / implementation
     private:
 
-        // Helper while migrating to mesh
-        glm::ivec3 pos;
+        // World position of building
+        glm::vec3 pos;
 
         // Mesh instance to be procedurally generated
         Phi::Mesh<Phi::VertexPosNormUv> mesh;
-
-        // Offset indices, used for batching purposes
-        std::vector<GLuint> offsetIndices;
-
-        // Sizes and counters
-        size_t vertBytes = 0;
-        size_t indBytes = 0;
-        static inline GLuint vertexCount = 0;
-        static inline GLuint indexCount = 0;
-        static inline GLuint drawCount = 0;
-
-        // Tile sizes
-        static const inline int TILE_SIZE = 64;
-        static inline glm::vec2 tileSizeNormalized;
-
-        // Static resources
-        static inline Phi::Texture2D* textureAtlas = nullptr;
-        static inline Phi::GPUBuffer* vbo = nullptr;
-        static inline Phi::GPUBuffer* ebo = nullptr;
-        static inline Phi::VertexAttributes* vao = nullptr;
-        static inline Phi::Shader* shader = nullptr;
-
-        // Reference counting for static resources
-        static inline int refCount = 0;
 
         // Helper methods for procedural generation
         void AddFace(Orientation dir, TexOffset type, int variant, int story, int blocks);
         void AddFeature(Feature feature, Orientation orientation);
         TexOffset RandomWallType() const;
+
+        // Tile sizes
+        static inline int tileSize;
+        static inline glm::vec2 tileSizeNormalized;
+
+        // Static resources
+        static inline Phi::Texture2D* textureAtlas = nullptr;
+        static inline Phi::Shader* shader = nullptr;
+        static inline Phi::RenderBatch<Phi::VertexPosNormUv>* renderBatch = nullptr;
+
+        // Reference counting for static resources
+        static inline int refCount = 0;
 
         // RNG
         static inline std::default_random_engine rng;

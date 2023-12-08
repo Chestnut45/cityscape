@@ -34,18 +34,18 @@ namespace Phi
             void operator=(RenderBatch&& other) = delete;
 
             // Batching / rendering methods
-            void AddMesh(const Mesh<Vertex>& mesh);
+            bool AddMesh(const Mesh<Vertex>& mesh);
             void Flush(const Shader& shader);
         
         // Data / implementation
         private:
 
-            // Local vertex data
-            std::vector<Vertex> vertices;
-            std::vector<GLuint> indices;
-
             // State / stats
             size_t maxVertices;
+            size_t maxIndices;
+            size_t vertexCount = 0;
+            size_t indexCount = 0;
+            int drawCount = 0;
             bool useIndices;
 
             // OpenGL Resources
@@ -57,7 +57,7 @@ namespace Phi
     // Templated code implementation
 
     template <typename Vertex>
-    RenderBatch<Vertex>::RenderBatch(size_t maxVertices, size_t maxIndices) : maxVertices(maxVertices)
+    RenderBatch<Vertex>::RenderBatch(size_t maxVertices, size_t maxIndices) : maxVertices(maxVertices), maxIndices(maxIndices)
     {
         // Use indices if user supplies an index buffer size
         useIndices = maxIndices != 0;
@@ -124,19 +124,48 @@ namespace Phi
     }
 
     template <typename Vertex>
-    void RenderBatch<Vertex>::AddMesh(const Mesh<Vertex>& mesh)
+    bool RenderBatch<Vertex>::AddMesh(const Mesh<Vertex>& mesh)
     {
-        // Get vertex count before new data is appended
-        GLuint vertexCount = vertices.size();
+        const std::vector<Vertex>& meshVerts = mesh.GetVertices();
+        const std::vector<GLuint>& meshInds = mesh.GetIndices();
 
-        // Copy vertex data
-        std::copy(mesh.GetVertices().cbegin(), mesh.GetVertices().cend(), vertices.end());
+        // Ensure we have room to add to the batch
+        if (vertexCount + meshVerts.size() > maxVertices ||
+            (useIndices && indexCount + meshInds.size() > maxIndices))
+        {
+            return false;
+        }
+        
+        // Sync buffers if this is the first write since last flush
+        if (drawCount == 0)
+        {
+            // Ensure OpenGL is not reading from this section of our buffers
+            vertexBuffer->Sync();
+            indexBuffer->Sync();
+        }
 
+        // Copy index data
         if (useIndices)
         {
-            // Offset the indices before appending them to the batch
-            std::transform(mesh.GetIndices().cbegin(), mesh.GetIndices().cend(), indices.end(), [&vertexCount](GLuint original) { return original + vertexCount; });
+            // Static container for holding offset index data
+            static std::vector<GLuint> offsetIndices;
+            offsetIndices.reserve(meshInds.size());
+
+            // Offset the indices before writing them
+            std::transform(meshInds.cbegin(), meshInds.cend(), offsetIndices.begin(), [this](GLuint original) { return original + vertexCount; });
+            indexBuffer->Write(offsetIndices.data(), meshInds.size() * sizeof(GLuint));
+
+            // Increase counter and clear vector
+            indexCount += meshInds.size();
         }
+
+        // Write vertex data
+        vertexBuffer->Write(meshVerts.data(), meshVerts.size() * sizeof(Vertex));
+        vertexCount += meshVerts.size();
+
+        drawCount++;
+
+        return true;
     }
 
     template <typename Vertex>
@@ -144,25 +173,14 @@ namespace Phi
     {
         if (useIndices)
         {
-            // Ensure OpenGL is not reading from this section of our buffers
-            vertexBuffer->Sync();
-            indexBuffer->Sync();
-
-            // Write the batch data to the buffers
-            vertexBuffer->Write(vertices.data(), vertices.size() * sizeof(Vertex));
-            indexBuffer->Write(indices.data(), indices.size() * sizeof(GLuint));
-
             // Bind resources
             vertexAttributes->Bind();
             shader.Use();
 
             // Issue draw call
-            glDrawElementsBaseVertex(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT,
-                                    (void*)((size_t)indexBuffer->GetSize() * indexBuffer->GetCurrentSection()),
+            glDrawElementsBaseVertex(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT,
+                                    (void*)(indexBuffer->GetSize() * indexBuffer->GetCurrentSection()),
                                     maxVertices * vertexBuffer->GetCurrentSection());
-            
-            // Unbind VAO
-            glBindVertexArray(0);
         
             // Insert a fence sync
             vertexBuffer->Lock();
@@ -171,31 +189,38 @@ namespace Phi
             // Needed for double-buffering
             vertexBuffer->SwapSections();
             indexBuffer->SwapSections();
+
+            // Reset counters
+            vertexCount = 0;
+            indexCount = 0;
+            drawCount = 0;
+
+            // Unbind VAO
+            glBindVertexArray(0);
         }
         else
         {
-            // Ensure OpenGL is not reading from this section of the buffer
-            vertexBuffer->Sync();
-
-            // Write the batch data to the buffer
-            vertexBuffer->Write(vertices.data(), vertices.size() * sizeof(Vertex));
-
             // Bind resources
             vertexAttributes->Bind();
             shader.Use();
 
             // Issue draw call
             // TODO: Test this
-            glDrawArrays(GL_TRIANGLES, maxVertices * vertexBuffer->GetCurrentSection(), vertices.size());
-            
-            // Unbind VAO
-            glBindVertexArray(0);
+            glDrawArrays(GL_TRIANGLES, maxVertices * vertexBuffer->GetCurrentSection(), vertexCount);
         
             // Insert a fence sync
             vertexBuffer->Lock();
 
             // Needed for double-buffering
             vertexBuffer->SwapSections();
+
+            // Reset counters
+            vertexCount = 0;
+            indexCount = 0;
+            drawCount = 0;
+            
+            // Unbind VAO
+            glBindVertexArray(0);
         }
     }
 }

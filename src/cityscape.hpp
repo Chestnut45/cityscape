@@ -20,9 +20,6 @@
 #include "groundtile.hpp"
 #include "sky.hpp"
 
-// Constants
-const size_t MAX_SNOW = 20'000;
-
 class Cityscape: public Phi::App
 {
     // Interface
@@ -42,6 +39,11 @@ class Cityscape: public Phi::App
 
     // Data / implementation
     private:
+        
+        // Constants
+        const size_t MAX_SNOW = 20'000;
+        const int BLOCK_SIZE = 16;
+        const int HALF_BLOCK_SIZE = BLOCK_SIZE / 2;
 
         Sky sky;
         Phi::Camera mainCamera;

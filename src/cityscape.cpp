@@ -160,10 +160,10 @@ void Cityscape::Update(float delta)
         // Performance monitoring
         ImGui::Text("Performance:");
         ImGui::Text("Average FPS: %.0f", averageFPS);
-        ImGui::PlotLines("Update:", updateSamples.data(), updateSamples.size(), 0, (const char*)nullptr, 0.0f, 16.6f, {128.0f, 32.0f});
+        ImGui::PlotLines("Update:", updateSamples.data(), updateSamples.size(), 0, (const char*)nullptr, 0.0f, 16.67f, {128.0f, 32.0f});
         ImGui::SameLine();
         ImGui::Text("%.2fms", lastUpdate * 1000);
-        ImGui::PlotLines("Render:", renderSamples.data(), renderSamples.size(), 0, (const char*)nullptr, 0.0f, 16.6f, {128.0f, 32.0f});
+        ImGui::PlotLines("Render:", renderSamples.data(), renderSamples.size(), 0, (const char*)nullptr, 0.0f, 16.67f, {128.0f, 32.0f});
         ImGui::SameLine();
         ImGui::Text("%.2fms", lastRender * 1000);
         ImGui::Separator();
@@ -402,7 +402,7 @@ void Cityscape::Regenerate()
     cityBlocks.clear();
 
     // Generate a 10x10 grid of city blocks around the camera
-    glm::ivec3 pos = mainCamera.GetPosition() / 16.0f;
+    glm::ivec3 pos = mainCamera.GetPosition() / (float)BLOCK_SIZE;
     for (int x = pos.x - renderDistance; x < pos.x + renderDistance; x++)
     {
         for (int z = pos.z - renderDistance; z < pos.z + renderDistance; z++)
@@ -424,7 +424,7 @@ void Cityscape::UpdateBlocks()
     shouldBeLoaded.clear();
 
     // Calculate which chunks should be loaded given the camera's position
-    glm::ivec3 pos = mainCamera.GetPosition() / 16.0f;
+    glm::ivec3 pos = mainCamera.GetPosition() / (float)BLOCK_SIZE;
     for (int x = pos.x - renderDistance; x < pos.x + renderDistance; ++x)
     {
         for (int z = pos.z - renderDistance; z < pos.z + renderDistance; ++z)
@@ -562,24 +562,24 @@ void Cityscape::GenerateBlock(const glm::ivec2& id)
         {
             temp = registry.create();
             registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i], storyDist(rng), 2,
-                                       variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i]);
+                                       variantDist(rng), smallBuildingOrientations[3 * i]);
             cityBlocks[id].push_back(temp);
 
             temp = registry.create();
             registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 1], storyDist(rng), 2,
-                                       variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i + 1]);
+                                       variantDist(rng), smallBuildingOrientations[3 * i + 1]);
             cityBlocks[id].push_back(temp);
 
             temp = registry.create();
             registry.emplace<Building>(temp, blockPos + smallBuildingOffsets[3 * i + 2], storyDist(rng), 2,
-                                       variantDist(rng), Building::Feature::None, smallBuildingOrientations[3 * i + 2]);
+                                       variantDist(rng), smallBuildingOrientations[3 * i + 2]);
             cityBlocks[id].push_back(temp);
         }
         else
         {
             temp = registry.create();
             registry.emplace<Building>(temp, blockPos + largeBuildingOffsets[i], storyDist(rng), 4,
-                                       variantDist(rng), Building::Feature::None, largeBuildingOrientations[i]);
+                                       variantDist(rng), largeBuildingOrientations[i]);
             cityBlocks[id].push_back(temp);
         }
     }

@@ -86,9 +86,6 @@ namespace Phi
                 }
 
                 std::cout << "Mesh moved from " << &other << " to " << this << std::endl;
-
-                // Increase refCount so previous object can use regular destructor without breaking static resources
-                refCount++;
             };
 
             // Delete move assignment operator
@@ -101,10 +98,28 @@ namespace Phi
                          const Vertex& bottomLeft, const Vertex& bottomRight);
 
             // Texture loading
-            void AddTexture(const std::string& path, TexUnit type);
+            void AddTexture(TexUnit type,
+                            const std::string& path,
+                            GLint wrapU, GLint wrapV,
+                            GLenum minFilter, GLenum magFilter,
+                            bool mipmap = false);
 
-            // Commits all mesh data to GPU resources in preperation for rendering
-            void Commit();
+            // Commits all mesh data to GPU resources in preperation for rendering:
+            // Generates VAO, VBO, EBO (if applicable)
+            // Unnecessary if using with the RenderBatch class
+            //
+            // NOTE: If you are using one of the internal vertex formats,
+            // you may omit the vao argument and it will create / manage
+            // the resource automatically. This is the preferred method.
+            //
+            // If you are using a custom format, you must create your own
+            // VertexAttributes object, and by passing its address to this
+            // constructor, you are *GIVING OWNERSHIP* of that pointer to
+            // the Mesh instance you are creating.
+            //
+            // The Mesh will take care of freeing / deallocating all resources
+            //  - including the VertexAttributes object - on destruction.
+            void Commit(VertexAttributes* vao = nullptr);
 
             // Immediately render to the current FBO
             void Draw(const Shader& shader) const;
@@ -118,6 +133,10 @@ namespace Phi
 
             // Clear all mesh data, cleanup resources, return to initial state
             void Reset();
+
+            // Const data accessors
+            const std::vector<Vertex>& GetVertices() const { return vertices; };
+            const std::vector<GLuint>& GetIndices() const { return indices; };
         
         // Data / implementation
         private:
@@ -208,11 +227,27 @@ namespace Phi
     void Mesh<Vertex>::AddQuad(const Vertex& topLeft, const Vertex& topRight,
                                const Vertex& bottomLeft, const Vertex& bottomRight)
     {
+        GLuint n = vertices.size();
 
+        vertices.push_back(topLeft);
+        vertices.push_back(topRight);
+        vertices.push_back(bottomLeft);
+        vertices.push_back(bottomRight);
+
+        indices.push_back(n);
+        indices.push_back(n + 2);
+        indices.push_back(n + 1);
+        indices.push_back(n + 1);
+        indices.push_back(n + 2);
+        indices.push_back(n + 3);
     }
 
     template <typename Vertex>
-    void Mesh<Vertex>::AddTexture(const std::string& path, TexUnit type)
+    void Mesh<Vertex>::AddTexture(TexUnit type,
+                                  const std::string& path,
+                                  GLint wrapU, GLint wrapV,
+                                  GLenum minFilter, GLenum magFilter,
+                                  bool mipmap)
     {
         // Ensure this mesh doesn't already have this texture type
         if (textures[(int)type])
@@ -225,7 +260,7 @@ namespace Phi
         if (loadedTextures.count(path) == 0)
         {
             // Load from disk if not loaded yet
-            Texture2D* tex = new Texture2D(path, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_NEAREST, GL_NEAREST, true);
+            Texture2D* tex = new Texture2D(path, wrapU, wrapV, minFilter, magFilter, mipmap);
             loadedTextures[path].texture = tex;
             loadedTextures[path].path = path;
             loadedTextures[path].unit = type;
@@ -241,16 +276,63 @@ namespace Phi
 
 
     template <typename Vertex>
-    void Mesh<Vertex>::Commit()
+    void Mesh<Vertex>::Commit(VertexAttributes* vao)
     {
         // Create VBO and EBO
         vertexBuffer = new GPUBuffer(BufferType::Static, sizeof(Vertex) * vertices.size(), vertices.data());
         indexBuffer = new GPUBuffer(BufferType::Static, sizeof(GLuint) * indices.size(), indices.data());
         
         // VAO creation (Depends on vertex format)
-        if (std::is_same_v<Vertex, VertexPosColorNormUv1Uv2>)
+        if (vao)
         {
-            vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_NORM_UV1_UV2, vertexBuffer, indexBuffer);
+            // Ownership transfer
+            vertexAttributes = vao;
+        }
+        else
+        {
+            // User has an internal vertex format, make a VAO for them
+            if (std::is_same_v<Vertex, VertexPos>)
+            {
+                vertexAttributes = new VertexAttributes(VertexFormat::POS, vertexBuffer, indexBuffer);
+            }
+            else if (std::is_same_v<Vertex, VertexPosColor>)
+            {
+                vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR, vertexBuffer, indexBuffer);
+            }
+            else if (std::is_same_v<Vertex, VertexPosColorNorm>)
+            {
+                vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_NORM, vertexBuffer, indexBuffer);
+            }
+            else if (std::is_same_v<Vertex, VertexPosColorNormUv>)
+            {
+                vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_NORM_UV, vertexBuffer, indexBuffer);
+            }
+            else if (std::is_same_v<Vertex, VertexPosColorNormUv1Uv2>)
+            {
+                vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_NORM_UV1_UV2, vertexBuffer, indexBuffer);
+            }
+            else if (std::is_same_v<Vertex, VertexPosColorUv>)
+            {
+                vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_UV, vertexBuffer, indexBuffer);
+            }
+            else if (std::is_same_v<Vertex, VertexPosNorm>)
+            {
+                vertexAttributes = new VertexAttributes(VertexFormat::POS_NORM, vertexBuffer, indexBuffer);
+            }
+            else if (std::is_same_v<Vertex, VertexPosNormUv>)
+            {
+                vertexAttributes = new VertexAttributes(VertexFormat::POS_NORM_UV, vertexBuffer, indexBuffer);
+            }
+            else if (std::is_same_v<Vertex, VertexPosUv>)
+            {
+                vertexAttributes = new VertexAttributes(VertexFormat::POS_UV, vertexBuffer, indexBuffer);
+            }
+            
+            if (!vertexAttributes)
+            {
+                // Uh-oh, the user has lied to us. Point them in the right direction
+                FatalError("Mesh Commit: Custom vertex format requires a VertexAttributes* to be passed");
+            }
         }
 
         std::cout << "Mesh resources committed to VRAM" << std::endl;

@@ -12,12 +12,13 @@ class Building
 {
     // Interface
     public:
+
         // Feature flags for generating extra index data
         enum class Feature : int
         {
             None,
             Awning,
-            Deck,
+            Balcony,
             Chimney
         };
 
@@ -44,7 +45,7 @@ class Building
         };
 
         // Constructor
-        Building(const glm::ivec3& pos, int stories, int blocks, int variant, Feature features = Feature::None, Orientation orientation = Orientation::North);
+        Building(const glm::ivec3& pos, int stories, int baseBlockCount, int variant, Orientation orientation = Orientation::North);
         ~Building();
 
         // Delete copy constructor/assignment
@@ -68,9 +69,12 @@ class Building
     
     // Data / implementation
     private:
-        // Instance vertex / index data
-        std::vector<Phi::VertexPosNormUv> vertices;
-        std::vector<GLuint> indices;
+
+        // Helper while migrating to mesh
+        glm::ivec3 pos;
+
+        // Mesh instance to be procedurally generated
+        Phi::Mesh<Phi::VertexPosNormUv> mesh;
 
         // Offset indices, used for batching purposes
         std::vector<GLuint> offsetIndices;

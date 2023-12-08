@@ -128,7 +128,11 @@ namespace Phi
 
                 // Grab the path and load the texture into the mesh object
                 material->GetTexture(aiTextureType_DIFFUSE, i, &path);
-                meshObj.AddTexture(path.C_Str(), (TexUnit)((int)TexUnit::ALBEDO_1 + i));
+                meshObj.AddTexture((TexUnit)((int)TexUnit::ALBEDO_1 + i),
+                                    path.C_Str(),
+                                    GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER,
+                                    GL_NEAREST, GL_NEAREST,
+                                    true);
             }
 
             // Load specular maps
@@ -139,7 +143,11 @@ namespace Phi
 
                 // Grab the path and load the texture into the mesh object
                 material->GetTexture(aiTextureType_SPECULAR, i, &path);
-                meshObj.AddTexture(path.C_Str(), (TexUnit)((int)TexUnit::SPECULAR_1 + i));
+                meshObj.AddTexture((TexUnit)((int)TexUnit::SPECULAR_1 + i),
+                                    path.C_Str(),
+                                    GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER,
+                                    GL_NEAREST, GL_NEAREST,
+                                    true);
             }
 
             // Load normal maps
@@ -150,7 +158,11 @@ namespace Phi
 
                 // Grab the path and load the texture into the mesh object
                 material->GetTexture(aiTextureType_NORMALS, i, &path);
-                meshObj.AddTexture(path.C_Str(), (TexUnit)((int)TexUnit::NORMAL_1 + i));
+                meshObj.AddTexture((TexUnit)((int)TexUnit::NORMAL_1 + i),
+                                    path.C_Str(),
+                                    GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER,
+                                    GL_NEAREST, GL_NEAREST,
+                                    true);
             }
         }
 

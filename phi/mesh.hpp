@@ -106,20 +106,8 @@ namespace Phi
 
             // Commits all mesh data to GPU resources in preperation for rendering:
             // Generates VAO, VBO, EBO (if applicable)
-            // Unnecessary if using with the RenderBatch class
-            //
-            // NOTE: If you are using one of the internal vertex formats,
-            // you may omit the vao argument and it will create / manage
-            // the resource automatically. This is the preferred method.
-            //
-            // If you are using a custom format, you must create your own
-            // VertexAttributes object, and by passing its address to this
-            // constructor, you are *GIVING OWNERSHIP* of that pointer to
-            // the Mesh instance you are creating.
-            //
-            // The Mesh will take care of freeing / deallocating all resources
-            //  - including the VertexAttributes object - on destruction.
-            void Commit(VertexAttributes* vao = nullptr);
+            // If this mesh will only be drawn by a RenderBatch object, you do not have to Commit() any resources
+            void Commit();
 
             // Immediately render to the current FBO
             void Draw(const Shader& shader) const;
@@ -276,63 +264,57 @@ namespace Phi
 
 
     template <typename Vertex>
-    void Mesh<Vertex>::Commit(VertexAttributes* vao)
+    void Mesh<Vertex>::Commit()
     {
         // Create VBO and EBO
         vertexBuffer = new GPUBuffer(BufferType::Static, sizeof(Vertex) * vertices.size(), vertices.data());
-        indexBuffer = new GPUBuffer(BufferType::Static, sizeof(GLuint) * indices.size(), indices.data());
+
+        if (useIndices)
+        {
+            indexBuffer = new GPUBuffer(BufferType::Static, sizeof(GLuint) * indices.size(), indices.data());
+        }
         
         // VAO creation (Depends on vertex format)
-        if (vao)
+        if (std::is_same_v<Vertex, VertexPos>)
         {
-            // Ownership transfer
-            vertexAttributes = vao;
+            vertexAttributes = new VertexAttributes(VertexFormat::POS, vertexBuffer, useIndices ? indexBuffer : nullptr);
         }
-        else
+        else if (std::is_same_v<Vertex, VertexPosColor>)
         {
-            // User has an internal vertex format, make a VAO for them
-            if (std::is_same_v<Vertex, VertexPos>)
-            {
-                vertexAttributes = new VertexAttributes(VertexFormat::POS, vertexBuffer, indexBuffer);
-            }
-            else if (std::is_same_v<Vertex, VertexPosColor>)
-            {
-                vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR, vertexBuffer, indexBuffer);
-            }
-            else if (std::is_same_v<Vertex, VertexPosColorNorm>)
-            {
-                vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_NORM, vertexBuffer, indexBuffer);
-            }
-            else if (std::is_same_v<Vertex, VertexPosColorNormUv>)
-            {
-                vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_NORM_UV, vertexBuffer, indexBuffer);
-            }
-            else if (std::is_same_v<Vertex, VertexPosColorNormUv1Uv2>)
-            {
-                vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_NORM_UV1_UV2, vertexBuffer, indexBuffer);
-            }
-            else if (std::is_same_v<Vertex, VertexPosColorUv>)
-            {
-                vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_UV, vertexBuffer, indexBuffer);
-            }
-            else if (std::is_same_v<Vertex, VertexPosNorm>)
-            {
-                vertexAttributes = new VertexAttributes(VertexFormat::POS_NORM, vertexBuffer, indexBuffer);
-            }
-            else if (std::is_same_v<Vertex, VertexPosNormUv>)
-            {
-                vertexAttributes = new VertexAttributes(VertexFormat::POS_NORM_UV, vertexBuffer, indexBuffer);
-            }
-            else if (std::is_same_v<Vertex, VertexPosUv>)
-            {
-                vertexAttributes = new VertexAttributes(VertexFormat::POS_UV, vertexBuffer, indexBuffer);
-            }
-            
-            if (!vertexAttributes)
-            {
-                // Uh-oh, the user has lied to us. Point them in the right direction
-                FatalError("Mesh Commit: Custom vertex format requires a VertexAttributes* to be passed");
-            }
+            vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR, vertexBuffer, useIndices ? indexBuffer : nullptr);
+        }
+        else if (std::is_same_v<Vertex, VertexPosColorNorm>)
+        {
+            vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_NORM, vertexBuffer, useIndices ? indexBuffer : nullptr);
+        }
+        else if (std::is_same_v<Vertex, VertexPosColorNormUv>)
+        {
+            vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_NORM_UV, vertexBuffer, useIndices ? indexBuffer : nullptr);
+        }
+        else if (std::is_same_v<Vertex, VertexPosColorNormUv1Uv2>)
+        {
+            vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_NORM_UV1_UV2, vertexBuffer, useIndices ? indexBuffer : nullptr);
+        }
+        else if (std::is_same_v<Vertex, VertexPosColorUv>)
+        {
+            vertexAttributes = new VertexAttributes(VertexFormat::POS_COLOR_UV, vertexBuffer, useIndices ? indexBuffer : nullptr);
+        }
+        else if (std::is_same_v<Vertex, VertexPosNorm>)
+        {
+            vertexAttributes = new VertexAttributes(VertexFormat::POS_NORM, vertexBuffer, useIndices ? indexBuffer : nullptr);
+        }
+        else if (std::is_same_v<Vertex, VertexPosNormUv>)
+        {
+            vertexAttributes = new VertexAttributes(VertexFormat::POS_NORM_UV, vertexBuffer, useIndices ? indexBuffer : nullptr);
+        }
+        else if (std::is_same_v<Vertex, VertexPosUv>)
+        {
+            vertexAttributes = new VertexAttributes(VertexFormat::POS_UV, vertexBuffer, useIndices ? indexBuffer : nullptr);
+        }
+        
+        if (!vertexAttributes)
+        {
+            FatalError("Mesh Commit: Custom vertex format not supported yet, please use one of the internal vertex formats");
         }
 
         std::cout << "Mesh resources committed to VRAM" << std::endl;

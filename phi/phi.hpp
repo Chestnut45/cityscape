@@ -10,6 +10,7 @@
 #include "gpubuffer.hpp"
 #include "mesh.hpp"
 #include "model.hpp"
+#include "renderbatch.hpp"
 #include "shader.hpp"
 #include "texture2d.hpp"
 #include "vertex.hpp"

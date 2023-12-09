@@ -35,10 +35,10 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/texture
     lightSourceShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/lightSource.fs");
     lightSourceShader.Link();
 
-    // Load snow shader
-    snowShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/snow.vs");
-    snowShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/snow.fs");
-    snowShader.Link();
+    // Load snow effect shader
+    snowEffectShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/snow.vs");
+    snowEffectShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/snow.fs");
+    snowEffectShader.Link();
 
     // Load snowbank shader
     snowbankShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/snowbank.vs");
@@ -63,14 +63,14 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/texture
     Regenerate();
 
     // Generate initial snow positions
-    glm::vec4 snowPositions[MAX_SNOW];
-    for (int i = 0; i < MAX_SNOW; ++i)
+    glm::vec4 snowPositions[SNOWFLAKE_COUNT];
+    for (int i = 0; i < SNOWFLAKE_COUNT; ++i)
     {
         std::uniform_real_distribution<float> posDist{-2.0f, 2.0f};
         std::uniform_real_distribution<float> sizeDist{1.0f, 4.0f};
         snowPositions[i] = {posDist(rng), posDist(rng), posDist(rng), sizeDist(rng)};
     }
-    snowBuffer = new Phi::GPUBuffer(Phi::BufferType::Dynamic, sizeof(glm::vec4) * MAX_SNOW, &snowPositions);
+    snowBuffer = new Phi::GPUBuffer(Phi::BufferType::Dynamic, sizeof(glm::vec4) * SNOWFLAKE_COUNT, &snowPositions);
     snowBuffer->Bind(GL_ARRAY_BUFFER);
     snowVAO.Bind();
     snowVAO.SetStride(sizeof(glm::vec4));
@@ -234,6 +234,9 @@ void Cityscape::Render()
 {
     // Update the camera's UBO so all shaders have access to the new values
     mainCamera.UpdateUBO();
+
+    // Hold a vector of all currently loaded blocks and their offsets
+    static std::vector<glm::vec4> blockPositions;
     
     // Geometry pass
 
@@ -241,19 +244,16 @@ void Cityscape::Render()
     gBuffer->Bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Hold a vector of all currently loaded blocks and their offsets
-    static std::vector<glm::vec4> blockInstancePositions;
-    blockInstancePositions.clear();
-
-    // Draw all ground tiles to the gBuffer
+    // Generate block positions while drawing ground tiles
+    blockPositions.clear();
     for (auto &&[entity, ground]: registry.view<GroundTile>().each())
     {
         ground.Draw();
-        blockInstancePositions.push_back(ground.GetPosition());
+        blockPositions.push_back(ground.GetPosition());
     }
     GroundTile::FlushDrawCalls();
 
-    // Then draw all buildings to the gBuffer
+    // Then draw all buildings
     buildingDrawCount = 0;
     for (auto &&[entity, building]: registry.view<Building>().each())
     {
@@ -266,31 +266,31 @@ void Cityscape::Render()
     if (sky.IsNight() || lightsAlwaysOn)
     {
         // Draw the bulbs with the light source shader when lights are on
-        streetLightModel->GetMesh(0).DrawInstances(streetLightShader, blockInstancePositions);
-        streetLightModel->GetMesh(1).DrawInstances(lightSourceShader, blockInstancePositions);
+        streetLightModel->GetMesh(0).DrawInstances(streetLightShader, blockPositions);
+        streetLightModel->GetMesh(1).DrawInstances(lightSourceShader, blockPositions);
     }
     else
     {
         // Draw full model using textures during the day
-        streetLightModel->DrawInstances(streetLightShader, blockInstancePositions);
+        streetLightModel->DrawInstances(streetLightShader, blockPositions);
     }
 
     // Draw snow effect
     if (snow)
     {
         // Snow particles
-        snowShader.Use();
-        snowShader.SetUniform("deltaTimeWind", glm::vec3(lastFrameTime, programLifetime, snowIntensity));
+        snowEffectShader.Use();
+        snowEffectShader.SetUniform("deltaTimeWind", glm::vec3(lastFrameTime, programLifetime, snowIntensity));
         snowVAO.Bind();
         snowBuffer->BindBase(GL_SHADER_STORAGE_BUFFER, 1);
-        glDrawArrays(GL_POINTS, 0, MAX_SNOW);
+        glDrawArrays(GL_POINTS, 0, SNOWFLAKE_COUNT);
         snowVAO.Unbind();
     }
 
     // Draw the snow accumulation (regardless of festive mode)
     snowbankShader.Use();
     snowbankShader.SetUniform("accumulationHeight", snowAccumulation);
-    snowbankModel->DrawInstances(snowbankShader, blockInstancePositions);
+    snowbankModel->DrawInstances(snowbankShader, blockPositions);
 
     // Lighting passes
 
@@ -391,7 +391,7 @@ void Cityscape::ProcessInput(float delta)
 }
 
 // Unloads all city blocks, destroys their entities, and regenerates
-// a 10x10 grid of city blocks around the camera
+// a grid of city blocks around the camera
 void Cityscape::Regenerate()
 {
     // Delete all loaded blocks
@@ -401,7 +401,7 @@ void Cityscape::Regenerate()
     }
     cityBlocks.clear();
 
-    // Generate a 10x10 grid of city blocks around the camera
+    // Generate a grid of city blocks around the camera
     glm::ivec3 pos = mainCamera.GetPosition() / (float)BLOCK_SIZE;
     for (int x = pos.x - renderDistance; x < pos.x + renderDistance; x++)
     {

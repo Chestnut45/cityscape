@@ -41,12 +41,21 @@ class Cityscape: public Phi::App
     private:
         
         // Constants
-        const size_t MAX_SNOW = 20'000;
+        const size_t SNOWFLAKE_COUNT = 20'000;
         const int BLOCK_SIZE = 16;
         const int HALF_BLOCK_SIZE = BLOCK_SIZE / 2;
 
-        Sky sky;
+        // Main components
         Phi::Camera mainCamera;
+        Sky sky;
+
+        // Registry of all active entities
+        entt::registry registry;
+
+        // City block map and simulation queues
+        std::unordered_map<glm::ivec2, std::vector<entt::entity>> cityBlocks;
+        std::deque<glm::ivec2> generationQueue;
+        std::deque<glm::ivec2> deletionQueue;
 
         // Models
         Phi::Model* streetLightModel = nullptr;
@@ -57,23 +66,13 @@ class Cityscape: public Phi::App
         Phi::Shader globalLightShader;
         Phi::Shader streetLightShader;
         Phi::Shader lightSourceShader;
-        Phi::Shader snowShader;
+        Phi::Shader snowEffectShader;
         Phi::Shader snowbankShader;
 
         // Other resources
         Phi::GPUBuffer* snowBuffer = nullptr;
         Phi::VertexAttributes snowVAO;
         GLuint dummyVAO;
-
-        // Registry of all active entities
-        entt::registry registry;
-
-        // Map of city block IDs to entity id lists
-        std::unordered_map<glm::ivec2, std::vector<entt::entity>> cityBlocks;
-
-        // Queues of blocks to generate / delete (only used in infinite mode)
-        std::deque<glm::ivec2> generationQueue;
-        std::deque<glm::ivec2> deletionQueue;
 
         // Input
         glm::vec2 prevMousePos;

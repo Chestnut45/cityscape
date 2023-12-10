@@ -13,10 +13,9 @@ class Building
     // Interface
     public:
 
-        // Feature flags for generating extra index data
+        // Feature flags for generating extra vertex data
         enum class Feature : int
         {
-            None,
             Awning,
             Balcony,
             Chimney

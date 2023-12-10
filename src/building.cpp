@@ -104,10 +104,11 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
 {
     bool doorPlaced = false;
 
-    // Calculate texture offsets for upper left vertices of the wall faces
+    // Calculate texture offsets and feature generation flags
     float texOffsets[blocks * 2];
     for (int i = 0; i < blocks * 2; i += 2)
     {
+        // TODO: Change to switch case, add flags for generating features
         if (type == TexOffset::Door)
         {
             if (!doorPlaced && (boolDist(rng) || i == blocks * 2 - 2))

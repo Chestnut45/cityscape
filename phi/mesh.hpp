@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <algorithm>
 
 #include <glm/glm.hpp>
 
@@ -33,7 +34,7 @@ namespace Phi
 
         MAX_TEXTURES    // 6
 
-        // Unused units: GL_TEXTURE6+ for your custom textures / shaders
+        // Unused units: GL_TEXTURE6+ for your custom textures
     };
 
     // SSBO binding points
@@ -72,7 +73,7 @@ namespace Phi
                 vertexBuffer = other.vertexBuffer;
                 indexBuffer = other.indexBuffer;
 
-                // Ensure other mesh doesn't free resources we're stealing on destruction
+                // Ensure other mesh doesn't free resources we're stealing on its destruction
                 other.vertexAttributes = nullptr;
                 other.vertexBuffer = nullptr;
                 other.indexBuffer = nullptr;
@@ -202,7 +203,31 @@ namespace Phi
     template <typename Vertex>
     void Mesh<Vertex>::AddSurface(const std::vector<Vertex>* vertices, const std::vector<GLuint>* const indices)
     {
+        // Get the number of vertices we have before adding the surface
+        GLuint vertCount = this->vertices.size();
 
+        // Add the vertices
+        this->vertices.insert(this->vertices.end(), vertices->cbegin(), vertices->cend());
+
+        // Add indices if the mesh uses them
+        if (useIndices)
+        {
+            if (indices)
+            {
+                // Ensure we have enough space to write the offset indices
+                GLuint indCount = this->indices.size();
+                this->indices.resize(indCount + indices->size());
+                std::transform(indices->cbegin(), indices->cend(), this->indices.begin() + indCount, [vertCount](GLuint original) { return original + vertCount; });
+            }
+            else
+            {
+                // Generate indices automatically if this surface supplies none
+                for (GLuint ind : indices)
+                {
+                    this->indices.push_back(ind + vertCount);
+                }
+            }
+        }
     }
 
     template <typename Vertex>
@@ -261,7 +286,7 @@ namespace Phi
                                   GLenum minFilter, GLenum magFilter,
                                   bool mipmap)
     {
-        // Ensure this mesh doesn't already have this texture type
+        // Ensure this mesh doesn't already have this texture type loaded
         if (textures[(int)type])
         {
             std::cout << "Mesh @" << this << " already contains a texture of type " << (int)type << std::endl;

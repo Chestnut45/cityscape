@@ -68,9 +68,9 @@ Both directional lights and point lights are using the Blinn-Phong model (with t
 
 ### Building Shapes:
 
-Each building is generated story by story, face by face. Texture offsets into the building texture atlas are procedurally generated for each face based on constructor arguments and rng. (If you are creating a "Door" face, it generates texture coordinates that correspond to the "Door" section of the texture, for the given building variant)
+Each building is generated story by story, face by face. Texture offsets into the building texture atlas are procedurally generated for each face based on constructor arguments and rng, and extra features like awnings and balconies are placed per-face based on what type (window, door, etc.) of face is being generated.
 
-The buildings are drawn using double buffering to build up a draw buffer section containing all currently loaded buildings' vertices and indices once per frame.
+The buildings are drawn using the Phi::RenderBatch class that groups together meshes of matching vertex formats into a single draw call.
 
 ## Other Considerations:
 
@@ -91,7 +91,7 @@ On December 4th, there was a really cool looking snowstorm, and it inspired me t
 - Snow will accumulate faster based on the `Intensity` value for the storm.
 - Snow will melt 2x faster during the day.
 - The snow particle effect consists of 20,000 particles each rasterized as a GL_POINT with a random size.
-- The particles are updated entirely on the GPU, all the CPU does is calculate initial positions once on program startup, and issue a draw call once per frame.
+- The particles are updated entirely on the GPU, all the CPU does is calculate initial positions once on program startup, and issue a single draw call once per frame.
 
 Immediately after calculating the position offset due to wind and assigning a value to gl_Position and gl_PointSize, the vertex shader applies a constant velocity downward (since snow has a relatively low terminal velocity), and wraps each particle's position back up to the top of the "effect box" that surrounds the camera. After all vertex shader outputs have finished, we simply write back the updated particle position to the same location of the same buffer by binding the buffer object to an indexed SSBO binding point that is accessible to the vertex shader.
 
@@ -105,7 +105,7 @@ Since each snowflake is rendered to the geometry buffer, they will also automati
 
 Phi's GPUBuffer class is made to use many buffer streaming techniques, which are useful for streaming data to the GPU with very minimal driver overhead. If you create a buffer of any of the dynamic types, it will be persistently mapped (until the resource is destroyed), using the `GL_MAP_COHERENT_BIT` flag set. This ensures that all writes through the pointer returned by `glMapBufferRange()` are seen by any subsequent OpenGL operations.
 
-The main caveat with using persistently mapped buffers is that you must perform synchronization yourself. It's your responsibility not to write to the buffer while any OpenGL calls are reading from it. To this end, the GPUBuffer class provides the `Lock()`, `Sync()`, and `SwapSections()` methods. `Lock()` inserts a fence sync object and associates it with the current section of the buffer, `Sync()` performs a client-blocking sync call until the current section's sync object has been signaled, and `SwapSections()` moves to the next buffer section, or back to the beginning if the current section is the last.
+The main caveat with using persistently mapped buffers is that you must perform synchronization yourself. It's your responsibility not to write to any section of the buffer that is currently being read from by OpenGL. To this end, the GPUBuffer class provides the `Lock()`, `Sync()`, and `SwapSections()` methods. `Lock()` inserts a fence sync object and associates it with the current section of the buffer, `Sync()` performs a client-blocking sync call until the current section's sync object has been signaled, and `SwapSections()` moves to the next buffer section, or back to the beginning if the current section is the last.
 
 The main reason for double/triple buffering is to minimize the client sync points. The general method is to write to section A of the buffer, issue commands that read from section A, place a sync on section A, then start writing to section B (while the GPU is still reading from section A). In an ideal world, by the time we send commands to read from the final section and swap back to section A for writing, section A's sync object will already be signaled, so the `Sync()` method will return immediately.
 

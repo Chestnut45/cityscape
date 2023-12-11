@@ -311,7 +311,6 @@ namespace Phi
         std::cout << "Mesh texture loaded: " << path << std::endl;
     }
 
-
     template <typename Vertex>
     void Mesh<Vertex>::Commit()
     {
@@ -324,6 +323,7 @@ namespace Phi
         }
         
         // VAO creation (Depends on vertex format)
+        // This is ugly, but it works
         if (std::is_same_v<Vertex, VertexPos>)
         {
             vertexAttributes = new VertexAttributes(VertexFormat::POS, vertexBuffer, useIndices ? indexBuffer : nullptr);

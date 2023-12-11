@@ -10,7 +10,7 @@ namespace Phi
 
     namespace Icosphere
     {
-        // Icosphere data
+        // Icosphere data (Used for point light volumes and sun/moon)
         static const float X = 0.525731112119133606f;
         static const float Z = 0.850650808352039932f;
 

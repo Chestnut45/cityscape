@@ -82,5 +82,8 @@ namespace Phi
             // Helper methods for updating matrices
             void UpdateView();
             void UpdateProjection();
+
+            // Constants
+            static const int UBO_SIZE = sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 2;
     };
 }

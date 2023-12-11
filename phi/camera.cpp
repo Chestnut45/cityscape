@@ -4,7 +4,7 @@ namespace Phi
 {
     // Constructor
     Camera::Camera() : position(0), direction(0, 0, -1), up(0, 1, 0), right(1, 0, 0),
-                        ubo(BufferType::Dynamic, sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 2)
+                        ubo(BufferType::Dynamic, UBO_SIZE)
     {
         // Bind UBO to binding point 0
         ubo.BindBase(GL_UNIFORM_BUFFER, 0);
@@ -108,6 +108,9 @@ namespace Phi
         ubo.Write(proj);
         ubo.Write(glm::vec4(position, 1));
         ubo.Write(glm::vec4(width, height, 0.0f, 0.0f));
-        ubo.SetOffset(0);
+        ubo.SwapSections();
+
+        // Bind UBO to binding point 0
+        ubo.BindRange(GL_UNIFORM_BUFFER, 0, UBO_SIZE * ubo.GetCurrentSection(), UBO_SIZE);
     }
 }

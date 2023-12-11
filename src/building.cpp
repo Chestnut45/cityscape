@@ -157,7 +157,7 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
                     {-halfSize + xOffset + pos.x, yPosOffs + pos.y, -halfSize * blocks + pos.z, 0.0f, 0.0f, -1.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y}
                 );
 
-                if (boolDist(rng)) keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {xOffset + pos.x, yPosOffs + halfSize + pos.y, -halfSize * blocks + pos.z}, variant, story) : keepGenFeatures;
+                if (boolDist(rng)) keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {xOffset + pos.x, yPosOffs + halfSize + pos.y, -halfSize * blocks + pos.z}, variant, story, blocks) : keepGenFeatures;
 
                 // Adjust offset
                 xOffset += storySize;
@@ -175,7 +175,7 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
                     {halfSize * blocks + pos.x, yPosOffs + pos.y, -halfSize + xOffset + pos.z, 1.0f, 0.0f, 0.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y}
                 );
 
-                if (boolDist(rng)) keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {halfSize * blocks + pos.x, yPosOffs + halfSize + pos.y, xOffset + pos.z}, variant, story) : keepGenFeatures;
+                if (boolDist(rng)) keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {halfSize * blocks + pos.x, yPosOffs + halfSize + pos.y, xOffset + pos.z}, variant, story, blocks) : keepGenFeatures;
 
                 // Adjust offset
                 xOffset += storySize;
@@ -193,7 +193,7 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
                     {halfSize + xOffset + pos.x, yPosOffs + pos.y, halfSize * blocks + pos.z, 0.0f, 0.0f, 1.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y}
                 );
 
-                if (boolDist(rng)) keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {xOffset + pos.x, yPosOffs + halfSize + pos.y, halfSize * blocks + pos.z}, variant, story) : keepGenFeatures;
+                if (boolDist(rng)) keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {xOffset + pos.x, yPosOffs + halfSize + pos.y, halfSize * blocks + pos.z}, variant, story, blocks) : keepGenFeatures;
 
                 // Adjust offset
                 xOffset += storySize;
@@ -212,7 +212,7 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
                     {-halfSize * blocks + pos.x, yPosOffs + pos.y, halfSize + xOffset + pos.z, -1.0f, 0.0f, 0.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y}
                 );
 
-                if (boolDist(rng)) keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {-halfSize * blocks + pos.x, yPosOffs + halfSize + pos.y, xOffset + pos.z}, variant, story) : keepGenFeatures;
+                if (boolDist(rng)) keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {-halfSize * blocks + pos.x, yPosOffs + halfSize + pos.y, xOffset + pos.z}, variant, story, blocks) : keepGenFeatures;
 
                 // Adjust offset
                 xOffset += storySize;
@@ -248,7 +248,7 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
 
 // Adds a feature to the building, returning whether or not to keep generating features
 // for that specific face
-bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::vec3& facePos, int variant, int story)
+bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::vec3& facePos, int variant, int story, int blocks)
 {
     // Build rotation matrix based on orientation
     glm::mat4 rotation = glm::mat4(1.0f);
@@ -333,7 +333,7 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
         case TexOffset::LargeWindow:
 
             // Generate balcony
-            // if (story != 0)
+            // if (story != 0 && boolDist(rng) == 0 && blocks > 1)
             // {
             //     // Vertex positions
             //     glm::vec4 posA = rotation * glm::vec4(-0.5f, 0.0f, 0.0f, 1.0f) + glm::vec4(facePos, 1.0f);

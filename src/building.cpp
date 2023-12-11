@@ -43,10 +43,10 @@ Building::Building(const glm::vec3 &pos, int stories, int baseBlockCount, int va
     int currentStoryBlocks = baseBlockCount;
     for (int i = 1; i < stories; i++)
     {
-        AddFace(Orientation::North, RandomWallType(), variant, i, currentStoryBlocks);
-        AddFace(Orientation::East, RandomWallType(), variant, i, currentStoryBlocks);
-        AddFace(Orientation::South, RandomWallType(), variant, i, currentStoryBlocks);
-        AddFace(Orientation::West, RandomWallType(), variant, i, currentStoryBlocks);
+        AddFace(Orientation::North, RandomWallType(i), variant, i, currentStoryBlocks);
+        AddFace(Orientation::East, RandomWallType(i), variant, i, currentStoryBlocks);
+        AddFace(Orientation::South, RandomWallType(i), variant, i, currentStoryBlocks);
+        AddFace(Orientation::West, RandomWallType(i), variant, i, currentStoryBlocks);
 
         // If not the final story
         if (i != stories - 1)
@@ -103,9 +103,8 @@ void Building::FlushDrawCalls()
 void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, int blocks)
 {
     bool doorPlaced = false;
-    bool keepGenFeatures = true;
 
-    // Calculate texture offsets and feature generation flags
+    // Calculate texture offsets
     float texOffsets[blocks * 2];
     for (int i = 0; i < blocks * 2; i += 2)
     {
@@ -122,18 +121,9 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
                 }
                 else
                 {
-                    texOffsets[i] = (float)RandomWallType() * tileSizeNormalized.x;
+                    texOffsets[i] = (float)RandomWallType(story) * tileSizeNormalized.x;
                     texOffsets[i + 1] = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
                 }
-
-                break;
-            
-            case TexOffset::Wall:
-            case TexOffset::Window:
-            case TexOffset::LargeWindow:
-
-                texOffsets[i] = (float)RandomWallType() * tileSizeNormalized.x;
-                texOffsets[i + 1] = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
 
                 break;
             
@@ -152,6 +142,7 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
     float yPosOffs = storySize * story;
     float xOffset = -halfSize * (blocks - 1);
     float zOffset = xOffset;
+    bool keepGenFeatures = true;
 
     switch (dir)
     {
@@ -166,7 +157,7 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
                     {-halfSize + xOffset + pos.x, yPosOffs + pos.y, -halfSize * blocks + pos.z, 0.0f, 0.0f, -1.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y}
                 );
 
-                keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {xOffset + pos.x, yPosOffs + halfSize + pos.y, -halfSize * blocks + pos.z}, variant) : keepGenFeatures;
+                if (boolDist(rng)) keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {xOffset + pos.x, yPosOffs + halfSize + pos.y, -halfSize * blocks + pos.z}, variant, story) : keepGenFeatures;
 
                 // Adjust offset
                 xOffset += storySize;
@@ -184,6 +175,8 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
                     {halfSize * blocks + pos.x, yPosOffs + pos.y, -halfSize + xOffset + pos.z, 1.0f, 0.0f, 0.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y}
                 );
 
+                if (boolDist(rng)) keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {halfSize * blocks + pos.x, yPosOffs + halfSize + pos.y, xOffset + pos.z}, variant, story) : keepGenFeatures;
+
                 // Adjust offset
                 xOffset += storySize;
             }
@@ -199,6 +192,8 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
                     {-halfSize + xOffset + pos.x, yPosOffs + pos.y, halfSize * blocks + pos.z, 0.0f, 0.0f, 1.0f, texOffsets[i * 2], texOffsets[i * 2 + 1] - tileSizeNormalized.y},
                     {halfSize + xOffset + pos.x, yPosOffs + pos.y, halfSize * blocks + pos.z, 0.0f, 0.0f, 1.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y}
                 );
+
+                if (boolDist(rng)) keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {xOffset + pos.x, yPosOffs + halfSize + pos.y, halfSize * blocks + pos.z}, variant, story) : keepGenFeatures;
 
                 // Adjust offset
                 xOffset += storySize;
@@ -216,6 +211,8 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
                     {-halfSize * blocks + pos.x, yPosOffs + pos.y, -halfSize + xOffset + pos.z, -1.0f, 0.0f, 0.0f, texOffsets[i * 2], texOffsets[i * 2 + 1] - tileSizeNormalized.y},
                     {-halfSize * blocks + pos.x, yPosOffs + pos.y, halfSize + xOffset + pos.z, -1.0f, 0.0f, 0.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y}
                 );
+
+                if (boolDist(rng)) keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {-halfSize * blocks + pos.x, yPosOffs + halfSize + pos.y, xOffset + pos.z}, variant, story) : keepGenFeatures;
 
                 // Adjust offset
                 xOffset += storySize;
@@ -251,16 +248,16 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
 
 // Adds a feature to the building, returning whether or not to keep generating features
 // for that specific face
-bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::vec3& facePos, int variant)
+bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::vec3& facePos, int variant, int story)
 {
     // Build rotation matrix based on orientation
     glm::mat4 rotation = glm::mat4(1.0f);
     switch (orientation)
     {
         case Orientation::North: break;
-        case Orientation::East: rotation = glm::rotate(rotation, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); break;
+        case Orientation::East: rotation = glm::rotate(rotation, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); break;
         case Orientation::South: rotation = glm::rotate(rotation, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); break;
-        case Orientation::West: rotation = glm::rotate(rotation, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); break;
+        case Orientation::West: rotation = glm::rotate(rotation, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); break;
         default: break;
     }
 
@@ -283,44 +280,48 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
             glm::vec4 posF = rotation * glm::vec4(0.5f, 0.0f, 0.0f, 1.0f) + glm::vec4(facePos, 1.0f);
 
             // Normals
+            glm::vec4 n1 = rotation * glm::vec4(-1.0f, 0.0f, 0.0f, 1.0f);
+            glm::vec4 n2 = rotation * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            glm::vec4 n3 = rotation * glm::vec4(0.0f, 0.5f, -0.5f, 1.0f);
+            glm::vec4 n4 = rotation * glm::vec4(0.0f, -0.5f, 0.5f, 1.0f);
             
 
             // Side 1
             mesh.AddTriangle(
-                {posA.x, posA.y, posA.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
-                {posB.x, posB.y, posB.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
-                {posC.x, posC.y, posC.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset}
+                {posA.x, posA.y, posA.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
+                {posB.x, posB.y, posB.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
+                {posC.x, posC.y, posC.z, n1.x, n1.y, n1.z, 0.0f, variantOffset}
             );
             mesh.AddTriangle(
-                {posC.x, posC.y, posC.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
-                {posB.x, posB.y, posB.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
-                {posA.x, posA.y, posA.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset}
+                {posC.x, posC.y, posC.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
+                {posB.x, posB.y, posB.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
+                {posA.x, posA.y, posA.z, n2.x, n2.y, n2.z, 0.0f, variantOffset}
             );
 
             // Side 2
             mesh.AddTriangle(
-                {posD.x, posD.y, posD.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
-                {posE.x, posE.y, posE.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
-                {posF.x, posF.y, posF.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset}
+                {posD.x, posD.y, posD.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
+                {posE.x, posE.y, posE.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
+                {posF.x, posF.y, posF.z, n1.x, n1.y, n1.z, 0.0f, variantOffset}
             );
             mesh.AddTriangle(
-                {posF.x, posF.y, posF.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
-                {posE.x, posE.y, posE.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
-                {posD.x, posD.y, posD.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset}
+                {posF.x, posF.y, posF.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
+                {posE.x, posE.y, posE.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
+                {posD.x, posD.y, posD.z, n2.x, n2.y, n2.z, 0.0f, variantOffset}
             );
 
             // Top
             mesh.AddQuad(
-                {posA.x, posA.y, posA.z, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset},
-                {posB.x, posB.y, posB.z, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset},
-                {posD.x, posD.y, posD.z, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset},
-                {posE.x, posE.y, posE.z, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset}
+                {posA.x, posA.y, posA.z, n3.x, n3.y, n3.z, 0.0f, variantOffset},
+                {posB.x, posB.y, posB.z, n3.x, n3.y, n3.z, 0.0f, variantOffset},
+                {posD.x, posD.y, posD.z, n3.x, n3.y, n3.z, 0.0f, variantOffset},
+                {posE.x, posE.y, posE.z, n3.x, n3.y, n3.z, 0.0f, variantOffset}
             );
             mesh.AddQuad(
-                {posA.x, posA.y, posA.z, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset},
-                {posD.x, posD.y, posD.z, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset},
-                {posB.x, posB.y, posB.z, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset},
-                {posE.x, posE.y, posE.z, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset}
+                {posA.x, posA.y, posA.z, n4.x, n4.y, n4.z, 0.0f, variantOffset},
+                {posD.x, posD.y, posD.z, n4.x, n4.y, n4.z, 0.0f, variantOffset},
+                {posB.x, posB.y, posB.z, n4.x, n4.y, n4.z, 0.0f, variantOffset},
+                {posE.x, posE.y, posE.z, n4.x, n4.y, n4.z, 0.0f, variantOffset}
             );
 
             return false;
@@ -332,7 +333,10 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
         case TexOffset::LargeWindow:
 
             // Generate balcony
-
+            if (story != 0)
+            {
+                
+            }
 
             return false;
             break;
@@ -344,7 +348,11 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
 }
 
 // Randomly chooses a wall type (not seeded)
-Building::TexOffset Building::RandomWallType() const
+Building::TexOffset Building::RandomWallType(int story) const
 {
+    if (story == 0)
+    {
+        return boolDist(rng) ? TexOffset::Window : TexOffset::LargeWindow;
+    }
     return (TexOffset)wallDist(rng);
 }

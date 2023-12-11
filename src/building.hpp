@@ -77,8 +77,8 @@ class Building
 
         // Helper methods for procedural generation
         void AddFace(Orientation dir, TexOffset type, int variant, int story, int blocks);
-        bool AddFeature(TexOffset type, Orientation orientation, const glm::vec3& facePos, int variant);
-        TexOffset RandomWallType() const;
+        bool AddFeature(TexOffset type, Orientation orientation, const glm::vec3& facePos, int variant, int story);
+        TexOffset RandomWallType(int story) const;
 
         // Tile sizes
         static inline int tileSize;

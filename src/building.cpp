@@ -333,10 +333,67 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
         case TexOffset::LargeWindow:
 
             // Generate balcony
-            if (story != 0)
-            {
-                
-            }
+            // if (story != 0)
+            // {
+            //     // Vertex positions
+            //     glm::vec4 posA = rotation * glm::vec4(-0.5f, 0.0f, 0.0f, 1.0f) + glm::vec4(facePos, 1.0f);
+            //     glm::vec4 posB = rotation * glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f) + glm::vec4(facePos, 1.0f);
+            //     glm::vec4 posC = rotation * glm::vec4(-0.5f, 0.0f, -0.5f, 1.0f) + glm::vec4(facePos, 1.0f);
+            //     glm::vec4 posD = rotation * glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f) + glm::vec4(facePos, 1.0f);
+
+            //     glm::vec4 posE = rotation * glm::vec4(0.5f, 0.0f, 0.0f, 1.0f) + glm::vec4(facePos, 1.0f);
+            //     glm::vec4 posF = rotation * glm::vec4(0.5f, -0.5f, 0.0f, 1.0f) + glm::vec4(facePos, 1.0f);
+            //     glm::vec4 posG = rotation * glm::vec4(0.5f, 0.0f, -0.5f, 1.0f) + glm::vec4(facePos, 1.0f);
+            //     glm::vec4 posH = rotation * glm::vec4(0.5f, -0.5f, -0.5f, 1.0f) + glm::vec4(facePos, 1.0f);
+
+            //     // Normals
+            //     glm::vec4 n1 = rotation * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            //     glm::vec4 n2 = rotation * glm::vec4(-1.0f, 0.0f, 0.0f, 1.0f);
+            //     glm::vec4 n3 = rotation * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+            //     glm::vec4 n4 = rotation * glm::vec4(0.0f, 0.0f, -1.0f, 1.0f);
+
+            //     // Side 1
+            //     mesh.AddQuad(
+            //         {posA.x, posA.y, posA.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
+            //         {posC.x, posC.y, posC.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
+            //         {posB.x, posB.y, posB.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
+            //         {posD.x, posD.y, posD.z, n1.x, n1.y, n1.z, 0.0f, variantOffset}
+            //     );
+            //     mesh.AddQuad(
+            //         {posA.x, posA.y, posA.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
+            //         {posB.x, posB.y, posB.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
+            //         {posC.x, posC.y, posC.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
+            //         {posD.x, posD.y, posD.z, n2.x, n2.y, n2.z, 0.0f, variantOffset}
+            //     );
+
+            //     // Side 2
+            //     mesh.AddQuad(
+            //         {posC.x, posC.y, posC.z, n3.x, n3.y, n3.z, 0.0f, variantOffset},
+            //         {posG.x, posG.y, posG.z, n3.x, n3.y, n3.z, 0.0f, variantOffset},
+            //         {posD.x, posD.y, posD.z, n3.x, n3.y, n3.z, 0.0f, variantOffset},
+            //         {posH.x, posH.y, posH.z, n3.x, n3.y, n3.z, 0.0f, variantOffset}
+            //     );
+            //     mesh.AddQuad(
+            //         {posC.x, posC.y, posC.z, n4.x, n4.y, n4.z, 0.0f, variantOffset},
+            //         {posD.x, posD.y, posD.z, n4.x, n4.y, n4.z, 0.0f, variantOffset},
+            //         {posG.x, posG.y, posG.z, n4.x, n4.y, n4.z, 0.0f, variantOffset},
+            //         {posH.x, posH.y, posH.z, n4.x, n4.y, n4.z, 0.0f, variantOffset}
+            //     );
+
+            //     // Side 3
+            //     mesh.AddQuad(
+            //         {posG.x, posG.y, posG.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
+            //         {posE.x, posE.y, posE.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
+            //         {posH.x, posH.y, posH.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
+            //         {posF.x, posF.y, posF.z, n2.x, n2.y, n2.z, 0.0f, variantOffset}
+            //     );
+            //     mesh.AddQuad(
+            //         {posG.x, posG.y, posG.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
+            //         {posH.x, posH.y, posH.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
+            //         {posE.x, posE.y, posE.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
+            //         {posF.x, posF.y, posF.z, n1.x, n1.y, n1.z, 0.0f, variantOffset}
+            //     );
+            // }
 
             return false;
             break;

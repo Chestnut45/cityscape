@@ -253,15 +253,15 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
 // for that specific face
 bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::vec3& facePos, int variant)
 {
-    // TODO: Build transform to multiply all vertex positions before adding
-    glm::mat4 transform = glm::mat4(1.0f);
+    // Build rotation matrix based on orientation
+    glm::mat4 rotation = glm::mat4(1.0f);
     switch (orientation)
     {
-        case Orientation::North: transform = glm::rotate(transform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); break;
-        case Orientation::East: transform = glm::mat4(1.0f); break;
-        case Orientation::South: transform = glm::mat4(1.0f); break;
-        case Orientation::West: transform = glm::mat4(1.0f); break;
-        default: transform = glm::mat4(1.0f); break;
+        case Orientation::North: break;
+        case Orientation::East: rotation = glm::rotate(rotation, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); break;
+        case Orientation::South: rotation = glm::rotate(rotation, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); break;
+        case Orientation::West: rotation = glm::rotate(rotation, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); break;
+        default: break;
     }
 
     // TODO: Actual texture coordinates
@@ -270,49 +270,59 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
     switch (type)
     {
         case TexOffset::Door:
-
+        {
             // Generate awning
+
+            // Vertex positions
+            glm::vec4 posA = rotation * glm::vec4(-0.5f, 0.5f, 0.0f, 1.0f) + glm::vec4(facePos, 1.0f);
+            glm::vec4 posB = rotation * glm::vec4(-0.5f, 0.0f, -0.5f, 1.0f) + glm::vec4(facePos, 1.0f);
+            glm::vec4 posC = rotation * glm::vec4(-0.5f, 0.0f, 0.0f, 1.0f) + glm::vec4(facePos, 1.0f);
+
+            glm::vec4 posD = rotation * glm::vec4(0.5f, 0.5f, 0.0f, 1.0f) + glm::vec4(facePos, 1.0f);
+            glm::vec4 posE = rotation * glm::vec4(0.5f, 0.0f, -0.5f, 1.0f) + glm::vec4(facePos, 1.0f);
+            glm::vec4 posF = rotation * glm::vec4(0.5f, 0.0f, 0.0f, 1.0f) + glm::vec4(facePos, 1.0f);
 
             // Side 1
             mesh.AddTriangle(
-                {facePos.x - 0.5f, facePos.y + 0.5f, facePos.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
-                {facePos.x - 0.5f, facePos.y, facePos.z - 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
-                {facePos.x - 0.5f, facePos.y, facePos.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset}
+                {posA.x, posA.y, posA.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
+                {posB.x, posB.y, posB.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
+                {posC.x, posC.y, posC.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset}
             );
             mesh.AddTriangle(
-                {facePos.x - 0.5f, facePos.y, facePos.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
-                {facePos.x - 0.5f, facePos.y, facePos.z - 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
-                {facePos.x - 0.5f, facePos.y + 0.5f, facePos.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset}
+                {posC.x, posC.y, posC.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
+                {posB.x, posB.y, posB.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
+                {posA.x, posA.y, posA.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset}
             );
 
             // Side 2
             mesh.AddTriangle(
-                {facePos.x + 0.5f, facePos.y + 0.5f, facePos.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
-                {facePos.x + 0.5f, facePos.y, facePos.z - 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
-                {facePos.x + 0.5f, facePos.y, facePos.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset}
+                {posD.x, posD.y, posD.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
+                {posE.x, posE.y, posE.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
+                {posF.x, posF.y, posF.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset}
             );
             mesh.AddTriangle(
-                {facePos.x + 0.5f, facePos.y, facePos.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
-                {facePos.x + 0.5f, facePos.y, facePos.z - 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
-                {facePos.x + 0.5f, facePos.y + 0.5f, facePos.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset}
+                {posF.x, posF.y, posF.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
+                {posE.x, posE.y, posE.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
+                {posD.x, posD.y, posD.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset}
             );
 
             // Top
             mesh.AddQuad(
-                {facePos.x + 0.5f, facePos.y + 0.5f, facePos.z, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset},
-                {facePos.x - 0.5f, facePos.y + 0.5f, facePos.z, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset},
-                {facePos.x + 0.5f, facePos.y, facePos.z - 0.5f, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset},
-                {facePos.x - 0.5f, facePos.y, facePos.z - 0.5f, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset}
+                {posA.x, posA.y, posA.z, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset},
+                {posB.x, posB.y, posB.z, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset},
+                {posD.x, posD.y, posD.z, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset},
+                {posE.x, posE.y, posE.z, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset}
             );
             mesh.AddQuad(
-                {facePos.x + 0.5f, facePos.y + 0.5f, facePos.z, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset},
-                {facePos.x + 0.5f, facePos.y, facePos.z - 0.5f, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset},
-                {facePos.x - 0.5f, facePos.y + 0.5f, facePos.z, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset},
-                {facePos.x - 0.5f, facePos.y, facePos.z - 0.5f, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset}
+                {posA.x, posA.y, posA.z, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset},
+                {posD.x, posD.y, posD.z, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset},
+                {posB.x, posB.y, posB.z, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset},
+                {posE.x, posE.y, posE.z, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset}
             );
 
-            return true;
+            return false;
             break;
+        }
         
         case TexOffset::Wall:
         case TexOffset::Window:

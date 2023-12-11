@@ -127,6 +127,9 @@ class Cityscape: public Phi::App
         Phi::Texture2D* gColorSpecTex = nullptr;
         Phi::Texture2D* gDepthStencilTex = nullptr;
 
+        // Shadow map depth texture
+        Phi::Texture2D* shadowDepthTex = nullptr;
+
         // Framebuffer update / regen methods
         void RecreateFBO();
 };

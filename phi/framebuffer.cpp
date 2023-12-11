@@ -16,7 +16,7 @@ namespace Phi
     }
 
     // Attaches a texture to the given attachment point
-    // NOTE: This object must be bound before any calls to AttachTexture()
+    // NOTE: This object must be bound to GL_FRAMEBUFFER before any calls to AttachTexture()
     void FrameBuffer::AttachTexture(const Texture2D* const texture, GLenum attachment)
     {
         // Retrieve ID and bind texture

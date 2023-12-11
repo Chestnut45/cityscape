@@ -282,6 +282,9 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
             glm::vec4 posE = rotation * glm::vec4(0.5f, 0.0f, -0.5f, 1.0f) + glm::vec4(facePos, 1.0f);
             glm::vec4 posF = rotation * glm::vec4(0.5f, 0.0f, 0.0f, 1.0f) + glm::vec4(facePos, 1.0f);
 
+            // Normals
+            
+
             // Side 1
             mesh.AddTriangle(
                 {posA.x, posA.y, posA.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},

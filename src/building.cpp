@@ -103,38 +103,46 @@ void Building::FlushDrawCalls()
 void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, int blocks)
 {
     bool doorPlaced = false;
+    bool keepGenFeatures = true;
 
     // Calculate texture offsets and feature generation flags
     float texOffsets[blocks * 2];
     for (int i = 0; i < blocks * 2; i += 2)
     {
-        // TODO: Change to switch case, add flags for generating features
-        if (type == TexOffset::Door)
+        switch (type)
         {
-            if (!doorPlaced && (boolDist(rng) || i == blocks * 2 - 2))
-            {
-                texOffsets[i] = (float)type * tileSizeNormalized.x;
-                texOffsets[i + 1] = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
-                doorPlaced = true;
-            }
-            else
-            {
+            case TexOffset::Door:
+
+                // Ensure we eventually place a door if rng doesn't first
+                if (!doorPlaced && (boolDist(rng) || i == blocks * 2 - 2))
+                {
+                    texOffsets[i] = (float)type * tileSizeNormalized.x;
+                    texOffsets[i + 1] = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
+                    doorPlaced = true;
+                }
+                else
+                {
+                    texOffsets[i] = (float)RandomWallType() * tileSizeNormalized.x;
+                    texOffsets[i + 1] = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
+                }
+
+                break;
+            
+            case TexOffset::Wall:
+            case TexOffset::Window:
+            case TexOffset::LargeWindow:
+
                 texOffsets[i] = (float)RandomWallType() * tileSizeNormalized.x;
                 texOffsets[i + 1] = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
-            }
-        }
-        else
-        {
-            if (type == TexOffset::Wall || type == TexOffset::Window || type == TexOffset::LargeWindow)
-            {
-                texOffsets[i] = (float)RandomWallType() * tileSizeNormalized.x;
-                texOffsets[i + 1] = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
-            }
-            else
-            {
+
+                break;
+            
+            default:
+
                 texOffsets[i] = (float)type * tileSizeNormalized.x;
                 texOffsets[i + 1] = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
-            }
+
+                break;
         }
     }
 
@@ -157,6 +165,8 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
                     {halfSize + xOffset + pos.x, yPosOffs + pos.y, -halfSize * blocks + pos.z, 0.0f, 0.0f, -1.0f, texOffsets[i * 2], texOffsets[i * 2 + 1] - tileSizeNormalized.y},
                     {-halfSize + xOffset + pos.x, yPosOffs + pos.y, -halfSize * blocks + pos.z, 0.0f, 0.0f, -1.0f, texOffsets[i * 2] + tileSizeNormalized.x, texOffsets[i * 2 + 1] - tileSizeNormalized.y}
                 );
+
+                keepGenFeatures = keepGenFeatures ? AddFeature(type, dir, {xOffset + pos.x, yPosOffs + halfSize + pos.y, -halfSize * blocks + pos.z}, variant) : keepGenFeatures;
 
                 // Adjust offset
                 xOffset += storySize;
@@ -239,35 +249,83 @@ void Building::AddFace(Orientation dir, TexOffset type, int variant, int story, 
     }
 }
 
-// Adds a feature to the building
-void Building::AddFeature(Feature feature, Orientation orientation)
+// Adds a feature to the building, returning whether or not to keep generating features
+// for that specific face
+bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::vec3& facePos, int variant)
 {
-    switch (feature)
+    // TODO: Build transform to multiply all vertex positions before adding
+    glm::mat4 transform = glm::mat4(1.0f);
+    switch (orientation)
     {
-        case Feature::Awning:
+        case Orientation::North: transform = glm::rotate(transform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); break;
+        case Orientation::East: transform = glm::mat4(1.0f); break;
+        case Orientation::South: transform = glm::mat4(1.0f); break;
+        case Orientation::West: transform = glm::mat4(1.0f); break;
+        default: transform = glm::mat4(1.0f); break;
+    }
 
-            // Add vertices based on orientation
-            switch (orientation)
-            {
-                case Orientation::North:
+    // TODO: Actual texture coordinates
+    float variantOffset = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y - 0.001f;
 
-                    break;
-                
-                case Orientation::East:
+    switch (type)
+    {
+        case TexOffset::Door:
 
-                    break;
-                
-                case Orientation::South:
+            // Generate awning
 
-                    break;
-                
-                case Orientation::West:
+            // Side 1
+            mesh.AddTriangle(
+                {facePos.x - 0.5f, facePos.y + 0.5f, facePos.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
+                {facePos.x - 0.5f, facePos.y, facePos.z - 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
+                {facePos.x - 0.5f, facePos.y, facePos.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset}
+            );
+            mesh.AddTriangle(
+                {facePos.x - 0.5f, facePos.y, facePos.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
+                {facePos.x - 0.5f, facePos.y, facePos.z - 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
+                {facePos.x - 0.5f, facePos.y + 0.5f, facePos.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset}
+            );
 
-                    break;
-            }
+            // Side 2
+            mesh.AddTriangle(
+                {facePos.x + 0.5f, facePos.y + 0.5f, facePos.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
+                {facePos.x + 0.5f, facePos.y, facePos.z - 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset},
+                {facePos.x + 0.5f, facePos.y, facePos.z, -1.0f, 0.0f, 0.0f, 0.0f, variantOffset}
+            );
+            mesh.AddTriangle(
+                {facePos.x + 0.5f, facePos.y, facePos.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
+                {facePos.x + 0.5f, facePos.y, facePos.z - 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset},
+                {facePos.x + 0.5f, facePos.y + 0.5f, facePos.z, 1.0f, 0.0f, 1.0f, 0.0f, variantOffset}
+            );
 
-            // Add indices
-            
+            // Top
+            mesh.AddQuad(
+                {facePos.x + 0.5f, facePos.y + 0.5f, facePos.z, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset},
+                {facePos.x - 0.5f, facePos.y + 0.5f, facePos.z, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset},
+                {facePos.x + 0.5f, facePos.y, facePos.z - 0.5f, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset},
+                {facePos.x - 0.5f, facePos.y, facePos.z - 0.5f, 0.0f, 0.5f, -0.5f, 0.0f, variantOffset}
+            );
+            mesh.AddQuad(
+                {facePos.x + 0.5f, facePos.y + 0.5f, facePos.z, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset},
+                {facePos.x + 0.5f, facePos.y, facePos.z - 0.5f, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset},
+                {facePos.x - 0.5f, facePos.y + 0.5f, facePos.z, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset},
+                {facePos.x - 0.5f, facePos.y, facePos.z - 0.5f, 0.0f, -0.5f, 0.5f, 0.0f, variantOffset}
+            );
+
+            return true;
+            break;
+        
+        case TexOffset::Wall:
+        case TexOffset::Window:
+        case TexOffset::LargeWindow:
+
+            // Generate balcony
+
+
+            return false;
+            break;
+        
+        default:
+            return false;
             break;
     }
 }

@@ -234,7 +234,7 @@ namespace Phi
     void Mesh<Vertex>::AddTriangle(const Vertex& a, const Vertex& b, const Vertex& c)
     {
         GLuint n = vertices.size();
-        
+
         vertices.push_back(a);
         vertices.push_back(b);
         vertices.push_back(c);

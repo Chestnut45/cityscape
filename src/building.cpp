@@ -7,7 +7,7 @@ Building::Building(const glm::vec3 &pos, int stories, int baseBlockCount, int va
     if (refCount == 0)
     {
         // Load the texture atlas
-        textureAtlas = new Phi::Texture2D("data/textures/buildingAtlas.png", GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
+        textureAtlas = new Phi::Texture2D("data/textures/buildingAtlas1.png", GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
 
         // Initialize the render batch
         renderBatch = new Phi::RenderBatch<Phi::VertexPosNormUv>(65'536, 131'072);
@@ -254,8 +254,9 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
         default: break;
     }
 
-    // TODO: Actual texture coordinates
-    float variantOffset = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y - 0.001f;
+    // Calculate texture coordinates
+    float variantOffset = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
+    float typeOffset = (float)TexOffset::Awning * tileSizeNormalized.x;
 
     switch (type)
     {
@@ -305,16 +306,16 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
 
             // Top
             mesh.AddQuad(
-                {posA.x, posA.y, posA.z, n3.x, n3.y, n3.z, 0.0f, variantOffset},
-                {posB.x, posB.y, posB.z, n3.x, n3.y, n3.z, 0.0f, variantOffset},
-                {posD.x, posD.y, posD.z, n3.x, n3.y, n3.z, 0.0f, variantOffset},
-                {posE.x, posE.y, posE.z, n3.x, n3.y, n3.z, 0.0f, variantOffset}
+                {posA.x, posA.y, posA.z, n3.x, n3.y, n3.z, typeOffset, variantOffset},
+                {posB.x, posB.y, posB.z, n3.x, n3.y, n3.z, typeOffset, variantOffset - tileSizeNormalized.y / 2},
+                {posD.x, posD.y, posD.z, n3.x, n3.y, n3.z, typeOffset + tileSizeNormalized.x, variantOffset},
+                {posE.x, posE.y, posE.z, n3.x, n3.y, n3.z, typeOffset + tileSizeNormalized.x, variantOffset - tileSizeNormalized.y / 2}
             );
             mesh.AddQuad(
-                {posA.x, posA.y, posA.z, n4.x, n4.y, n4.z, 0.0f, variantOffset},
-                {posD.x, posD.y, posD.z, n4.x, n4.y, n4.z, 0.0f, variantOffset},
-                {posB.x, posB.y, posB.z, n4.x, n4.y, n4.z, 0.0f, variantOffset},
-                {posE.x, posE.y, posE.z, n4.x, n4.y, n4.z, 0.0f, variantOffset}
+                {posA.x, posA.y, posA.z, n4.x, n4.y, n4.z, typeOffset, variantOffset},
+                {posD.x, posD.y, posD.z, n4.x, n4.y, n4.z, typeOffset + tileSizeNormalized.x, variantOffset},
+                {posB.x, posB.y, posB.z, n4.x, n4.y, n4.z, typeOffset, variantOffset - tileSizeNormalized.y / 2},
+                {posE.x, posE.y, posE.z, n4.x, n4.y, n4.z, typeOffset + tileSizeNormalized.x, variantOffset - tileSizeNormalized.y / 2}
             );
 
             return false;
@@ -325,6 +326,7 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
         case TexOffset::LargeWindow:
 
             // Generate balcony
+            
             // if (story != 0 && boolDist(rng) == 0 && blocks > 1)
             // {
             //     // Vertex positions

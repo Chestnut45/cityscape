@@ -56,8 +56,11 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/texture
     shadowDepthTex = new Phi::Texture2D(1024, 1024,
                                         GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT,
                                         GL_FLOAT,
-                                        GL_REPEAT, GL_REPEAT,
+                                        GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER,
                                         GL_NEAREST, GL_NEAREST);
+    shadowDepthTex->Bind();
+    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     
     // Create the geometry buffer
     RecreateFBO();
@@ -264,29 +267,41 @@ void Cityscape::Render()
 
     // Attach the shadow map's depth texture to the gBuffer
     gBuffer->Bind();
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
     gBuffer->AttachTexture(shadowDepthTex, GL_DEPTH_ATTACHMENT);
-    glClear(GL_DEPTH_BUFFER_BIT);
 
-    glViewport(0, 0, 1024, 1024);
+    // Clear buffers and set viewport
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, shadowDepthTex->GetWidth(), shadowDepthTex->GetHeight());
+    glCullFace(GL_FRONT);
 
     // Update light space TOB matrix
-    static glm::mat4 lightProj = glm::ortho(-16.0f, 16.0f, -16.0f, 16.0f, 0.01f, 1000.0f);
-    glm::mat4 lightView = glm::lookAt(glm::vec3(sky.GetSun().GetPosition()), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 viewProj = lightProj * lightView;
+    static glm::mat4 lightProj = glm::ortho(-32.0f, 32.0f, -32.0f, 32.0f, 1.0f, 1024.0f);//glm::perspective(glm::radians(45.0f), 1.0f, 100.0f, 300.0f);
+    glm::vec3 globalLightPos = sky.IsNight() ? glm::vec3(sky.GetMoon().GetPosition()) : glm::vec3(sky.GetSun().GetPosition());
+    glm::mat4 lightView = glm::lookAt(globalLightPos + mainCamera.GetPosition(), mainCamera.GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightViewProj = lightProj * lightView;
 
     // Write uniform to shader
     shadowPassShader.Use();
-    shadowPassShader.SetUniform("viewProj", viewProj);
+    shadowPassShader.SetUniform("viewProj", lightViewProj);
 
-    // TODO: Draw buildings in shadow pass, then update global light shader
+    // Draw buildings in shadow pass
+    for (auto &&[entity, building]: registry.view<Building>().each())
+    {
+        building.Draw(shadowPassShader);
+    }
+    Building::FlushDrawCalls(shadowPassShader);
     
     // PASS 2: GEOMETRY
 
     // Reattach the gbuffer's depth / stencil texture
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
     gBuffer->AttachTexture(gDepthStencilTex, GL_DEPTH_STENCIL_ATTACHMENT);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, wWidth, wHeight);
+    glCullFace(GL_BACK);
 
     // Generate block positions while drawing ground tiles
     blockPositions.clear();
@@ -343,6 +358,13 @@ void Cityscape::Render()
     gNormalTex->Bind(1);
     gColorSpecTex->Bind(2);
 
+    // Also bind the shadow map texture we wrote to in pass 1
+    shadowDepthTex->Bind(3);
+
+    // Setup global light shader
+    globalLightShader.Use();
+    globalLightShader.SetUniform("lightViewProj", lightViewProj);
+
     // Then blit the gBuffer's depth buffer texture to the default framebuffer
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBlitFramebuffer(0, 0, wWidth, wHeight, 0, 0, wWidth, wHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
@@ -353,7 +375,6 @@ void Cityscape::Render()
     glDepthFunc(GL_ALWAYS);
 
     // Draw a fullscreen triangle to calculate global lighting on every pixel in the scene
-    globalLightShader.Use();
     glBindVertexArray(dummyVAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);

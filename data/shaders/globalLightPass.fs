@@ -32,12 +32,16 @@ layout(std140, binding = 2) uniform GlobalLightBlock
 layout(binding = 0) uniform sampler2D gPos;
 layout(binding = 1) uniform sampler2D gNorm;
 layout(binding = 2) uniform sampler2D gColorSpec;
+layout(binding = 3) uniform sampler2D shadowMap;
 
 // Texture coordinates
 in vec2 texCoords;
 
 // Final output
 out vec4 outColor;
+
+// Global light transform matrix
+uniform mat4 lightViewProj;
 
 void main()
 {
@@ -56,8 +60,8 @@ void main()
     vec3 moonDir = normalize(-moon.direction.xyz);
 
     // Diffuse lighting
-    vec3 diffuse =  (max(dot(fragNorm, sunDir), 0) * sun.color.rgb * sun.color.a) +
-                    (max(dot(fragNorm, moonDir), 0) * moon.color.rgb * moon.color.a);
+    vec3 diffuse = (max(dot(fragNorm, sunDir), 0) * sun.color.rgb * sun.color.a) +
+                   (max(dot(fragNorm, moonDir), 0) * moon.color.rgb * moon.color.a);
 
     // Specular reflections
     vec3 viewDir = normalize(cameraPos.xyz - fragPos);
@@ -67,6 +71,13 @@ void main()
     float specMoon = pow(max(dot(fragNorm, moonHalfDir), 0), shininess);
     vec3 specular = specularStrength * ((specSun * sun.color.rgb * sun.color.a) + (specMoon * moon.color.rgb * moon.color.a));
 
+    // Calculate shadow
+    vec4 posLightSpace = lightViewProj * vec4(fragPos, 1.0);
+    vec3 projCoords = posLightSpace.xyz / posLightSpace.w * 0.5 + 0.5;
+    float closest = texture(shadowMap, projCoords.xy).r;
+    float current = projCoords.z;
+    float shadow = (current > closest && current < 1.0) ? 0.8 : 0.0;
+
     // Final color composition
-    outColor = vec4((ambient + diffuse) * fragAlbedo + specular, 1.0);
+    outColor = vec4(((ambient + diffuse) * fragAlbedo + specular) * (1.0 - shadow), 1.0);
 }

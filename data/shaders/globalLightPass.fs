@@ -25,6 +25,12 @@ layout(std140, binding = 2) uniform GlobalLightBlock
     float ambient;
 };
 
+// Light space uniform block
+layout(std140, binding = 5) uniform LightSpaceBlock
+{
+    mat4 lightViewProj;
+};
+
 // Geometry buffer textures
 layout(binding = 0) uniform sampler2D gPos;
 layout(binding = 1) uniform sampler2D gNorm;
@@ -36,9 +42,6 @@ in vec2 texCoords;
 
 // Final output
 out vec4 outColor;
-
-// Global light transform matrix
-uniform mat4 lightViewProj;
 
 void main()
 {

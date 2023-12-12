@@ -297,8 +297,8 @@ void Cityscape::Render()
     static glm::mat4 lightProj = glm::ortho(-32.0f, 32.0f, -32.0f, 32.0f, 300.0f, 1024.0f);
     glm::mat4 lightView = glm::lookAt(globalLightPos + mainCamera.GetPosition(), mainCamera.GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightViewProj = lightProj * lightView;
+    lightSpaceUBO->Sync();
     lightSpaceUBO->Write(lightViewProj);
-    lightSpaceUBO->SwapSections();
 
     // Draw buildings in shadow pass
     for (auto &&[entity, building]: registry.view<Building>().each())
@@ -376,10 +376,7 @@ void Cityscape::Render()
 
     // Also bind the shadow map texture we wrote to in pass 1
     shadowDepthTex->Bind(3);
-
-    // Setup global light shader
     globalLightShader.Use();
-    globalLightShader.SetUniform("lightViewProj", lightViewProj);
 
     // Then blit the gBuffer's depth buffer texture to the default framebuffer
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -394,6 +391,10 @@ void Cityscape::Render()
     glBindVertexArray(dummyVAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
+
+    // Lock the light space buffer as it's only used by the above commands
+    lightSpaceUBO->Lock();
+    lightSpaceUBO->SwapSections();
 
     // PASS 4: POINT LIGHTS
 

@@ -69,7 +69,8 @@ void main()
     vec3 projCoords = posLightSpace.xyz / posLightSpace.w * 0.5 + 0.5;
     float closest = texture(shadowMap, projCoords.xy).r;
     float current = projCoords.z;
-    float shadow = dot(fragNorm, lightDir) < 0.001 ? 0.0 : (current - 0.005 < 1.0 && current > closest) ? 0.8 : 0.0;
+    float bias = max(0.0001, 0.0005 * (1.0 - dot(fragNorm, lightDir)));
+    float shadow = dot(fragNorm, lightDir) < 0.01 ? 0.0 : (current < 1.0 && current - bias > closest) ? min(globalLight.color.a, 0.8) : 0.0;
 
     // Final color composition
     outColor = vec4(((ambient + diffuse) * fragAlbedo + specular) * (1.0 - shadow), 1.0);

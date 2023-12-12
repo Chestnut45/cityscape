@@ -57,8 +57,8 @@ class Sky
         float moonDistance = 500.0f;
         float sunRadius = 50.0f;
         float moonRadius = 10.0f;
-        float sunlightInfluence = 2.0f;
-        float moonlightInfluence = 0.32f;
+        float sunlightInfluence = 1.0f;
+        float moonlightInfluence = 0.5f;
         float st, so, ct, co = 0;
 
         // Static internal resources

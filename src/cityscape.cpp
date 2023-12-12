@@ -279,7 +279,7 @@ void Cityscape::Render()
     glm::vec3 globalLightPos = sky.IsNight() ? glm::vec3(sky.GetMoon().GetPosition()) : glm::vec3(sky.GetSun().GetPosition());
 
     // Update light space TOB matrix
-    static glm::mat4 lightProj = glm::ortho(-32.0f, 32.0f, -32.0f, 32.0f, 1.0f, 1024.0f);
+    static glm::mat4 lightProj = glm::ortho(-32.0f, 32.0f, -32.0f, 32.0f, 300.0f, 1024.0f);
     glm::mat4 lightView = glm::lookAt(globalLightPos + mainCamera.GetPosition(), mainCamera.GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightViewProj = lightProj * lightView;
 

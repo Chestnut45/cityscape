@@ -152,12 +152,10 @@ void Sky::Draw()
     lightUBO.Sync();
 
     // Update UBO
-    lightUBO.Write(sun.GetPosition());
-    lightUBO.Write(sun.GetDirection());
-    lightUBO.Write(sun.GetColor());
-    lightUBO.Write(moon.GetPosition());
-    lightUBO.Write(moon.GetDirection());
-    lightUBO.Write(moon.GetColor());
+    const DirectionalLight& activeLight = IsNight() ? moon : sun;
+    lightUBO.Write(activeLight.GetPosition());
+    lightUBO.Write(activeLight.GetDirection());
+    lightUBO.Write(activeLight.GetColor());
     lightUBO.Write(ambient);
 
     // Calculate normalized time (t for lerping between day / night skyboxes)

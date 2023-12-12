@@ -1,7 +1,5 @@
 #version 440
 
-const int MAX_LIGHTS = 450;
-
 // Light structure
 struct DirectionalLight
 {
@@ -23,8 +21,7 @@ layout(std140, binding = 0) uniform CameraBlock
 // Lighting uniform block
 layout(std140, binding = 2) uniform GlobalLightBlock
 {
-    DirectionalLight sun;
-    DirectionalLight moon;
+    DirectionalLight globalLight;
     float ambient;
 };
 
@@ -55,28 +52,24 @@ void main()
     float specularStrength = colorSpec.a;
     float shininess = 32;
 
-    // Directions TO sun and moon
-    vec3 sunDir = normalize(-sun.direction.xyz);
-    vec3 moonDir = normalize(-moon.direction.xyz);
+    // Directions towards global light
+    vec3 lightDir = normalize(-globalLight.direction.xyz);
 
     // Diffuse lighting
-    vec3 diffuse = (max(dot(fragNorm, sunDir), 0) * sun.color.rgb * sun.color.a) +
-                   (max(dot(fragNorm, moonDir), 0) * moon.color.rgb * moon.color.a);
+    vec3 diffuse = (max(dot(fragNorm, lightDir), 0) * globalLight.color.rgb * globalLight.color.a);
 
     // Specular reflections
     vec3 viewDir = normalize(cameraPos.xyz - fragPos);
-    vec3 sunHalfDir = normalize(sunDir + viewDir);
-    vec3 moonHalfDir = normalize(moonDir + viewDir);
+    vec3 sunHalfDir = normalize(lightDir + viewDir);
     float specSun = pow(max(dot(fragNorm, sunHalfDir), 0), shininess);
-    float specMoon = pow(max(dot(fragNorm, moonHalfDir), 0), shininess);
-    vec3 specular = specularStrength * ((specSun * sun.color.rgb * sun.color.a) + (specMoon * moon.color.rgb * moon.color.a));
+    vec3 specular = specularStrength * (specSun * globalLight.color.rgb * globalLight.color.a);
 
     // Calculate shadow
     vec4 posLightSpace = lightViewProj * vec4(fragPos, 1.0);
     vec3 projCoords = posLightSpace.xyz / posLightSpace.w * 0.5 + 0.5;
     float closest = texture(shadowMap, projCoords.xy).r;
     float current = projCoords.z;
-    float shadow = (current > closest && current < 1.0) ? 0.8 : 0.0;
+    float shadow = dot(fragNorm, lightDir) < 0.001 ? 0.0 : (current - 0.005 < 1.0 && current > closest) ? 0.8 : 0.0;
 
     // Final color composition
     outColor = vec4(((ambient + diffuse) * fragAlbedo + specular) * (1.0 - shadow), 1.0);

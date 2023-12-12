@@ -118,4 +118,9 @@ namespace Phi
     {
         glUniform4fv(glGetUniformLocation(programID, name.c_str()), 1, glm::value_ptr(value));
     }
+
+    void Shader::SetUniform(const std::string& name, const glm::mat4& value)
+    {
+        glUniformMatrix4fv(glGetUniformLocation(programID, name.c_str()), 1, false, glm::value_ptr(value));
+    }
 }

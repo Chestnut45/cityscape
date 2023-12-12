@@ -63,8 +63,8 @@ class Building
         static const inline int NUM_VARIANTS = 4;
 
         // Rendering methods
-        void Draw() const;
-        static void FlushDrawCalls();
+        void Draw(const Phi::Shader& shader) const;
+        static void FlushDrawCalls(const Phi::Shader& shader);
     
     // Data / implementation
     private:
@@ -86,7 +86,6 @@ class Building
 
         // Static resources
         static inline Phi::Texture2D* textureAtlas = nullptr;
-        static inline Phi::Shader* shader = nullptr;
         static inline Phi::RenderBatch<Phi::VertexPosNormUv>* renderBatch = nullptr;
 
         // Reference counting for static resources

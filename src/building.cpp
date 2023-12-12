@@ -9,12 +9,6 @@ Building::Building(const glm::vec3 &pos, int stories, int baseBlockCount, int va
         // Load the texture atlas
         textureAtlas = new Phi::Texture2D("data/textures/buildingAtlas.png", GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
 
-        // Compile the shader
-        shader = new Phi::Shader();
-        shader->LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/building.vs");
-        shader->LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/building.fs");
-        shader->Link();
-
         // Initialize the render batch
         renderBatch = new Phi::RenderBatch<Phi::VertexPosNormUv>(65'536, 131'072);
 
@@ -73,30 +67,29 @@ Building::~Building()
     {
         // Cleanup static resources
         delete textureAtlas;
-        delete shader;
         delete renderBatch;
     }
 }
 
 // Draws this building into the static buffer
-void Building::Draw() const
+void Building::Draw(const Phi::Shader& shader) const
 {
     // TODO: Reactive flushing could be made simpler
     if (!renderBatch->AddMesh(mesh))
     {
-        FlushDrawCalls();
+        FlushDrawCalls(shader);
         renderBatch->AddMesh(mesh);
     }
 }
 
 // Flushes all buildings drawn since last flush
-void Building::FlushDrawCalls()
+void Building::FlushDrawCalls(const Phi::Shader& shader)
 {
     // Bind relevant resources
     textureAtlas->Bind();
 
     // Issue rendering commands
-    renderBatch->Flush(*shader);
+    renderBatch->Flush(shader);
 }
 
 // Constructs a wall with the given parameters

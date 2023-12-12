@@ -62,8 +62,9 @@ class Cityscape: public Phi::App
         Phi::Model* snowbankModel = nullptr;
         
         // Shaders
-        Phi::Shader depthTransferShader;
         Phi::Shader globalLightShader;
+        Phi::Shader buildingShader;
+        Phi::Shader shadowPassShader;
         Phi::Shader streetLightShader;
         Phi::Shader lightSourceShader;
         Phi::Shader snowEffectShader;
@@ -114,11 +115,11 @@ class Cityscape: public Phi::App
         void DeleteBlock(const glm::ivec2& id);
 
         // RNG
+        glm::vec4 RandomColor() const;
         static inline std::default_random_engine rng{4545L};
         static inline std::uniform_int_distribution<int> storyDist{3, Building::MAX_STORIES};
         static inline std::uniform_int_distribution<int> variantDist{0, Building::NUM_VARIANTS - 1};
         static inline std::uniform_int_distribution<int> boolDist{0, 1};
-        glm::vec4 RandomColor() const;
 
         // Geometry buffer + textures for deferred rendering
         Phi::FrameBuffer* gBuffer = nullptr;

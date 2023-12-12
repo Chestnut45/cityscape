@@ -16,6 +16,16 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/texture
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_ONE, GL_ONE);
 
+    // Load building shader
+    buildingShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/building.vs");
+    buildingShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/building.fs");
+    buildingShader.Link();
+
+    // Load shadow pass shader
+    shadowPassShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/shadow.vs");
+    shadowPassShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/empty.fs");
+    shadowPassShader.Link();
+
     // Load lighting pass shader
     globalLightShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/globalLightPass.vs");
     globalLightShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/globalLightPass.fs");
@@ -113,6 +123,7 @@ Cityscape::~Cityscape()
 
     // Delete models
     delete streetLightModel;
+    delete snowbankModel;
 
     std::cout << "Cityscape shutdown successfully" << std::endl;
 }
@@ -247,20 +258,35 @@ void Cityscape::Render()
     // Hold a vector of all currently loaded blocks and their offsets
     static std::vector<glm::vec4> blockPositions;
 
+    // PASS 1: SHADOW MAP
+
     // Generate depth map from global light
 
     // Attach the shadow map's depth texture to the gBuffer
     gBuffer->Bind();
     gBuffer->AttachTexture(shadowDepthTex, GL_DEPTH_ATTACHMENT);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
-    // TODO: Render objects that could occlude others with EMPTY fragment shaders
-    // (Only write to depth buffer, not color buffers)
+    glViewport(0, 0, 1024, 1024);
+
+    // Update light space TOB matrix
+    static glm::mat4 lightProj = glm::ortho(-16.0f, 16.0f, -16.0f, 16.0f, 0.01f, 1000.0f);
+    glm::mat4 lightView = glm::lookAt(glm::vec3(sky.GetSun().GetPosition()), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 viewProj = lightProj * lightView;
+
+    // Write uniform to shader
+    shadowPassShader.Use();
+    shadowPassShader.SetUniform("viewProj", viewProj);
+
+    // TODO: Draw buildings in shadow pass, then update global light shader
     
-    // Geometry pass
+    // PASS 2: GEOMETRY
 
     // Reattach the gbuffer's depth / stencil texture
     gBuffer->AttachTexture(gDepthStencilTex, GL_DEPTH_STENCIL_ATTACHMENT);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glViewport(0, 0, wWidth, wHeight);
 
     // Generate block positions while drawing ground tiles
     blockPositions.clear();
@@ -275,10 +301,10 @@ void Cityscape::Render()
     buildingDrawCount = 0;
     for (auto &&[entity, building]: registry.view<Building>().each())
     {
-        building.Draw();
+        building.Draw(buildingShader);
         buildingDrawCount++;
     }
-    Building::FlushDrawCalls();
+    Building::FlushDrawCalls(buildingShader);
     
     // Draw all street lights
     if (sky.IsNight() || lightsAlwaysOn)
@@ -305,12 +331,12 @@ void Cityscape::Render()
         snowVAO.Unbind();
     }
 
-    // Draw the snow accumulation (regardless of festive mode)
+    // Draw the snow accumulation
     snowbankShader.Use();
     snowbankShader.SetUniform("accumulationHeight", snowAccumulation);
     snowbankModel->DrawInstances(snowbankShader, blockPositions);
 
-    // Lighting passes
+    // PASS 3: GLOBAL LIGHTING
 
     // First bind all gBuffer textures appropriately
     gPositionTex->Bind(0);
@@ -322,8 +348,7 @@ void Cityscape::Render()
     glBlitFramebuffer(0, 0, wWidth, wHeight, 0, 0, wWidth, wHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT);
-    
-    // Global light pass
+
     glDepthMask(GL_FALSE);
     glDepthFunc(GL_ALWAYS);
 
@@ -333,7 +358,8 @@ void Cityscape::Render()
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
 
-    // Point light pass
+    // PASS 4: POINT LIGHTS
+
     glEnable(GL_BLEND);
 
     // Draw each point light

@@ -38,6 +38,8 @@ class Sky
 
         // Accessors
         inline bool IsNight() const { return (currentTime > dayCycle / 2.0f); };
+        inline const DirectionalLight& GetSun() const { return sun; };
+        inline const DirectionalLight& GetMoon() const { return moon; };
 
     // Data / implementation
     private:

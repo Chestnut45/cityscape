@@ -295,11 +295,13 @@ void Cityscape::Render()
         // Calculate global light position
         glm::vec3 globalLightPos = sky.IsNight() ? glm::vec3(sky.GetMoon().GetPosition()) : glm::vec3(sky.GetSun().GetPosition());
 
-        // Update light space TOB matrix
+        // Update light space matrix
         static glm::mat4 lightProj = glm::ortho(-32.0f, 32.0f, -32.0f, 32.0f, 300.0f, 1024.0f);
         glm::vec3 offset = glm::vec3(mainCamera.GetPosition().x, 0.0f, mainCamera.GetPosition().z);
         glm::mat4 lightView = glm::lookAt(globalLightPos + offset, offset, glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 lightViewProj = lightProj * lightView;
+        
+        // Write to the UBO
         lightSpaceUBO->Sync();
         lightSpaceUBO->Write(lightViewProj);
 

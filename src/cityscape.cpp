@@ -21,10 +21,14 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/texture
     buildingShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/building.fs");
     buildingShader.Link();
 
-    // Load shadow pass shader
+    // Load shadow pass shaders
     shadowPassShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/shadow.vs");
     shadowPassShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/empty.fs");
     shadowPassShader.Link();
+
+    shadowPassInstanceShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/shadowInstanced.vs");
+    shadowPassInstanceShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/empty.fs");
+    shadowPassInstanceShader.Link();
 
     // Load lighting pass shader
     globalLightShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/globalLightPass.vs");
@@ -61,6 +65,10 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/texture
     shadowDepthTex->Bind();
     float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+    // Initialize light space UBO
+    lightSpaceUBO = new Phi::GPUBuffer(Phi::BufferType::Dynamic, sizeof(glm::mat4));
+    lightSpaceUBO->BindBase(GL_UNIFORM_BUFFER, 5);
     
     // Create the geometry buffer
     RecreateFBO();
@@ -123,6 +131,8 @@ Cityscape::~Cityscape()
     delete gDepthStencilTex;
 
     delete snowBuffer;
+    delete shadowDepthTex;
+    delete lightSpaceUBO;
 
     // Delete models
     delete streetLightModel;
@@ -258,8 +268,13 @@ void Cityscape::Render()
     // Update the camera's UBO so all shaders have access to the new values
     mainCamera.UpdateUBO();
 
-    // Hold a vector of all currently loaded blocks and their offsets
+    // Generate a vector of all currently loaded blocks and their offsets
     static std::vector<glm::vec4> blockPositions;
+    blockPositions.clear();
+    for (auto &&[entity, ground]: registry.view<GroundTile>().each())
+    {
+        blockPositions.push_back(ground.GetPosition());
+    }
 
     // PASS 1: SHADOW MAP
 
@@ -282,10 +297,8 @@ void Cityscape::Render()
     static glm::mat4 lightProj = glm::ortho(-32.0f, 32.0f, -32.0f, 32.0f, 300.0f, 1024.0f);
     glm::mat4 lightView = glm::lookAt(globalLightPos + mainCamera.GetPosition(), mainCamera.GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightViewProj = lightProj * lightView;
-
-    // Write uniform to shader
-    shadowPassShader.Use();
-    shadowPassShader.SetUniform("viewProj", lightViewProj);
+    lightSpaceUBO->Write(lightViewProj);
+    lightSpaceUBO->SwapSections();
 
     // Draw buildings in shadow pass
     for (auto &&[entity, building]: registry.view<Building>().each())
@@ -293,6 +306,9 @@ void Cityscape::Render()
         building.Draw(shadowPassShader);
     }
     Building::FlushDrawCalls(shadowPassShader);
+
+    // Draw streetlights in shadow pass
+    streetLightModel->DrawInstances(shadowPassInstanceShader, blockPositions);
     
     // PASS 2: GEOMETRY
 
@@ -305,12 +321,10 @@ void Cityscape::Render()
     glViewport(0, 0, wWidth, wHeight);
     glCullFace(GL_BACK);
 
-    // Generate block positions while drawing ground tiles
-    blockPositions.clear();
+    // Draw ground tiles
     for (auto &&[entity, ground]: registry.view<GroundTile>().each())
     {
         ground.Draw();
-        blockPositions.push_back(ground.GetPosition());
     }
     GroundTile::FlushDrawCalls();
 

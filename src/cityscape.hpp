@@ -65,6 +65,7 @@ class Cityscape: public Phi::App
         Phi::Shader globalLightShader;
         Phi::Shader buildingShader;
         Phi::Shader shadowPassShader;
+        Phi::Shader shadowPassInstanceShader;
         Phi::Shader streetLightShader;
         Phi::Shader lightSourceShader;
         Phi::Shader snowEffectShader;
@@ -72,6 +73,7 @@ class Cityscape: public Phi::App
 
         // Other resources
         Phi::GPUBuffer* snowBuffer = nullptr;
+        Phi::GPUBuffer* lightSpaceUBO = nullptr;
         Phi::VertexAttributes snowVAO;
         GLuint dummyVAO;
 

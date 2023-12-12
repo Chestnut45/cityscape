@@ -32,7 +32,7 @@ layout(location = 4) out vec2 texCoords2;
 
 void main()
 {
-    gl_Position = viewProj * vec4(vPos + instancePosition[gl_InstanceID].xyz, 1);
+    gl_Position = viewProj * vec4(vPos + instancePosition[gl_InstanceID].xyz, 1.0);
 
     // Varying outputs
     fragPos = vPos + instancePosition[gl_InstanceID].xyz;

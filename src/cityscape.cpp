@@ -263,7 +263,7 @@ void Cityscape::Render()
 
     // PASS 1: SHADOW MAP
 
-    // Generate depth map from global light
+    // Generate depth map from global light position
 
     // Attach the shadow map's depth texture to the gBuffer
     gBuffer->Bind();
@@ -275,9 +275,11 @@ void Cityscape::Render()
     glViewport(0, 0, shadowDepthTex->GetWidth(), shadowDepthTex->GetHeight());
     glCullFace(GL_FRONT);
 
-    // Update light space TOB matrix
-    static glm::mat4 lightProj = glm::ortho(-32.0f, 32.0f, -32.0f, 32.0f, 1.0f, 1024.0f);//glm::perspective(glm::radians(45.0f), 1.0f, 100.0f, 300.0f);
+    // Calculate global light position
     glm::vec3 globalLightPos = sky.IsNight() ? glm::vec3(sky.GetMoon().GetPosition()) : glm::vec3(sky.GetSun().GetPosition());
+
+    // Update light space TOB matrix
+    static glm::mat4 lightProj = glm::ortho(-32.0f, 32.0f, -32.0f, 32.0f, 1.0f, 1024.0f);
     glm::mat4 lightView = glm::lookAt(globalLightPos + mainCamera.GetPosition(), mainCamera.GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightViewProj = lightProj * lightView;
 

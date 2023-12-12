@@ -22,11 +22,10 @@ Cityscape::Cityscape() : App("Cityscape", 4, 4), mainCamera(), sky("data/texture
     buildingShader.Link();
 
     // Load shadow pass shaders
-    shadowPassShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/shadow.vs");
+    shadowPassShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/shadowPass.vs");
     shadowPassShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/empty.fs");
     shadowPassShader.Link();
-
-    shadowPassInstanceShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/shadowInstanced.vs");
+    shadowPassInstanceShader.LoadShaderSource(GL_VERTEX_SHADER, "data/shaders/shadowPassInstances.vs");
     shadowPassInstanceShader.LoadShaderSource(GL_FRAGMENT_SHADER, "data/shaders/empty.fs");
     shadowPassInstanceShader.Link();
 
@@ -222,13 +221,14 @@ void Cityscape::Update(float delta)
             }
         }
         if (ImGui::Checkbox("Vsync", &vsync)) glfwSwapInterval(vsync);
+        ImGui::Checkbox("Shadows (experimental)", &shadows);
+        ImGui::SliderInt("View Distance", &renderDistance, 1, 10, "%d", ImGuiSliderFlags_AlwaysClamp);
 
         ImGui::End();
 
         // Control window
         ImGui::Begin("Controls");
 
-        ImGui::SliderInt("Render Distance", &renderDistance, 1, 10, "%d", ImGuiSliderFlags_AlwaysClamp);
         ImGui::SliderFloat("Camera Speed", &cameraSpeed, 1.0f, 10.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
         ImGui::Separator();
 
@@ -278,37 +278,41 @@ void Cityscape::Render()
 
     // PASS 1: SHADOW MAP
 
-    // Generate depth map from global light position
-
-    // Attach the shadow map's depth texture to the gBuffer
+    // Bind the geometry buffer
     gBuffer->Bind();
+
+    // Clear the previous depth buffer, ALWAYS
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
     gBuffer->AttachTexture(shadowDepthTex, GL_DEPTH_ATTACHMENT);
-
-    // Clear buffers and set viewport
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(0, 0, shadowDepthTex->GetWidth(), shadowDepthTex->GetHeight());
-    glCullFace(GL_FRONT);
 
-    // Calculate global light position
-    glm::vec3 globalLightPos = sky.IsNight() ? glm::vec3(sky.GetMoon().GetPosition()) : glm::vec3(sky.GetSun().GetPosition());
-
-    // Update light space TOB matrix
-    static glm::mat4 lightProj = glm::ortho(-32.0f, 32.0f, -32.0f, 32.0f, 300.0f, 1024.0f);
-    glm::mat4 lightView = glm::lookAt(globalLightPos + mainCamera.GetPosition(), mainCamera.GetPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 lightViewProj = lightProj * lightView;
-    lightSpaceUBO->Sync();
-    lightSpaceUBO->Write(lightViewProj);
-
-    // Draw buildings in shadow pass
-    for (auto &&[entity, building]: registry.view<Building>().each())
+    if (shadows)
     {
-        building.Draw(shadowPassShader);
-    }
-    Building::FlushDrawCalls(shadowPassShader);
+        // Update to shadow map viewport dimensions
+        glViewport(0, 0, shadowDepthTex->GetWidth(), shadowDepthTex->GetHeight());
+        glCullFace(GL_FRONT);
 
-    // Draw streetlights in shadow pass
-    streetLightModel->DrawInstances(shadowPassInstanceShader, blockPositions);
+        // Calculate global light position
+        glm::vec3 globalLightPos = sky.IsNight() ? glm::vec3(sky.GetMoon().GetPosition()) : glm::vec3(sky.GetSun().GetPosition());
+
+        // Update light space TOB matrix
+        static glm::mat4 lightProj = glm::ortho(-32.0f, 32.0f, -32.0f, 32.0f, 300.0f, 1024.0f);
+        glm::vec3 offset = glm::vec3(mainCamera.GetPosition().x, 16.0f, mainCamera.GetPosition().z);
+        glm::mat4 lightView = glm::lookAt(globalLightPos + offset, offset, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 lightViewProj = lightProj * lightView;
+        lightSpaceUBO->Sync();
+        lightSpaceUBO->Write(lightViewProj);
+
+        // Draw buildings in shadow pass
+        for (auto &&[entity, building]: registry.view<Building>().each())
+        {
+            building.Draw(shadowPassShader);
+        }
+        Building::FlushDrawCalls(shadowPassShader);
+
+        // Draw streetlights in shadow pass
+        streetLightModel->DrawInstances(shadowPassInstanceShader, blockPositions);
+    }
     
     // PASS 2: GEOMETRY
 
@@ -316,7 +320,7 @@ void Cityscape::Render()
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
     gBuffer->AttachTexture(gDepthStencilTex, GL_DEPTH_STENCIL_ATTACHMENT);
 
-
+    // Clear buffers and resize viewport
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, wWidth, wHeight);
     glCullFace(GL_BACK);
@@ -375,7 +379,9 @@ void Cityscape::Render()
     gColorSpecTex->Bind(2);
 
     // Also bind the shadow map texture we wrote to in pass 1
-    shadowDepthTex->Bind(3);
+    if (shadows) shadowDepthTex->Bind(3);
+    
+    // Use the global lighting shader
     globalLightShader.Use();
 
     // Then blit the gBuffer's depth buffer texture to the default framebuffer

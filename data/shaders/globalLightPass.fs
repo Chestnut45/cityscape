@@ -51,15 +51,18 @@ void main()
     vec4 colorSpec = texture(gColorSpec, texCoords);
     vec3 fragAlbedo = colorSpec.rgb;
 
+    // Directions towards global light
+    vec3 lightDir = normalize(-globalLight.direction.xyz);
+
+    // Calculate alignment to light
+    float alignment = dot(fragNorm, lightDir);
+
     // Constant material properties
     float specularStrength = colorSpec.a;
     float shininess = 32;
 
-    // Directions towards global light
-    vec3 lightDir = normalize(-globalLight.direction.xyz);
-
     // Diffuse lighting
-    vec3 diffuse = (max(dot(fragNorm, lightDir), 0) * globalLight.color.rgb * globalLight.color.a);
+    vec3 diffuse = (max(alignment, 0) * globalLight.color.rgb * globalLight.color.a);
 
     // Specular reflections
     vec3 viewDir = normalize(cameraPos.xyz - fragPos);
@@ -72,8 +75,8 @@ void main()
     vec3 projCoords = posLightSpace.xyz / posLightSpace.w * 0.5 + 0.5;
     float closest = texture(shadowMap, projCoords.xy).r;
     float current = projCoords.z;
-    float bias = max(0.0001, 0.0005 * (1.0 - dot(fragNorm, lightDir)));
-    float shadow = dot(fragNorm, lightDir) < 0.01 ? 0.0 : (current < 1.0 && current - bias > closest) ? min(globalLight.color.a, 0.8) : 0.0;
+    float bias = max(0.0001, 0.0005 * (1.0 - alignment));
+    float shadow = alignment < 0.001 ? 0.0 : (current < 1.0 && current - bias > closest) ? max(min(globalLight.color.a, 0.8), 0.2) : 0.0;
 
     // Final color composition
     outColor = vec4(((ambient + diffuse) * fragAlbedo + specular) * (1.0 - shadow), 1.0);

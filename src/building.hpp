@@ -14,11 +14,10 @@ class Building
     public:
 
         // Feature flags for generating extra vertex data
+        // There was going to be more, but I ran out of time
         enum class Feature : int
         {
-            Awning,
-            Balcony,
-            Chimney
+            Awning
         };
 
         // Valid building face directions

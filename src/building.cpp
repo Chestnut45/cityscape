@@ -321,7 +321,6 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
             break;
         }
         
-        case TexOffset::Wall:
         case TexOffset::Window:
         case TexOffset::LargeWindow:
 

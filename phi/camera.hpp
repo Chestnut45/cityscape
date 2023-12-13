@@ -53,7 +53,7 @@ namespace Phi
             inline GPUBuffer& GetUBO() { return ubo; };
 
             // Public so ImGUI may directly control camera properties
-            float fov = 60;
+            float fov = 60.0f;
 
         private:
         
@@ -72,13 +72,13 @@ namespace Phi
             // View properties (Sensible defaults)
             int width = 0;
             int height = 0;
-            float aspect = 1;
-            float near = 0.1;
-            float far = 1000;
+            float aspect = 1.0f;
+            float near = 0.1f;
+            float far = 1000.0f;
 
             // View angles
-            float yaw = -90;
-            float pitch = 0;
+            float yaw = -90.0f;
+            float pitch = 0.0f;
 
             // OpenGL resources
             GPUBuffer ubo;

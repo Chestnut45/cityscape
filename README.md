@@ -99,11 +99,13 @@ On December 4th, there was a really cool looking snowstorm, and it inspired me t
 - The snow particle effect consists of 20,000 particles each rasterized as a GL_POINT with a random size.
 - The particles are updated entirely on the GPU, all the CPU does is calculate initial positions once on program startup, and issue a single draw call once per frame.
 
+![snowy_night.png](https://github.com/Chestnut45/cityscape/blob/main/snowy_night.png)
+
 ### Shadow Mapping
 
-A single shadow map is generated from the currently active global light's position, facing the camera
+A single shadow map is generated from the currently active global light's position, facing the camera, every frame. Only the buildings and streetlights are rendered during this pass, and they're rendered with an empty fragment shader so only the shadow map's depth buffer is updated.
 
-![snowy_night.png](https://github.com/Chestnut45/cityscape/blob/main/snowy_night.png)
+![shadows_1.png](https://github.com/Chestnut45/cityscape/blob/main/shadows_1.png)
 
 ## Super Cool Technical Details
 

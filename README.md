@@ -129,6 +129,14 @@ Since each snowflake is rendered to the geometry buffer, they will also automati
 
 There are a few internal vertex formats included in phi/vertex.hpp that can be used with the `Mesh<>` and `RenderBatch<>` template classes. They can also be used to automatically construct a `VertexAttributes` object (Phi's VAO wrapper class). This is only applicable when you tightly pack your vertices / indices into the buffer(s) you supply to the constructor, but that happens often enough I think the convenience is warranted :)
 
+### Performance:
+
+The most expensive things to render in the cityscape are the point lights and the shadow map, below are some benchmark screenshots for how far I could push out the view distance before dropping below 60fps on a 3070ti with various settings.
+
+![benchmark.png](https://github.com/Chestnut45/cityscape/blob/main/benchmark.png)
+
+![benchmark_shadows.png](https://github.com/Chestnut45/cityscape/blob/main/benchmark_shadows.png)
+
 ## Challenges
 
 There are definitely some things in this assignment that could/should have been done differently. Below is a small outline of some design / implementation challenges I faced along the way.

@@ -1,6 +1,6 @@
 #version 440
 
-const uint MAX_INSTANCES = 128u;
+const uint MAX_INSTANCES = 512u;
 
 // Camera uniform block
 layout(std140, binding = 0) uniform CameraBlock

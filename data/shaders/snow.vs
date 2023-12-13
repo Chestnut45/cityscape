@@ -52,7 +52,7 @@ void main()
     fragPos = pos;
 
     // Random normals that always have an "up" component so they will always reflect some sun/moonlight
-    // This approximates the effect of each snowflake rotating with the wind, so swirls of flakes will
+    // This approximates the effect of each snowflake rotating with the wind, so swirls of nearby flakes will
     // face similar directions
     normal = normalize(vec3(noiseX, 0.75, noiseZ));
 

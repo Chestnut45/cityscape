@@ -34,15 +34,16 @@ layout(std140, binding = 5) uniform LightSpaceBlock
     mat4 lightViewProj;
 };
 
+// Geometry buffer textures
 layout(binding = 0) uniform sampler2D gPos;
 layout(binding = 1) uniform sampler2D gNorm;
 layout(binding = 2) uniform sampler2D gColorSpec;
+
+// Shadow depth map texture
 layout(binding = 3) uniform sampler2D shadowMap;
 
-// Texture coordinates
 in vec2 texCoords;
 
-// Final output
 out vec4 outColor;
 
 void main()
@@ -58,21 +59,23 @@ void main()
 
     // Directions towards global light
     vec3 lightDir = normalize(-globalLight.direction.xyz);
+    vec3 lightColor = globalLight.color.rgb;
+    float influence = globalLight.color.a;
 
     // Calculate alignment to light
     float alignment = dot(fragNorm, lightDir);
 
     // Constant material properties
     float specularStrength = colorSpec.a;
-    float shininess = 32;
+    float shininess = 32; // This would normally not be constant, but in this assignment it made little difference.
 
     // Diffuse lighting
-    vec3 diffuse = (max(alignment, 0) * globalLight.color.rgb * globalLight.color.a);
+    vec3 diffuse = (max(alignment, 0) * lightColor * influence);
 
     // Specular reflections
-    vec3 sunHalfDir = normalize(lightDir + viewDir);
-    float specSun = pow(max(dot(fragNorm, sunHalfDir), 0), shininess);
-    vec3 specular = specularStrength * (specSun * globalLight.color.rgb * globalLight.color.a);
+    vec3 lightHalfDir = normalize(lightDir + viewDir);
+    float specLight = pow(max(dot(fragNorm, lightHalfDir), 0), shininess);
+    vec3 specular = specularStrength * (specLight * lightColor * influence);
 
     // Transform fragment position to light space and project
     vec4 posLightSpace = lightViewProj * vec4(fragPos, 1.0);
@@ -81,7 +84,7 @@ void main()
     float current = projCoords.z;
 
     // Calculate final shadow value
-    // NOTE: Ensures we don't shadow any stuff facing away from the light
+    // NOTE: Ensures we don't shadow any surface facing away from the light
     float bias = max(MIN_SHADOW_BIAS, MAX_SHADOW_BIAS * (1.0 - alignment));
     float shadow = alignment < 0.001 ? 0.0 : (current < 1.0 && current - bias > closest) ? 0.5 : 0.0;
 

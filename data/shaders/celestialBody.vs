@@ -10,7 +10,8 @@ layout(std140, binding = 0) uniform CameraBlock
     vec2 resolution;
 };
 
-uniform vec4 position;
+// Position in world space and radius of the celestial body
+uniform vec4 positionRadius;
 
 // Vertex data
 in vec3 vPos;
@@ -18,5 +19,5 @@ in vec3 vPos;
 void main()
 {
     // Scale vertex position by radius and center around camera
-    gl_Position = viewProj * vec4(cameraPos.xyz + position.xyz + (vPos * position.w), 1.0);
+    gl_Position = viewProj * vec4(cameraPos.xyz + positionRadius.xyz + (vPos * positionRadius.w), 1.0);
 }

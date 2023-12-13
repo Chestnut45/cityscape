@@ -68,7 +68,7 @@ void GroundTile::Draw()
         FlushDrawCalls();
     };
 
-    instanceUBO->Sync();
+    if (drawCount == 0) instanceUBO->Sync();
 
     // Increase counter and write instance position to buffer
     drawCount++;

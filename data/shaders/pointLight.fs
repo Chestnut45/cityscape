@@ -35,7 +35,7 @@ void main()
 
     // Constant material properties
     float specularStrength = colorSpec.a;
-    float shininess = 128;
+    float shininess = 128; // Again, shouldn't be constant, but it made little difference for this project
 
     // Initial values
     vec3 lightDir = normalize(lightPos.xyz - fragPos);

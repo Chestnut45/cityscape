@@ -34,7 +34,7 @@ class GroundTile
         glm::vec4 position;
 
         // Instancing information
-        static const int MAX_INSTANCES = 128;
+        static const int MAX_INSTANCES = 512;
         static inline int drawCount = 0;
 
         // Static resources

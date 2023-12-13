@@ -1,7 +1,8 @@
 #version 440
 
-const int MAX_INSTANCES = 128;
+const int MAX_INSTANCES = 512;
 
+// Light structure
 struct PointLight
 {
     vec4 position;
@@ -27,6 +28,7 @@ layout(std140, binding = 1) uniform InstanceBlock
 // Vertex data
 in vec3 vPos;
 
+// Per-fragment outputs
 layout(location = 0) flat out vec4 lightPos;
 layout(location = 1) flat out vec4 lightColor;
 

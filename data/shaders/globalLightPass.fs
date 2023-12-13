@@ -51,6 +51,9 @@ void main()
     vec4 colorSpec = texture(gColorSpec, texCoords);
     vec3 fragAlbedo = colorSpec.rgb;
 
+    // Calculate view direction
+    vec3 viewDir = normalize(cameraPos.xyz - fragPos);
+
     // Directions towards global light
     vec3 lightDir = normalize(-globalLight.direction.xyz);
 
@@ -65,7 +68,6 @@ void main()
     vec3 diffuse = (max(alignment, 0) * globalLight.color.rgb * globalLight.color.a);
 
     // Specular reflections
-    vec3 viewDir = normalize(cameraPos.xyz - fragPos);
     vec3 sunHalfDir = normalize(lightDir + viewDir);
     float specSun = pow(max(dot(fragNorm, sunHalfDir), 0), shininess);
     vec3 specular = specularStrength * (specSun * globalLight.color.rgb * globalLight.color.a);

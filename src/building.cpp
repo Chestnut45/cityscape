@@ -255,8 +255,9 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
     }
 
     // Calculate texture coordinates
-    float variantOffset = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y;
-    float typeOffset = (float)TexOffset::Awning * tileSizeNormalized.x;
+    float bias = 0.0001f;
+    float variantOffset = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y - bias;
+    float typeOffset = glm::min((float)TexOffset::Awning * tileSizeNormalized.x + bias, 1.0f);
 
     switch (type)
     {
@@ -282,26 +283,26 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
 
             // Side 1
             mesh.AddTriangle(
-                {posA.x, posA.y, posA.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
-                {posB.x, posB.y, posB.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
-                {posC.x, posC.y, posC.z, n1.x, n1.y, n1.z, 0.0f, variantOffset}
+                {posA.x, posA.y, posA.z, n1.x, n1.y, n1.z, typeOffset, variantOffset},
+                {posB.x, posB.y, posB.z, n1.x, n1.y, n1.z, typeOffset, variantOffset},
+                {posC.x, posC.y, posC.z, n1.x, n1.y, n1.z, typeOffset, variantOffset}
             );
             mesh.AddTriangle(
-                {posC.x, posC.y, posC.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
-                {posB.x, posB.y, posB.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
-                {posA.x, posA.y, posA.z, n2.x, n2.y, n2.z, 0.0f, variantOffset}
+                {posC.x, posC.y, posC.z, n2.x, n2.y, n2.z, typeOffset, variantOffset},
+                {posB.x, posB.y, posB.z, n2.x, n2.y, n2.z, typeOffset, variantOffset},
+                {posA.x, posA.y, posA.z, n2.x, n2.y, n2.z, typeOffset, variantOffset}
             );
 
             // Side 2
             mesh.AddTriangle(
-                {posD.x, posD.y, posD.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
-                {posE.x, posE.y, posE.z, n1.x, n1.y, n1.z, 0.0f, variantOffset},
-                {posF.x, posF.y, posF.z, n1.x, n1.y, n1.z, 0.0f, variantOffset}
+                {posD.x, posD.y, posD.z, n1.x, n1.y, n1.z, typeOffset, variantOffset},
+                {posE.x, posE.y, posE.z, n1.x, n1.y, n1.z, typeOffset, variantOffset},
+                {posF.x, posF.y, posF.z, n1.x, n1.y, n1.z, typeOffset, variantOffset}
             );
             mesh.AddTriangle(
-                {posF.x, posF.y, posF.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
-                {posE.x, posE.y, posE.z, n2.x, n2.y, n2.z, 0.0f, variantOffset},
-                {posD.x, posD.y, posD.z, n2.x, n2.y, n2.z, 0.0f, variantOffset}
+                {posF.x, posF.y, posF.z, n2.x, n2.y, n2.z, typeOffset, variantOffset},
+                {posE.x, posE.y, posE.z, n2.x, n2.y, n2.z, typeOffset, variantOffset},
+                {posD.x, posD.y, posD.z, n2.x, n2.y, n2.z, typeOffset, variantOffset}
             );
 
             // Top

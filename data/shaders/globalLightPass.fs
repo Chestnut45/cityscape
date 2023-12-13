@@ -64,7 +64,7 @@ void main()
 
     // Constant material properties
     float specularStrength = colorSpec.a;
-    float shininess = 8;
+    float shininess = 32;
 
     // Diffuse lighting
     vec3 diffuse = (max(alignment, 0) * globalLight.color.rgb * globalLight.color.a);
@@ -83,7 +83,7 @@ void main()
     // Calculate final shadow value
     // NOTE: Ensures we don't shadow any stuff facing away from the light
     float bias = max(MIN_SHADOW_BIAS, MAX_SHADOW_BIAS * (1.0 - alignment));
-    float shadow = alignment < 0.001 ? 0.0 : (current < 1.0 && current - bias > closest) ? max(min(globalLight.color.a, 0.8), 0.2) : 0.0;
+    float shadow = alignment < 0.001 ? 0.0 : (current < 1.0 && current - bias > closest) ? 0.5 : 0.0;
 
     // Final color composition
     outColor = vec4(((ambient + diffuse) * fragAlbedo + specular) * (1.0 - shadow), 1.0);

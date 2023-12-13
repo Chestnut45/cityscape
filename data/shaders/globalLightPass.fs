@@ -49,13 +49,13 @@ out vec4 outColor;
 void main()
 {
     // Grab data from geometry buffer
-    vec3 fragPos = texture(gPos, texCoords).xyz;
+    vec4 fragPos = texture(gPos, texCoords);
     vec3 fragNorm = texture(gNorm, texCoords).xyz;
     vec4 colorSpec = texture(gColorSpec, texCoords);
     vec3 fragAlbedo = colorSpec.rgb;
 
     // Calculate view direction
-    vec3 viewDir = normalize(cameraPos.xyz - fragPos);
+    vec3 viewDir = normalize(cameraPos.xyz - fragPos.xyz);
 
     // Directions towards global light
     vec3 lightDir = normalize(-globalLight.direction.xyz);
@@ -78,7 +78,7 @@ void main()
     vec3 specular = specularStrength * (specLight * lightColor * influence);
 
     // Transform fragment position to light space and project
-    vec4 posLightSpace = lightViewProj * vec4(fragPos, 1.0);
+    vec4 posLightSpace = lightViewProj * vec4(fragPos.xyz, 1.0);
     vec3 projCoords = posLightSpace.xyz / posLightSpace.w * 0.5 + 0.5;
     float closest = texture(shadowMap, projCoords.xy).r;
     float current = projCoords.z;

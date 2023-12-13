@@ -26,15 +26,17 @@ CMake: Build (Target Cityscape)
 
 ## Controls:
 
-Escape: Pause + Toggle GUI\
-End: End the program
+NOTE: More controls exist in the GUI for various graphics settings / fun extras.
 
-WASD: Movement\
-Left Shift: Speed Boost\
-R: Regenerate cityscape\
+- Escape: Pause + Toggle GUI
+- End: End the program
 
-Mouse Movement: Look around\
-Mouse Scroll: Zoom (FOV adjust)
+- WASD: Movement
+- Left Shift: Speed Boost
+- R: Regenerate cityscape
+
+- Mouse Movement: Look around
+- Mouse Scroll: Zoom (FOV adjust)
 
 ## Project Structure:
 
@@ -131,7 +133,7 @@ There are a few internal vertex formats included in phi/vertex.hpp that can be u
 
 ### Performance:
 
-The most expensive things to render in the cityscape are the point lights and the shadow map, below are some benchmark screenshots for how far I could push out the view distance before dropping below 60fps on a 3070ti with various settings.
+The most expensive things to render in the cityscape are the point lights and the shadow map. Below are some benchmark screenshots at max view distance with point lights on and shadows disabled / enabled.
 
 ![benchmark.png](https://github.com/Chestnut45/cityscape/blob/main/benchmark.png)
 

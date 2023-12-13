@@ -327,6 +327,18 @@ void Cityscape::Render()
     glViewport(0, 0, wWidth, wHeight);
     glCullFace(GL_BACK);
 
+    // Draw snow effect
+    if (snow)
+    {
+        // Snow particles
+        snowEffectShader.Use();
+        snowEffectShader.SetUniform("deltaTimeWind", glm::vec3(lastFrameTime, programLifetime, snowIntensity));
+        snowVAO.Bind();
+        snowBuffer->BindBase(GL_SHADER_STORAGE_BUFFER, 1);
+        glDrawArrays(GL_POINTS, 0, SNOWFLAKE_COUNT);
+        snowVAO.Unbind();
+    }
+
     // Draw ground tiles
     for (auto &&[entity, ground]: registry.view<GroundTile>().each())
     {
@@ -354,18 +366,6 @@ void Cityscape::Render()
     {
         // Draw full model using textures during the day
         streetLightModel->DrawInstances(streetLightShader, blockPositions);
-    }
-
-    // Draw snow effect
-    if (snow)
-    {
-        // Snow particles
-        snowEffectShader.Use();
-        snowEffectShader.SetUniform("deltaTimeWind", glm::vec3(lastFrameTime, programLifetime, snowIntensity));
-        snowVAO.Bind();
-        snowBuffer->BindBase(GL_SHADER_STORAGE_BUFFER, 1);
-        glDrawArrays(GL_POINTS, 0, SNOWFLAKE_COUNT);
-        snowVAO.Unbind();
     }
 
     // Draw the snow accumulation

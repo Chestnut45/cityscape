@@ -38,6 +38,8 @@ namespace Phi
 
             // Needs to be public so caller can tell the camera when the window size changes
             void UpdateViewport(int width, int height);
+            void UpdateView();
+            void UpdateProjection();
 
             // Updates the Uniform Buffer Object associated with this camera
             void UpdateUBO();
@@ -49,6 +51,9 @@ namespace Phi
             inline int GetWidth() const { return width; };
             inline int GetHeight() const { return height; };
             inline GPUBuffer& GetUBO() { return ubo; };
+
+            // Public so ImGUI may directly control camera properties
+            float fov = 60;
 
         private:
         
@@ -67,7 +72,6 @@ namespace Phi
             // View properties (Sensible defaults)
             int width = 0;
             int height = 0;
-            float fov = 60;
             float aspect = 1;
             float near = 0.1;
             float far = 1000;
@@ -78,10 +82,6 @@ namespace Phi
 
             // OpenGL resources
             GPUBuffer ubo;
-
-            // Helper methods for updating matrices
-            void UpdateView();
-            void UpdateProjection();
 
             // Constants
             static const int UBO_SIZE = sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 2;

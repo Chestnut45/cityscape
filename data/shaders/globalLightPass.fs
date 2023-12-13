@@ -64,7 +64,7 @@ void main()
 
     // Constant material properties
     float specularStrength = colorSpec.a;
-    float shininess = 32;
+    float shininess = 8;
 
     // Diffuse lighting
     vec3 diffuse = (max(alignment, 0) * globalLight.color.rgb * globalLight.color.a);

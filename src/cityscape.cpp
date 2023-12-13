@@ -223,6 +223,7 @@ void Cityscape::Update(float delta)
         if (ImGui::Checkbox("Vsync", &vsync)) glfwSwapInterval(vsync);
         ImGui::Checkbox("Shadows (experimental)", &shadows);
         ImGui::SliderInt("View Distance", &renderDistance, 1, 10, "%d", ImGuiSliderFlags_AlwaysClamp);
+        if (ImGui::SliderFloat("FOV", &mainCamera.fov, 1.0f, 120.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp)) mainCamera.UpdateProjection();
 
         ImGui::End();
 
@@ -234,7 +235,7 @@ void Cityscape::Update(float delta)
 
         ImGui::Checkbox("Automatic Lights", &automaticLights);
         ImGui::Checkbox("Lights Override", &lightsAlwaysOn);
-        ImGui::Checkbox("Party Mode", &partyMode);
+        if (ImGui::Checkbox("Party Mode", &partyMode)) lightsAlwaysOn = partyMode;
         if (ImGui::Checkbox("Festive Colors", &festiveMode))
         {
             // Regenerate all light colors if mode is toggled

@@ -1,5 +1,8 @@
 #version 440
 
+const float MIN_SHADOW_BIAS = 0.0000;
+const float MAX_SHADOW_BIAS = 0.0008;
+
 // Light structure
 struct DirectionalLight
 {
@@ -31,7 +34,6 @@ layout(std140, binding = 5) uniform LightSpaceBlock
     mat4 lightViewProj;
 };
 
-// Geometry buffer textures
 layout(binding = 0) uniform sampler2D gPos;
 layout(binding = 1) uniform sampler2D gNorm;
 layout(binding = 2) uniform sampler2D gColorSpec;
@@ -72,12 +74,15 @@ void main()
     float specSun = pow(max(dot(fragNorm, sunHalfDir), 0), shininess);
     vec3 specular = specularStrength * (specSun * globalLight.color.rgb * globalLight.color.a);
 
-    // Calculate shadow
+    // Transform fragment position to light space and project
     vec4 posLightSpace = lightViewProj * vec4(fragPos, 1.0);
     vec3 projCoords = posLightSpace.xyz / posLightSpace.w * 0.5 + 0.5;
     float closest = texture(shadowMap, projCoords.xy).r;
     float current = projCoords.z;
-    float bias = max(0.0001, 0.0005 * (1.0 - alignment));
+
+    // Calculate final shadow value
+    // NOTE: Ensures we don't shadow any stuff facing away from the light
+    float bias = max(MIN_SHADOW_BIAS, MAX_SHADOW_BIAS * (1.0 - alignment));
     float shadow = alignment < 0.001 ? 0.0 : (current < 1.0 && current - bias > closest) ? max(min(globalLight.color.a, 0.8), 0.2) : 0.0;
 
     // Final color composition

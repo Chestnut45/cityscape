@@ -7,7 +7,7 @@ Building::Building(const glm::vec3 &pos, int stories, int baseBlockCount, int va
     if (refCount == 0)
     {
         // Load the texture atlas
-        textureAtlas = new Phi::Texture2D("data/textures/buildingAtlas1.png", GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
+        textureAtlas = new Phi::Texture2D("data/textures/buildingAtlas.png", GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, true);
 
         // Initialize the render batch
         renderBatch = new Phi::RenderBatch<Phi::VertexPosNormUv>(65'536, 131'072);
@@ -255,7 +255,9 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
     }
 
     // Calculate texture coordinates
-    float bias = 0.0001f;
+    // NOTE: Clamp to 1.0 so that texture wrapping does not have to be performed
+    static const float sqrtHalf = 0.7f;
+    static const float bias = 0.0001f;
     float variantOffset = (float)(NUM_VARIANTS - variant) * tileSizeNormalized.y - bias;
     float typeOffset = glm::min((float)TexOffset::Awning * tileSizeNormalized.x + bias, 1.0f);
 
@@ -308,15 +310,15 @@ bool Building::AddFeature(TexOffset type, Orientation orientation, const glm::ve
             // Top
             mesh.AddQuad(
                 {posA.x, posA.y, posA.z, n3.x, n3.y, n3.z, typeOffset, variantOffset},
-                {posB.x, posB.y, posB.z, n3.x, n3.y, n3.z, typeOffset, variantOffset - tileSizeNormalized.y / 2},
+                {posB.x, posB.y, posB.z, n3.x, n3.y, n3.z, typeOffset, glm::min(variantOffset - tileSizeNormalized.y * sqrtHalf, 1.0f)},
                 {posD.x, posD.y, posD.z, n3.x, n3.y, n3.z, typeOffset + tileSizeNormalized.x, variantOffset},
-                {posE.x, posE.y, posE.z, n3.x, n3.y, n3.z, typeOffset + tileSizeNormalized.x, variantOffset - tileSizeNormalized.y / 2}
+                {posE.x, posE.y, posE.z, n3.x, n3.y, n3.z, typeOffset + tileSizeNormalized.x, glm::min(variantOffset - tileSizeNormalized.y * sqrtHalf, 1.0f)}
             );
             mesh.AddQuad(
                 {posA.x, posA.y, posA.z, n4.x, n4.y, n4.z, typeOffset, variantOffset},
                 {posD.x, posD.y, posD.z, n4.x, n4.y, n4.z, typeOffset + tileSizeNormalized.x, variantOffset},
-                {posB.x, posB.y, posB.z, n4.x, n4.y, n4.z, typeOffset, variantOffset - tileSizeNormalized.y / 2},
-                {posE.x, posE.y, posE.z, n4.x, n4.y, n4.z, typeOffset + tileSizeNormalized.x, variantOffset - tileSizeNormalized.y / 2}
+                {posB.x, posB.y, posB.z, n4.x, n4.y, n4.z, typeOffset, glm::min(variantOffset - tileSizeNormalized.y * sqrtHalf, 1.0f)},
+                {posE.x, posE.y, posE.z, n4.x, n4.y, n4.z, typeOffset + tileSizeNormalized.x, glm::min(variantOffset - tileSizeNormalized.y * sqrtHalf, 1.0f)}
             );
 
             return false;

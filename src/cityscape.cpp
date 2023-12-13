@@ -129,13 +129,12 @@ Cityscape::~Cityscape()
     delete gColorSpecTex;
     delete gDepthStencilTex;
 
+    // Delete models and other resources
+    delete streetLightModel;
+    delete snowbankModel;
     delete snowBuffer;
     delete shadowDepthTex;
     delete lightSpaceUBO;
-
-    // Delete models
-    delete streetLightModel;
-    delete snowbankModel;
 
     std::cout << "Cityscape shutdown successfully" << std::endl;
 }
@@ -176,7 +175,7 @@ void Cityscape::Update(float delta)
             snowAccumulation = snowAccumulation <= 0.0f ? 0.0f : snowAccumulation - lastFrameTime * baseAccumulationLevel * (!sky.IsNight() + 1);
     }
 
-    // Render ImGui window
+    // Render ImGui windows
     if (paused || keepGUIOpen)
     {
         ImGui::Begin("Cityscape");

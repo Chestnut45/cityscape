@@ -45,10 +45,6 @@ class Cityscape: public Phi::App
         const int BLOCK_SIZE = 16;
         const int HALF_BLOCK_SIZE = BLOCK_SIZE / 2;
 
-        // Main components
-        Phi::Camera mainCamera;
-        Sky sky;
-
         // Registry of all active entities
         entt::registry registry;
 
@@ -56,6 +52,10 @@ class Cityscape: public Phi::App
         std::unordered_map<glm::ivec2, std::vector<entt::entity>> cityBlocks;
         std::deque<glm::ivec2> generationQueue;
         std::deque<glm::ivec2> deletionQueue;
+
+        // Main components
+        Phi::Camera mainCamera;
+        Sky sky;
 
         // Models
         Phi::Model* streetLightModel = nullptr;
@@ -85,7 +85,7 @@ class Cityscape: public Phi::App
         bool fullscreen = false;
         bool vsync = false;
         bool shadows = false;
-        int renderDistance = 5.0f;
+        int renderDistance = 5;
 
         // Simulation settings
         float mouseSensitivity = 0.045f;

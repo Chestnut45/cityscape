@@ -14,6 +14,8 @@
 
 ### Linux/Windows
 
+NOTE: On Windows, you may have to copy glew32d.dll from build/bin to C:\Windows\System32.
+
 CMake: Configure\
 CMake: Build (Target Cityscape)
 

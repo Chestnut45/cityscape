@@ -4,7 +4,7 @@
 
 ![new_buildings.png](https://github.com/Chestnut45/cityscape/blob/main/screenshots/new_buildings.png)
 
-![video_demo](https://youtu.be/AMT7C7bgQcA)
+Video Demo: https://youtu.be/AMT7C7bgQcA
 
 ## Prerequisites
 

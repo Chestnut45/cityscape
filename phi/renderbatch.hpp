@@ -14,8 +14,11 @@ namespace Phi
     // 1. Have some meshes that share a vertex format
     // 2. Create RenderBatch instance with initial buffer size
     // 3. Every Frame:
-    // 4 a. AddMesh() all the meshes you want to draw
-    // 4 b. Flush()
+    //  a. AddMesh() all the meshes you want to draw
+    //  b. Flush()
+    //
+    // Limitations:
+    // 1. Does not support textures
     template <typename Vertex>
     class RenderBatch
     {
@@ -47,6 +50,7 @@ namespace Phi
             size_t indexCount = 0;
             int drawCount = 0;
             bool useIndices;
+            GLenum mode = GL_TRIANGLES;
 
             // OpenGL Resources
             GPUBuffer* vertexBuffer = nullptr;
@@ -155,7 +159,7 @@ namespace Phi
             std::transform(meshInds.cbegin(), meshInds.cend(), offsetIndices.begin(), [this](GLuint original) { return original + vertexCount; });
             indexBuffer->Write(offsetIndices.data(), meshInds.size() * sizeof(GLuint));
 
-            // Increase counter and clear vector
+            // Increase counter
             indexCount += meshInds.size();
         }
 
@@ -178,7 +182,7 @@ namespace Phi
             shader.Use();
 
             // Issue draw call
-            glDrawElementsBaseVertex(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT,
+            glDrawElementsBaseVertex(mode, indexCount, GL_UNSIGNED_INT,
                                     (void*)(indexBuffer->GetSize() * indexBuffer->GetCurrentSection()),
                                     maxVertices * vertexBuffer->GetCurrentSection());
         
@@ -205,8 +209,7 @@ namespace Phi
             shader.Use();
 
             // Issue draw call
-            // TODO: Test this
-            glDrawArrays(GL_TRIANGLES, maxVertices * vertexBuffer->GetCurrentSection(), vertexCount);
+            glDrawArrays(mode, maxVertices * vertexBuffer->GetCurrentSection(), vertexCount);
         
             // Insert a fence sync
             vertexBuffer->Lock();

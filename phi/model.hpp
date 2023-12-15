@@ -55,12 +55,12 @@ namespace Phi
     void Model::DrawInstances(const Shader& shader, const std::vector<InstanceData>& iData) const
     {
         // Upload instance data and bind the buffer
-        Mesh<Vertex>::instanceBuffer->Sync();
-        Mesh<Vertex>::instanceBuffer->Write(iData.data(), iData.size() * sizeof(InstanceData));
-        Mesh<Vertex>::instanceBuffer->BindRange(GL_SHADER_STORAGE_BUFFER,
+        MeshResources::instanceBuffer->Sync();
+        MeshResources::instanceBuffer->Write(iData.data(), iData.size() * sizeof(InstanceData));
+        MeshResources::instanceBuffer->BindRange(GL_SHADER_STORAGE_BUFFER,
                                                 (int)SSBOBinding::InstanceBuffer,
-                                                Mesh<Vertex>::INSTANCE_BUFFER_SIZE * Mesh<Vertex>::instanceBuffer->GetCurrentSection(),
-                                                Mesh<Vertex>::INSTANCE_BUFFER_SIZE);
+                                                MeshResources::INSTANCE_BUFFER_SIZE * MeshResources::instanceBuffer->GetCurrentSection(),
+                                                MeshResources::INSTANCE_BUFFER_SIZE);
         
         // Instance all meshes without reuploading data
         for (int i = 0; i < meshes.size(); ++i)
@@ -69,7 +69,7 @@ namespace Phi
         }
 
         // Lock the buffer section and switch to the next one
-        Mesh<Vertex>::instanceBuffer->Lock();
-        Mesh<Vertex>::instanceBuffer->SwapSections();
+        MeshResources::instanceBuffer->Lock();
+        MeshResources::instanceBuffer->SwapSections();
     }
 }

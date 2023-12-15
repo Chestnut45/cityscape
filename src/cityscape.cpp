@@ -136,6 +136,13 @@ Cityscape::~Cityscape()
     delete shadowDepthTex;
     delete lightSpaceUBO;
 
+    // Delete all loaded blocks
+    for (const auto&[id, entityList] : cityBlocks)
+    {
+        DeleteBlock(id);
+    }
+    cityBlocks.clear();
+
     std::cout << "Cityscape shutdown successfully" << std::endl;
 }
 

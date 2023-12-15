@@ -44,6 +44,61 @@ namespace Phi
         InstanceBuffer, // 1
     };
 
+    // Static mesh resources (shared by all meshes)
+    // Must be in a separate (non-template) class, otherwise, all templated
+    // class instantiations would have their own "static" resources
+    class MeshResources
+    {
+        // All mesh types and models are friends of MeshResources
+        template <typename Vertex>
+        friend class Mesh;
+        friend class Model;
+
+        // Mesh texture data format
+        struct Texture
+        {
+            Texture2D* texture = nullptr;
+            TexUnit unit = TexUnit::ALBEDO_1;
+            std::string path = {};
+            int refCount = 0;
+        };
+
+        // Reference counter for all meshes
+        static inline int refCount = 0;
+
+        // Texture storage for all meshes
+        static inline std::unordered_map<std::string, Texture> loadedTextures;
+
+        // Instance buffer for all meshes
+        static inline GPUBuffer* instanceBuffer = nullptr;
+        static const size_t INSTANCE_BUFFER_SIZE = sizeof(glm::mat4) * 10'000;
+
+        // Reference counter helpers
+        static void IncreaseReferences()
+        {
+            // Initialize static resources for all meshes
+            if (refCount == 0)
+            {
+                std::cout << "First mesh, instance buffer initialized" << std::endl;
+                instanceBuffer = new GPUBuffer(BufferType::DynamicDoubleBuffer, INSTANCE_BUFFER_SIZE);
+            }
+
+            refCount++;
+        }
+
+        static void DecreaseReferences()
+        {
+            refCount--;
+
+            // Delete static resources if we are the last mesh
+            if (refCount == 0)
+            {
+                std::cout << "Last mesh destroyed, instance buffer deleted" << std::endl;
+                delete instanceBuffer;
+            }
+        }
+    };
+
     // Represents a renderable mesh of arbitrary format
     template <typename Vertex>
     class Mesh
@@ -80,6 +135,7 @@ namespace Phi
 
                 // Steal all textures and set others to nullptr
                 // so the texture refCounts are unaffected
+                useTextures = other.useTextures;
                 for (int i = 0; i < (int)TexUnit::MAX_TEXTURES; ++i)
                 {
                     textures[i] = other.textures[i];
@@ -132,39 +188,18 @@ namespace Phi
 
             friend class Model;
 
-            // Mesh texture data format
-            struct Texture
-            {
-                Texture2D* texture = nullptr;
-                TexUnit unit = TexUnit::ALBEDO_1;
-                std::string path = {};
-                int refCount = 0;
-            };
-
             // Mesh data
             std::vector<Vertex> vertices;
             std::vector<GLuint> indices;
             bool useIndices;
+            bool useTextures = false;
+            GLenum mode = GL_TRIANGLES;
 
             // OpenGL Resources
-            Texture* textures[(int)TexUnit::MAX_TEXTURES] = {nullptr};
+            MeshResources::Texture* textures[(int)TexUnit::MAX_TEXTURES] = {nullptr};
             VertexAttributes* vertexAttributes = nullptr;
             GPUBuffer* vertexBuffer = nullptr;
             GPUBuffer* indexBuffer = nullptr;
-
-            // Static resources
-
-            // Texture storage for all meshes
-            static inline std::unordered_map<std::string, Texture> loadedTextures;
-
-            // Instance buffer used by all meshes
-            static inline GPUBuffer* instanceBuffer = nullptr;
-            static const size_t INSTANCE_BUFFER_SIZE = sizeof(glm::mat4) * 10'000;
-
-            // Reference counter for all meshes
-            static inline int refCount = 0;
-            static void IncreaseReferences();
-            static void DecreaseReferences();
     };
 
     // Template implementation
@@ -173,7 +208,7 @@ namespace Phi
     Mesh<Vertex>::Mesh(bool useIndices) : useIndices(useIndices)
     {
         // std::cout << "Mesh created @" << this <<  std::endl;
-        IncreaseReferences();
+        MeshResources::IncreaseReferences();
     }
 
     template <typename Vertex>
@@ -188,16 +223,14 @@ namespace Phi
             this->indices = *indices;
         }
 
-        // std::cout << "Mesh created @" << this << std::endl;
-        IncreaseReferences();
+        MeshResources::IncreaseReferences();
     }
 
     template <typename Vertex>
     Mesh<Vertex>::~Mesh()
     {
         Reset();
-        // std::cout << "Mesh destroyed @" << this << std::endl;
-        DecreaseReferences();
+        MeshResources::DecreaseReferences();
     }
 
     template <typename Vertex>
@@ -294,18 +327,21 @@ namespace Phi
         }
 
         // Load texture from disk if not loaded
-        if (loadedTextures.count(path) == 0)
+        if (MeshResources::loadedTextures.count(path) == 0)
         {
             // Load from disk if not loaded yet
             Texture2D* tex = new Texture2D(path, wrapU, wrapV, minFilter, magFilter, mipmap);
-            loadedTextures[path].texture = tex;
-            loadedTextures[path].path = path;
-            loadedTextures[path].unit = type;
+            MeshResources::loadedTextures[path].texture = tex;
+            MeshResources::loadedTextures[path].path = path;
+            MeshResources::loadedTextures[path].unit = type;
         }
 
         // Point to the static texture resource and increase reference counter
-        textures[(int)type] = &loadedTextures[path];
-        loadedTextures[path].refCount++;
+        textures[(int)type] = &MeshResources::loadedTextures[path];
+        MeshResources::loadedTextures[path].refCount++;
+
+        // Update state
+        if (!useTextures) useTextures = true;
 
         // Final output if successful
         std::cout << "Mesh texture loaded: " << path << std::endl;
@@ -379,22 +415,22 @@ namespace Phi
         vertexAttributes->Bind();
 
         // Bind all textures
-        for (Texture* tex : textures)
+        if (useTextures)
         {
-            if (tex)
+            for (MeshResources::Texture* tex : textures)
             {
-                tex->texture->Bind((int)tex->unit);
+                if (tex) tex->texture->Bind((int)tex->unit);
             }
         }
 
         // Issue draw call
         if (useIndices)
         {
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+            glDrawElements(mode, indices.size(), GL_UNSIGNED_INT, 0);
         }
         else
         {
-            glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+            glDrawArrays(mode, 0, vertices.size());
         }
 
         // Unbind VAO
@@ -412,32 +448,32 @@ namespace Phi
         vertexAttributes->Bind();
 
         // Bind all textures
-        for (Texture* tex : textures)
+        if (useTextures)
         {
-            if (tex)
+            for (MeshResources::Texture* tex : textures)
             {
-                tex->texture->Bind((int)tex->unit);
+                if (tex) tex->texture->Bind((int)tex->unit);
             }
         }
 
         // Upload instance data and bind the buffer
-        instanceBuffer->Sync();
-        instanceBuffer->Write(iData.data(), iData.size() * sizeof(InstanceData));
-        instanceBuffer->BindRange(GL_SHADER_STORAGE_BUFFER, (int)SSBOBinding::InstanceBuffer, INSTANCE_BUFFER_SIZE * instanceBuffer->GetCurrentSection(), INSTANCE_BUFFER_SIZE);
+        MeshResources::instanceBuffer->Sync();
+        MeshResources::instanceBuffer->Write(iData.data(), iData.size() * sizeof(InstanceData));
+        MeshResources::instanceBuffer->BindRange(GL_SHADER_STORAGE_BUFFER, (int)SSBOBinding::InstanceBuffer, MeshResources::INSTANCE_BUFFER_SIZE * MeshResources::instanceBuffer->GetCurrentSection(), MeshResources::INSTANCE_BUFFER_SIZE);
 
         // Issue draw call
         if (useIndices)
         {
-            glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, iData.size());
+            glDrawElementsInstanced(mode, indices.size(), GL_UNSIGNED_INT, 0, iData.size());
         }
         else
         {
-            glDrawArraysInstanced(GL_TRIANGLES, 0, vertices.size(), iData.size());
+            glDrawArraysInstanced(mode, 0, vertices.size(), iData.size());
         }
 
         // Lock the buffer section and switch to the next one
-        instanceBuffer->Lock();
-        instanceBuffer->SwapSections();
+        MeshResources::instanceBuffer->Lock();
+        MeshResources::instanceBuffer->SwapSections();
 
         // Unbind VAO
         glBindVertexArray(0);
@@ -452,22 +488,22 @@ namespace Phi
         vertexAttributes->Bind();
 
         // Bind all textures
-        for (Texture* tex : textures)
+        if (useTextures)
         {
-            if (tex)
+            for (MeshResources::Texture* tex : textures)
             {
-                tex->texture->Bind((int)tex->unit);
+                if (tex) tex->texture->Bind((int)tex->unit);
             }
         }
 
         // Issue draw call
         if (useIndices)
         {
-            glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, instanceCount);
+            glDrawElementsInstanced(mode, indices.size(), GL_UNSIGNED_INT, 0, instanceCount);
         }
         else
         {
-            glDrawArraysInstanced(GL_TRIANGLES, 0, vertices.size(), instanceCount);
+            glDrawArraysInstanced(mode, 0, vertices.size(), instanceCount);
         }
 
         // Unbind VAO
@@ -481,7 +517,7 @@ namespace Phi
         indices.clear();
 
         // Manage static texture resources from our pointer
-        for (Texture* tex : textures)
+        for (MeshResources::Texture* tex : textures)
         {
             if (tex)
             {
@@ -492,44 +528,17 @@ namespace Phi
                 {
                     // This automatically calls the Texture2D object's destructor
                     delete tex->texture;
-                    loadedTextures.erase(tex->path);
+                    MeshResources::loadedTextures.erase(tex->path);
                     tex = nullptr;
                     
                     std::cout << "Texture unloaded: unused by any meshes" << std::endl;
                 }
             }
         }
+        useTextures = false;
 
         if (vertexAttributes) { delete vertexAttributes; vertexAttributes = nullptr; }
         if (vertexBuffer) { delete vertexBuffer; vertexBuffer = nullptr; }
         if (indexBuffer) { delete indexBuffer; indexBuffer = nullptr; }
-    }
-
-    // Reference counting helpers
-
-    template <typename Vertex>
-    void Mesh<Vertex>::IncreaseReferences()
-    {
-        // Initialize static resources for all meshes
-        if (refCount == 0)
-        {
-            std::cout << "First mesh, instance buffer initialized" << std::endl;
-            instanceBuffer = new GPUBuffer(BufferType::DynamicDoubleBuffer, INSTANCE_BUFFER_SIZE);
-        }
-
-        refCount++;
-    }
-
-    template <typename Vertex>
-    void Mesh<Vertex>::DecreaseReferences()
-    {
-        refCount--;
-
-        // Delete static resources if we are the last mesh
-        if (refCount == 0)
-        {
-            std::cout << "Last mesh destroyed, instance buffer deleted" << std::endl;
-            delete instanceBuffer;
-        }
     }
 }

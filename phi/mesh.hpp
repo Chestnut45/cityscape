@@ -45,7 +45,7 @@ namespace Phi
     };
 
     // Static mesh resources (shared by all meshes)
-    // Must be in a separate (non-template) class, otherwise, all templated
+    // Must be in a separate non-template class, otherwise, all templated
     // class instantiations would have their own "static" resources
     class MeshResources
     {
